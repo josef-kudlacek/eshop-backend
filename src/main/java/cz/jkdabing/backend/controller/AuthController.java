@@ -1,7 +1,8 @@
 package cz.jkdabing.backend.controller;
 
-import cz.jkdabing.backend.dto.UserDTO;
-import cz.jkdabing.backend.service.UserService;
+import cz.jkdabing.backend.dto.CustomerDTO;
+import cz.jkdabing.backend.service.CustomerService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,17 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final UserService userService;
+    private final CustomerService customerService;
 
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    public AuthController(CustomerService customerService) {
+        this.customerService = customerService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
-        // TODO: Return exception message to requester
-        userService.registerUser(userDTO);
+    public ResponseEntity<?> register(@Valid @RequestBody CustomerDTO customerDTO) {
+        customerService.registerCustomer(customerDTO);
 
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok("Customer registered successfully");
     }
 }

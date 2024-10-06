@@ -1,6 +1,5 @@
 package cz.jkdabing.backend.entity;
 
-import cz.jkdabing.backend.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,58 +9,54 @@ import org.hibernate.annotations.TimeZoneStorage;
 import org.hibernate.annotations.TimeZoneStorageType;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
-public class UserEntity {
+@Table(name = "customers")
+public class CustomerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long customerId;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserRole userRole;
-
-    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(length = 68)
     private String firstName;
 
-    @Column(length = 68)
     private String lastName;
+
+    private String companyName;
 
     private String phoneNumber;
 
-    @Column(unique = true)
-    private String userName;
+    @Column(nullable = false)
+    private String street;
 
-    @Column(length = 68)
-    private String password;
+    @Column(nullable = false)
+    private String city;
 
-    private boolean isActive;
+    @Column(nullable = false)
+    private String postalCode;
+
+    @Column(nullable = false)
+    private String country;
 
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     private ZonedDateTime createdAt;
 
     @OneToOne
     @JoinColumn(name = "created_by")
-    private UserEntity createdBy;
+    private CustomerEntity createdBy;
 
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     private ZonedDateTime updatedAt;
 
     @OneToOne
     @JoinColumn(name = "updated_by")
-    private UserEntity updatedBy;
+    private CustomerEntity updatedBy;
 
-    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<AddressEntity> addressEntities = new ArrayList<>();
 }
