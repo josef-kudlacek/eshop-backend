@@ -21,10 +21,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void registerCustomer(CustomerDTO customerDTO) {
+    public Long registerCustomer(CustomerDTO customerDTO) {
         CustomerEntity customerEntity = customerMapper.toEntity(customerDTO);
         customerEntity.setCreatedAt(ZonedDateTime.now());
         customerEntity.setUpdatedAt(ZonedDateTime.now());
         customerRepository.saveAndFlush(customerEntity);
+
+        return customerEntity.getCustomerId();
     }
 }
