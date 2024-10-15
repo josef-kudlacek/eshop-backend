@@ -14,7 +14,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     private final long DAY_VALIDITY_IN_MILLISECONDS = 86400000;
 
     @Value("${spring.security.jwt.key}")
-    private String key;
+    private String secretKey;
 
     @Override
     public String createToken(String customerId) {
@@ -25,14 +25,14 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
                 .subject(customerId)
                 .issuedAt(now)
                 .expiration(validity)
-                .signWith(ConversionClassUtil.convertStringToSecretKey(key))
+                .signWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
                 .compact();
     }
 
     @Override
     public String getCustomerIdFromToken(String token) {
         Claims claims = Jwts.parser()
-                .verifyWith(ConversionClassUtil.convertStringToSecretKey(key))
+                .verifyWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -44,7 +44,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(ConversionClassUtil.convertStringToSecretKey(key))
+                    .verifyWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
                     .build()
                     .parseSignedClaims(token);
             return true;

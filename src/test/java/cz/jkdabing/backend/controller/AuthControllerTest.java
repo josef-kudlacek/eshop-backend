@@ -1,22 +1,28 @@
 package cz.jkdabing.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.jkdabing.backend.BackendApplication;
+import cz.jkdabing.backend.TestFactory;
+import cz.jkdabing.backend.constant.CustomerTestConstants;
 import cz.jkdabing.backend.dto.CustomerDTO;
+import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.CustomerService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(classes = BackendApplication.class)
 @AutoConfigureMockMvc
 public class AuthControllerTest {
 
@@ -24,8 +30,11 @@ public class AuthControllerTest {
 
     private final ObjectMapper objectMapper;
 
-    @Mock
+    @MockBean
     private CustomerService customerService;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
     public AuthControllerTest(MockMvc mockMvc, ObjectMapper objectMapper) {
@@ -33,17 +42,8 @@ public class AuthControllerTest {
         this.objectMapper = objectMapper;
     }
 
-    @BeforeEach
-    public void setUp() {
-        Mockito.reset(customerService);
-    }
-
     @Test
     public void testRegisterCustomer_Errors() throws Exception {
-        Mockito.doNothing()
-                .when(customerService)
-                .registerCustomer(Mockito.any(CustomerDTO.class));
-
         CustomerDTO customerDTO = CustomerDTO.builder()
                 .build();
 
@@ -68,19 +68,16 @@ public class AuthControllerTest {
 
     @Test
     public void testRegisterCustomer_Success() throws Exception {
-        Mockito.doNothing()
-                .when(customerService)
-                .registerCustomer(Mockito.any(CustomerDTO.class));
+        Long customerId = CustomerTestConstants.ID;
+        String token = CustomerTestConstants.TOKEN;
 
-        CustomerDTO customerDTO = CustomerDTO.builder()
-                .firstName("Jmeno")
-                .lastName("Prijmeni")
-                .email("jmeno.prijmeni@email.com")
-                .street("Ulice 1")
-                .city("Mesto")
-                .postalCode("100 00")
-                .country("Česká republika")
-                .build();
+        when(customerService.registerCustomer(Mockito.any(CustomerDTO.class)))
+                .thenReturn(customerId);
+
+        when(jwtTokenProvider.createToken(customerId.toString()))
+                .thenReturn(token);
+
+        CustomerDTO customerDTO = TestFactory.prepareCustomerDTO();
 
         String customerJson = objectMapper.writeValueAsString(customerDTO);
 
@@ -88,6 +85,12 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(customerJson))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Customer registered successfully"));
+                .andExpect(jsonPath("$.token").value(token));
+
+        Mockito.verify(customerService, times(1))
+                .registerCustomer(customerDTO);
+
+        Mockito.verify(jwtTokenProvider, times(1))
+                .createToken(customerId.toString());
     }
 }
