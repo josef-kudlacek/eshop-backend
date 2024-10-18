@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -37,7 +39,7 @@ class CustomerServiceImplTest {
         when(customerMapper.toEntity(customerDTO))
                 .thenReturn(customerEntity);
 
-        Long customerId = customerService.registerCustomer(customerDTO);
+        UUID customerId = customerService.registerCustomer(customerDTO);
 
         assertEquals(CustomerTestConstants.ID, customerId);
 

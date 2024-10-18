@@ -7,6 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class JwtTokenProviderImplTest {
@@ -22,7 +24,7 @@ class JwtTokenProviderImplTest {
 
     @Test
     void testGenerateToken() {
-        Long customerId = CustomerTestConstants.ID;
+        UUID customerId = CustomerTestConstants.ID;
         String token = jwtTokenProvider.createToken(customerId.toString());
 
         assertNotNull(token);

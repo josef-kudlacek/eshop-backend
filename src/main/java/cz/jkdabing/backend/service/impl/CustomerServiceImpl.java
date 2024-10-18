@@ -8,6 +8,7 @@ import cz.jkdabing.backend.service.CustomerService;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -21,7 +22,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Long registerCustomer(CustomerDTO customerDTO) {
+    public UUID registerCustomer(CustomerDTO customerDTO) {
         CustomerEntity customerEntity = customerMapper.toEntity(customerDTO);
         customerEntity.setCreatedAt(ZonedDateTime.now());
         customerEntity.setUpdatedAt(ZonedDateTime.now());

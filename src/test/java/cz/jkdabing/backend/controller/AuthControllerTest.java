@@ -16,6 +16,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -68,7 +70,7 @@ public class AuthControllerTest {
 
     @Test
     public void testRegisterCustomer_Success() throws Exception {
-        Long customerId = CustomerTestConstants.ID;
+        UUID customerId = CustomerTestConstants.ID;
         String token = CustomerTestConstants.TOKEN;
 
         when(customerService.registerCustomer(Mockito.any(CustomerDTO.class)))

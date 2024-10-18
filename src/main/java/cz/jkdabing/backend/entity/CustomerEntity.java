@@ -9,6 +9,9 @@ import org.hibernate.annotations.TimeZoneStorage;
 import org.hibernate.annotations.TimeZoneStorageType;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -19,8 +22,12 @@ import java.time.ZonedDateTime;
 public class CustomerEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long customerId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID customerId;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity userId;
 
     @Column(nullable = false)
     private String email;
@@ -50,13 +57,18 @@ public class CustomerEntity {
 
     @OneToOne
     @JoinColumn(name = "created_by")
-    private CustomerEntity createdBy;
+    private UserEntity createdBy;
 
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     private ZonedDateTime updatedAt;
 
     @OneToOne
     @JoinColumn(name = "updated_by")
-    private CustomerEntity updatedBy;
+    private UserEntity updatedBy;
 
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AddressEntity> addresses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderEntity> orders = new ArrayList<>();
 }

@@ -2,7 +2,9 @@ package cz.jkdabing.backend.service;
 
 import cz.jkdabing.backend.dto.CustomerDTO;
 
+import java.util.UUID;
+
 public interface CustomerService {
 
-    Long registerCustomer(CustomerDTO customerDTO);
+    UUID registerCustomer(CustomerDTO customerDTO);
 }
