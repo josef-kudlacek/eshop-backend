@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = BackendApplication.class)
 @AutoConfigureMockMvc
-public class AuthControllerTest {
+public class CustomerControllerTest {
 
     private final MockMvc mockMvc;
 
@@ -39,7 +39,7 @@ public class AuthControllerTest {
     private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public AuthControllerTest(MockMvc mockMvc, ObjectMapper objectMapper) {
+    public CustomerControllerTest(MockMvc mockMvc, ObjectMapper objectMapper) {
         this.mockMvc = mockMvc;
         this.objectMapper = objectMapper;
     }
@@ -73,7 +73,7 @@ public class AuthControllerTest {
         UUID customerId = CustomerTestConstants.ID;
         String token = CustomerTestConstants.TOKEN;
 
-        when(customerService.registerCustomer(Mockito.any(CustomerDTO.class)))
+        when(customerService.createCustomer(Mockito.any(CustomerDTO.class)))
                 .thenReturn(customerId);
 
         when(jwtTokenProvider.createToken(customerId.toString()))
@@ -90,7 +90,7 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.token").value(token));
 
         Mockito.verify(customerService, times(1))
-                .registerCustomer(customerDTO);
+                .createCustomer(customerDTO);
 
         Mockito.verify(jwtTokenProvider, times(1))
                 .createToken(customerId.toString());

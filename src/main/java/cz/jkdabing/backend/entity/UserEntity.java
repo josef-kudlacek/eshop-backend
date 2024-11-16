@@ -33,6 +33,7 @@ public class UserEntity {
     private boolean isActive = false;
 
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
+    @Column(nullable = false)
     private ZonedDateTime createdAt;
 
     @OneToOne
@@ -46,4 +47,13 @@ public class UserEntity {
     @JoinColumn(name = "updated_by")
     private UserEntity updatedBy;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = ZonedDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = ZonedDateTime.now();
+    }
 }

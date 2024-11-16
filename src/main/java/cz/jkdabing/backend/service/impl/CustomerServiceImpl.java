@@ -22,7 +22,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public UUID registerCustomer(CustomerDTO customerDTO) {
+    public UUID createCustomer(CustomerDTO customerDTO) {
         CustomerEntity customerEntity = customerMapper.toEntity(customerDTO);
         customerEntity.setCreatedAt(ZonedDateTime.now());
         customerEntity.setUpdatedAt(ZonedDateTime.now());

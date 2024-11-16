@@ -6,5 +6,5 @@ import java.util.UUID;
 
 public interface CustomerService {
 
-    UUID registerCustomer(CustomerDTO customerDTO);
+    UUID createCustomer(CustomerDTO customerDTO);
 }

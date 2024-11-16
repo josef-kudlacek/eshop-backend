@@ -14,21 +14,21 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/auth")
-public class AuthController {
+@RequestMapping("/api/customers")
+public class CustomerController {
 
     private final JwtTokenProvider jwtTokenProvider;
 
     private final CustomerService customerService;
 
-    public AuthController(JwtTokenProvider jwtTokenProvider, CustomerService customerService) {
+    public CustomerController(JwtTokenProvider jwtTokenProvider, CustomerService customerService) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.customerService = customerService;
     }
 
-    @PostMapping("/register")
+    @PostMapping
     public ResponseEntity<?> register(@Valid @RequestBody CustomerDTO customerDTO) {
-        UUID customerId = customerService.registerCustomer(customerDTO);
+        UUID customerId = customerService.createCustomer(customerDTO);
         String token = jwtTokenProvider.createToken(customerId.toString());
 
         return ResponseEntity.ok(new JwtDTO(token));

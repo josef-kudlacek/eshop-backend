@@ -32,14 +32,14 @@ class CustomerServiceImplTest {
     private CustomerRepository customerRepository;
 
     @Test
-    void testRegisterCustomer() {
+    void testCreateCustomer() {
         CustomerDTO customerDTO = TestFactory.prepareCustomerDTO();
         CustomerEntity customerEntity = TestFactory.prepareCustomerEntity();
 
         when(customerMapper.toEntity(customerDTO))
                 .thenReturn(customerEntity);
 
-        UUID customerId = customerService.registerCustomer(customerDTO);
+        UUID customerId = customerService.createCustomer(customerDTO);
 
         assertEquals(CustomerTestConstants.ID, customerId);
 
