@@ -27,16 +27,16 @@ public class CustomerEntity {
 
     @OneToOne
     @JoinColumn(name = "user_id")
-    private UserEntity userId;
+    private UserEntity user;
 
     @Column(nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String firstName;
 
+    @Column(nullable = false)
     private String lastName;
-
-    private String companyName;
 
     private String phoneNumber;
 
@@ -53,6 +53,7 @@ public class CustomerEntity {
     private String country;
 
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
+    @Column(nullable = false)
     private ZonedDateTime createdAt;
 
     @OneToOne
@@ -71,4 +72,14 @@ public class CustomerEntity {
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderEntity> orders = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = ZonedDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = ZonedDateTime.now();
+    }
 }

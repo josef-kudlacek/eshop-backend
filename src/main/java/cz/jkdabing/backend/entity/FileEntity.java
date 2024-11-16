@@ -8,6 +8,8 @@ import org.hibernate.annotations.TimeZoneStorageType;
 
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -16,8 +18,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "audio_files")
-public class AudioFileEntity {
+@Table(name = "files")
+public class FileEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -51,4 +53,7 @@ public class AudioFileEntity {
 
     @Column(nullable = false)
     private int sequence;
+
+    @OneToMany(mappedBy = "file")
+    private List<UserAccessEntity> accessEntityList = new ArrayList<>();
 }

@@ -2,15 +2,14 @@ package cz.jkdabing.backend.entity;
 
 import cz.jkdabing.backend.enums.ProductType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.TimeZoneStorage;
 import org.hibernate.annotations.TimeZoneStorageType;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -40,8 +39,10 @@ public class ProductEntity {
 
     @OneToOne
     @JoinColumn(name = "image_id")
-    private ImageEntity imageEntity;
+    @NotNull
+    private ImageEntity image;
 
+    @Column(nullable = false)
     private String productDescription;
 
     @OneToMany(mappedBy = "product")
@@ -50,9 +51,22 @@ public class ProductEntity {
     @Column(precision = 6, scale = 2, nullable = false)
     private BigDecimal price;
 
+    @Column(precision = 5, scale = 2, nullable = false)
+    private BigDecimal vat;
+
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     private ZonedDateTime publishedDate;
 
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     private ZonedDateTime withdrawalDate;
+
+    @OneToOne
+    @JoinColumn(name = "example_audio")
+    private AudioFileEntity example;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AudioFileEntity> audioFiles = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "applicableProducts")
+    private List<CouponEntity> coupons = new ArrayList<>();
 }

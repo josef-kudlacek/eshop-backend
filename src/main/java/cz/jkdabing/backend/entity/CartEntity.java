@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.entity;
 
-import cz.jkdabing.backend.enums.OrderStatusType;
+import cz.jkdabing.backend.enums.CarStatusType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.TimeZoneStorage;
@@ -17,12 +17,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "orders")
-public class OrderEntity {
+@Table(name = "carts")
+public class CartEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID orderId;
+    private UUID cartId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
@@ -30,7 +30,7 @@ public class OrderEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private OrderStatusType statusType;
+    private CarStatusType statusType;
 
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     @Column(nullable = false)
@@ -39,16 +39,7 @@ public class OrderEntity {
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     private ZonedDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id")
-    private AddressEntity billingAddress;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CartItemEntity> cartItems = new ArrayList<>();
 
-    @Column(nullable = false)
-    private String email;
-
-    @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
-    private ZonedDateTime shipmentDate;
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderItemEntity> orderItems = new ArrayList<>();
 }
