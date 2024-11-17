@@ -27,7 +27,7 @@ class JwtTokenFilterTest {
     private JwtTokenProvider jwtTokenProvider;
 
     @Test
-    public void testValidToken() throws Exception {
+    void testValidToken() throws Exception {
         when(jwtTokenProvider.isTokenValid(anyString()))
                 .thenReturn(true);
         when(jwtTokenProvider.getCustomerIdFromToken((anyString())))
@@ -39,7 +39,7 @@ class JwtTokenFilterTest {
     }
 
     @Test
-    public void testInvalidToken() throws Exception {
+    void testInvalidToken() throws Exception {
         when(jwtTokenProvider.isTokenValid(anyString()))
                 .thenReturn(false);
 
