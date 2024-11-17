@@ -1,7 +1,10 @@
 package cz.jkdabing.backend.security;
 
+import cz.jkdabing.backend.constants.HttpHeaderConstants;
+import cz.jkdabing.backend.constants.JWTConstants;
 import cz.jkdabing.backend.security.jwt.JwtAuthenticationToken;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +33,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@Nonnull HttpServletRequest request,
+                                    @Nonnull HttpServletResponse response,
+                                    @Nonnull FilterChain filterChain)
             throws ServletException, IOException {
         String token = resolveToken(request);
 
@@ -42,32 +47,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             } else {
                 Map<String, Object> userDetails = jwtTokenProvider.getUserDetailsFromToken(token);
                 if (userDetails.isEmpty()) {
-                    String customerId = jwtTokenProvider.getCustomerIdFromToken(token);
-                    UserDetails customerDetails = userDetailsService.loadUserByUsername(customerId);
-
-                    if (customerDetails != null) {
-                        JwtAuthenticationToken authentication = new JwtAuthenticationToken(customerDetails.getAuthorities(), userDetails, token);
-                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
+                    handleCustomerToken(request, token, userDetails);
                 } else {
-                    String username = (String) userDetails.get("username");
-                    Object rolesObj = userDetails.get("roles");
-                    if (rolesObj instanceof List<?> rolesList) {
-                        List<String> roles = rolesList.stream()
-                                .map(Object::toString)
-                                .toList();
-
-                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                                username,
-                                null,
-                                roles.stream()
-                                        .map(SimpleGrantedAuthority::new)
-                                        .toList()
-                        );
-                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(auth);
-                    }
+                    handleUserToken(request, userDetails);
                 }
             }
         }
@@ -76,10 +58,41 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        String bearerToken = request.getHeader(HttpHeaderConstants.AUTHORIZATION);
+        if (bearerToken != null && bearerToken.startsWith(JWTConstants.BEARER)) {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    private void handleCustomerToken(HttpServletRequest request, String token, Map<String, Object> userDetails) {
+        String customerId = jwtTokenProvider.getCustomerIdFromToken(token);
+        UserDetails customerDetails = userDetailsService.loadUserByUsername(customerId);
+
+        if (customerDetails != null) {
+            JwtAuthenticationToken authentication = new JwtAuthenticationToken(customerDetails.getAuthorities(), userDetails, token);
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+    }
+
+    private void handleUserToken(HttpServletRequest request, Map<String, Object> userDetails) {
+        String username = (String) userDetails.get(JWTConstants.USERNAME);
+        Object rolesObj = userDetails.get(JWTConstants.ROLES);
+        if (rolesObj instanceof List<?> rolesList) {
+            List<String> roles = rolesList.stream()
+                    .map(Object::toString)
+                    .toList();
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    username,
+                    null,
+                    roles.stream()
+                            .map(SimpleGrantedAuthority::new)
+                            .toList()
+            );
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
     }
 }
