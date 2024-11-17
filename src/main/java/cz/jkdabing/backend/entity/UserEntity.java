@@ -31,7 +31,6 @@ public class UserEntity implements UserDetails {
     @Column(unique = true, nullable = false)
     private String username;
 
-
     @Column(name = "role")
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role",

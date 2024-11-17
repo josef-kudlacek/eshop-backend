@@ -8,6 +8,7 @@ import cz.jkdabing.backend.mapper.UserMapper;
 import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.CustomerService;
+import cz.jkdabing.backend.service.EmailService;
 import cz.jkdabing.backend.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,13 +33,17 @@ public class UserServiceImpl implements UserService {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    private final EmailService emailService;
+
     public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, CustomerService customerService,
-                           PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+                           PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider,
+                           EmailService emailService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.customerService = customerService;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.emailService = emailService;
     }
 
     @Override
@@ -92,5 +97,10 @@ public class UserServiceImpl implements UserService {
     private UserEntity findUserByActivationToken(String token) {
         return userRepository.findByActivationToken(token)
                 .orElseThrow(() -> new NoSuchElementException("Invalid activation token: " + token));
+    }
+
+    private void sendActivationEmail(String email, String activationToken) {
+        String activationLink = "http://localhost:8080/api/users/activate?token=" + activationToken;
+        emailService.sendActivationEmail(email, activationLink);
     }
 }
