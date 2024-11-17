@@ -25,7 +25,7 @@ class JwtTokenProviderImplTest {
     @Test
     void testGenerateToken() {
         UUID customerId = CustomerTestConstants.ID;
-        String token = jwtTokenProvider.createToken(customerId.toString());
+        String token = jwtTokenProvider.createCustomerToken(customerId.toString());
 
         assertNotNull(token);
         assertTrue(jwtTokenProvider.validateToken(token));

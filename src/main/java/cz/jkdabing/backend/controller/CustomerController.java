@@ -29,7 +29,7 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity<?> register(@Valid @RequestBody CustomerDTO customerDTO) {
         UUID customerId = customerService.createCustomer(customerDTO);
-        String token = jwtTokenProvider.createToken(customerId.toString());
+        String token = jwtTokenProvider.createCustomerToken(customerId.toString());
 
         return ResponseEntity.ok(new JwtDTO(token));
     }

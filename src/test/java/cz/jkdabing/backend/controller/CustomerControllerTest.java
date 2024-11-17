@@ -51,7 +51,7 @@ public class CustomerControllerTest {
 
         String customerJson = objectMapper.writeValueAsString(customerDTO);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(customerJson))
                 .andExpect(status().isBadRequest())
@@ -64,7 +64,7 @@ public class CustomerControllerTest {
                 .andExpect(jsonPath("$.errors.street").value("Street may not be empty"))
                 .andExpect(jsonPath("$.errors.postalCode").value("Postal code may not be empty"))
                 .andExpect(jsonPath("$.errors.email").value("Email may not be empty"))
-                .andExpect(jsonPath("$.description").value("uri=/auth/register"))
+                .andExpect(jsonPath("$.description").value("uri=/api/customers"))
                 .andExpect(jsonPath("$.timestamp").exists());
     }
 
@@ -76,14 +76,14 @@ public class CustomerControllerTest {
         when(customerService.createCustomer(Mockito.any(CustomerDTO.class)))
                 .thenReturn(customerId);
 
-        when(jwtTokenProvider.createToken(customerId.toString()))
+        when(jwtTokenProvider.createCustomerToken(customerId.toString()))
                 .thenReturn(token);
 
         CustomerDTO customerDTO = TestFactory.prepareCustomerDTO();
 
         String customerJson = objectMapper.writeValueAsString(customerDTO);
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(customerJson))
                 .andExpect(status().isOk())
@@ -93,6 +93,6 @@ public class CustomerControllerTest {
                 .createCustomer(customerDTO);
 
         Mockito.verify(jwtTokenProvider, times(1))
-                .createToken(customerId.toString());
+                .createCustomerToken(customerId.toString());
     }
 }
