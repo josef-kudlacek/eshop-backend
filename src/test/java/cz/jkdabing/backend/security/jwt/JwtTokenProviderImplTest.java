@@ -20,6 +20,7 @@ class JwtTokenProviderImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         ReflectionTestUtils.setField(jwtTokenProvider, "secretKey", CustomerTestConstants.ENCODED_SECRET_KEY);
+        ReflectionTestUtils.setField(jwtTokenProvider, "jwtCustomerExpiration", 6000);
     }
 
     @Test

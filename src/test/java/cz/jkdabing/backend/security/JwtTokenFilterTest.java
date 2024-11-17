@@ -33,7 +33,7 @@ class JwtTokenFilterTest {
         when(jwtTokenProvider.getCustomerIdFromToken((anyString())))
                 .thenReturn(CustomerTestConstants.TOKEN);
 
-        mockMvc.perform(get("/")
+        mockMvc.perform(get("/api/")
                         .header("Authorization", "Bearer validToken"))
                 .andExpect(status().isOk());
     }
@@ -43,9 +43,9 @@ class JwtTokenFilterTest {
         when(jwtTokenProvider.isTokenValid(anyString()))
                 .thenReturn(false);
 
-        mockMvc.perform(get("/")
+        mockMvc.perform(get("/api/")
                         .header("Authorization", "Bearer invalidToken"))
                 .andDo(print())
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 }
