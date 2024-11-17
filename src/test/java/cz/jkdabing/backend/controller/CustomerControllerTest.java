@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = BackendApplication.class)
 @AutoConfigureMockMvc
-public class CustomerControllerTest {
+class CustomerControllerTest {
 
     private final MockMvc mockMvc;
 
@@ -45,7 +45,7 @@ public class CustomerControllerTest {
     }
 
     @Test
-    public void testRegisterCustomer_Errors() throws Exception {
+    void testRegisterCustomer_Errors() throws Exception {
         CustomerDTO customerDTO = CustomerDTO.builder()
                 .build();
 
@@ -69,7 +69,7 @@ public class CustomerControllerTest {
     }
 
     @Test
-    public void testRegisterCustomer_Success() throws Exception {
+    void testRegisterCustomer_Success() throws Exception {
         UUID customerId = CustomerTestConstants.ID;
         String token = CustomerTestConstants.TOKEN;
 
