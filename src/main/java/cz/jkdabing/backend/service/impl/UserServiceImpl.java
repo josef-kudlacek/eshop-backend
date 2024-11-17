@@ -3,19 +3,21 @@ package cz.jkdabing.backend.service.impl;
 import cz.jkdabing.backend.dto.LoginDTO;
 import cz.jkdabing.backend.dto.UserDTO;
 import cz.jkdabing.backend.entity.UserEntity;
+import cz.jkdabing.backend.exception.UserAlreadyExistsException;
 import cz.jkdabing.backend.mapper.UserMapper;
 import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.CustomerService;
 import cz.jkdabing.backend.service.UserService;
 import jakarta.transaction.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -70,7 +72,18 @@ public class UserServiceImpl implements UserService {
         }
 
         if (passwordEncoder.matches(loginDTO.getPassword(), userEntity.getPassword())) {
-            return jwtTokenProvider.createUserToken(userEntity);
+            Object rolesObj = userEntity.getRoles();
+
+            if (rolesObj instanceof List<?> rolesList) {
+                List<String> roles = rolesList.stream()
+                        .filter(String.class::isInstance)
+                        .map(String.class::cast)
+                        .toList();
+
+                return jwtTokenProvider.createUserToken(userEntity.getUsername(), roles);
+            }
+
+            throw new IllegalArgumentException("Roles are not in the expected format");
         } else {
             throw new BadCredentialsException("Invalid credentials");
         }

@@ -28,7 +28,7 @@ class JwtTokenFilterTest {
 
     @Test
     public void testValidToken() throws Exception {
-        when(jwtTokenProvider.validateToken(anyString()))
+        when(jwtTokenProvider.isTokenValid(anyString()))
                 .thenReturn(true);
         when(jwtTokenProvider.getCustomerIdFromToken((anyString())))
                 .thenReturn(CustomerTestConstants.TOKEN);
@@ -40,7 +40,7 @@ class JwtTokenFilterTest {
 
     @Test
     public void testInvalidToken() throws Exception {
-        when(jwtTokenProvider.validateToken(anyString()))
+        when(jwtTokenProvider.isTokenValid(anyString()))
                 .thenReturn(false);
 
         mockMvc.perform(get("/")

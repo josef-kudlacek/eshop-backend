@@ -1,14 +1,21 @@
 package cz.jkdabing.backend.security.jwt;
 
-import org.springframework.security.core.userdetails.UserDetails;
+import io.jsonwebtoken.Claims;
+
+import java.util.List;
+import java.util.Map;
 
 public interface JwtTokenProvider {
 
     String createCustomerToken(String customerId);
 
-    String createUserToken(UserDetails userDetails);
+    String createUserToken(String username, List<String> roles);
 
     String getCustomerIdFromToken(String token);
 
-    boolean validateToken(String token);
+    boolean isTokenValid(String token);
+
+    Map<String, Object> getUserDetailsFromToken(String token);
+
+    Claims getClaimsFromToken(String token);
 }

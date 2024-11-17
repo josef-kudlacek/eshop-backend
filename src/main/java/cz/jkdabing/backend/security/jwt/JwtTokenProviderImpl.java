@@ -1,13 +1,16 @@
 package cz.jkdabing.backend.security.jwt;
 
+import cz.jkdabing.backend.constants.JWTConstants;
 import cz.jkdabing.backend.utils.ConversionClassUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class JwtTokenProviderImpl implements JwtTokenProvider {
@@ -35,13 +38,13 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     @Override
-    public String createUserToken(UserDetails userDetails) {
+    public String createUserToken(String username, List<String> roles) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + jwtUserExpiration);
 
         return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .claim("roles", userDetails.getAuthorities())
+                .subject(username)
+                .claim(JWTConstants.ROLES, roles)
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
@@ -60,7 +63,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     @Override
-    public boolean validateToken(String token) {
+    public boolean isTokenValid(String token) {
         try {
             Jwts.parser()
                     .verifyWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
@@ -70,5 +73,35 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public Map<String, Object> getUserDetailsFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        if (claims.get(JWTConstants.ROLES) != null) {
+            return Map.of(
+                    JWTConstants.USERNAME, claims.getSubject(),
+                    JWTConstants.ROLES, claims.get(JWTConstants.ROLES)
+            );
+        }
+
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Claims getClaimsFromToken(String token) {
+        Claims claims = null;
+
+        try {
+            claims = Jwts.parser()
+                    .verifyWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return claims;
     }
 }

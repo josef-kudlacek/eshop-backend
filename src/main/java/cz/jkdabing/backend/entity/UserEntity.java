@@ -10,9 +10,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,7 +37,7 @@ public class UserEntity implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"))
-    private Set<String> roles = new HashSet<>();
+    private List<String> roles = new ArrayList<>();
 
     @Column(length = 68, nullable = false)
     private String password;
@@ -65,7 +65,7 @@ public class UserEntity implements UserDetails {
     protected void onCreate() {
         this.createdAt = ZonedDateTime.now();
 
-        this.setRoles(new HashSet<>());
+        this.setRoles(new ArrayList<>());
         this.roles.add(UserRole.ROLE_USER.toString());
     }
 

@@ -6,6 +6,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +15,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class JwtTokenFilter extends OncePerRequestFilter {
 
@@ -30,14 +34,41 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = resolveToken(request);
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            String customerId = jwtTokenProvider.getCustomerIdFromToken(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(customerId);
+        if (token != null) {
+            if (!jwtTokenProvider.isTokenValid(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().println("Invalid or expired token");
+                return;
+            } else {
+                Map<String, Object> userDetails = jwtTokenProvider.getUserDetailsFromToken(token);
+                if (userDetails.isEmpty()) {
+                    String customerId = jwtTokenProvider.getCustomerIdFromToken(token);
+                    UserDetails customerDetails = userDetailsService.loadUserByUsername(customerId);
 
-            if (userDetails != null) {
-                JwtAuthenticationToken authentication = new JwtAuthenticationToken(userDetails.getAuthorities(), userDetails, token);
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    if (customerDetails != null) {
+                        JwtAuthenticationToken authentication = new JwtAuthenticationToken(customerDetails.getAuthorities(), userDetails, token);
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                } else {
+                    String username = (String) userDetails.get("username");
+                    Object rolesObj = userDetails.get("roles");
+                    if (rolesObj instanceof List<?> rolesList) {
+                        List<String> roles = rolesList.stream()
+                                .map(Object::toString)
+                                .toList();
+
+                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                                username,
+                                null,
+                                roles.stream()
+                                        .map(SimpleGrantedAuthority::new)
+                                        .toList()
+                        );
+                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
+                }
             }
         }
 

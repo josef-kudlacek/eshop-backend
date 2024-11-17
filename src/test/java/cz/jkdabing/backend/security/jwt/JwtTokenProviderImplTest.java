@@ -28,7 +28,7 @@ class JwtTokenProviderImplTest {
         String token = jwtTokenProvider.createCustomerToken(customerId.toString());
 
         assertNotNull(token);
-        assertTrue(jwtTokenProvider.validateToken(token));
+        assertTrue(jwtTokenProvider.isTokenValid(token));
         assertEquals(customerId.toString(), jwtTokenProvider.getCustomerIdFromToken(token));
     }
 
@@ -36,7 +36,7 @@ class JwtTokenProviderImplTest {
     void testInvalidToken() {
         String invalidToken = "invalidToken";
 
-        assertFalse(jwtTokenProvider.validateToken(invalidToken));
+        assertFalse(jwtTokenProvider.isTokenValid(invalidToken));
     }
 
 }
