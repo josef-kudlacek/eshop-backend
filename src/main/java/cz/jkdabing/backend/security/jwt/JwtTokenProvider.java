@@ -9,7 +9,7 @@ public interface JwtTokenProvider {
 
     String createCustomerToken(String customerId);
 
-    String createUserToken(String username, List<String> roles);
+    String createUserToken(String userId, String username, List<String> roles);
 
     String getCustomerIdFromToken(String token);
 

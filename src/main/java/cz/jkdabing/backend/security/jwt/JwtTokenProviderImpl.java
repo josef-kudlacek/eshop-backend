@@ -38,12 +38,13 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     @Override
-    public String createUserToken(String username, List<String> roles) {
+    public String createUserToken(String userId, String username, List<String> roles) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + jwtUserExpiration);
 
         return Jwts.builder()
-                .subject(username)
+                .subject(userId)
+                .claim(JWTConstants.USERNAME, username)
                 .claim(JWTConstants.ROLES, roles)
                 .issuedAt(now)
                 .expiration(validity)

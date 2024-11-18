@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
                         .map(String.class::cast)
                         .toList();
 
-                return jwtTokenProvider.createUserToken(userEntity.getUsername(), roles);
+                return jwtTokenProvider.createUserToken(userEntity.getUserId().toString(), userEntity.getUsername(), roles);
             }
 
             throw new IllegalArgumentException("Roles are not in the expected format");
