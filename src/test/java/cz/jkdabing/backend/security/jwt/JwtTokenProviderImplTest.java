@@ -30,7 +30,7 @@ class JwtTokenProviderImplTest {
 
         assertNotNull(token);
         assertTrue(jwtTokenProvider.isTokenValid(token));
-        assertEquals(customerId.toString(), jwtTokenProvider.getCustomerIdFromToken(token));
+        assertEquals(customerId.toString(), jwtTokenProvider.getSubjectIdFromToken(token));
     }
 
     @Test

@@ -11,7 +11,7 @@ public interface JwtTokenProvider {
 
     String createUserToken(String userId, String username, List<String> roles);
 
-    String getCustomerIdFromToken(String token);
+    String getSubjectIdFromToken(String token);
 
     boolean isTokenValid(String token);
 

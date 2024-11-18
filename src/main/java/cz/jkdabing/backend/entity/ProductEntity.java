@@ -2,7 +2,6 @@ package cz.jkdabing.backend.entity;
 
 import cz.jkdabing.backend.enums.ProductType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.TimeZoneStorage;
 import org.hibernate.annotations.TimeZoneStorageType;
@@ -39,10 +38,9 @@ public class ProductEntity {
 
     @OneToOne
     @JoinColumn(name = "image_id")
-    @NotNull
     private ImageEntity image;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String productDescription;
 
     @OneToMany(mappedBy = "product")
@@ -67,6 +65,29 @@ public class ProductEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AudioFileEntity> audioFiles = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FileEntity> files = new ArrayList<>();
+
     @ManyToMany(mappedBy = "applicableProducts")
     private List<CouponEntity> coupons = new ArrayList<>();
+
+    @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
+    @Column(nullable = false)
+    private ZonedDateTime createdAt;
+
+    @OneToOne
+    @JoinColumn(name = "created_by", nullable = false)
+    private UserEntity createdBy;
+
+    @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
+    private ZonedDateTime updatedAt;
+
+    @OneToOne
+    @JoinColumn(name = "updated_by")
+    private UserEntity updatedBy;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = ZonedDateTime.now();
+    }
 }

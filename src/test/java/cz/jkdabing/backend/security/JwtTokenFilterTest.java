@@ -30,7 +30,7 @@ class JwtTokenFilterTest {
     void testValidToken() throws Exception {
         when(jwtTokenProvider.isTokenValid(anyString()))
                 .thenReturn(true);
-        when(jwtTokenProvider.getCustomerIdFromToken((anyString())))
+        when(jwtTokenProvider.getSubjectIdFromToken((anyString())))
                 .thenReturn(CustomerTestConstants.TOKEN);
 
         mockMvc.perform(get("/api/")

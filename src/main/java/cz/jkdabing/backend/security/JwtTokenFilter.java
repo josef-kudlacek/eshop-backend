@@ -66,7 +66,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private void handleCustomerToken(HttpServletRequest request, String token, Map<String, Object> userDetails) {
-        String customerId = jwtTokenProvider.getCustomerIdFromToken(token);
+        String customerId = jwtTokenProvider.getSubjectIdFromToken(token);
         UserDetails customerDetails = userDetailsService.loadUserByUsername(customerId);
 
         if (customerDetails != null) {

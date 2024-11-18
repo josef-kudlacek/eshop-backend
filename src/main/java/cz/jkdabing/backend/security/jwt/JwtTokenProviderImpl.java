@@ -53,7 +53,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     @Override
-    public String getCustomerIdFromToken(String token) {
+    public String getSubjectIdFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
                 .build()
