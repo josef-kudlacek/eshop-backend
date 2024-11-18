@@ -10,4 +10,6 @@ public interface ProductService {
     ProductDTO createProduct(ProductDTO productDTO);
 
     ProductEntity findProductByIdOrThrow(UUID productId);
+
+    void updateProduct(ProductEntity productEntity);
 }

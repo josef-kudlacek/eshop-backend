@@ -36,12 +36,14 @@ public class ImageServiceImpl implements ImageService {
 
         ImageEntity imageEntity = prepareImage(image);
         imageEntity.setImageUrl(imagePath);
-        imageEntity.setProduct(productEntity);
 
         Path uploadPath = Paths.get(fileStorageProperties.getUploadDirectory() + imagePath, imageEntity.getImageName());
         Files.write(uploadPath, image.getBytes());
 
         imageRepository.save(imageEntity);
+
+        productEntity.setImage(imageEntity);
+        productService.updateProduct(productEntity);
     }
 
     private ImageEntity prepareImage(MultipartFile image) {

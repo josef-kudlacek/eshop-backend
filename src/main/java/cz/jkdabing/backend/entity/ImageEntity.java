@@ -26,7 +26,4 @@ public class ImageEntity {
 
     @Column(nullable = false)
     private String imageFormatType;
-
-    @OneToOne(mappedBy = "image", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private ProductEntity product;
 }

@@ -43,6 +43,14 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException("Product not found, id was: " + productId));
     }
 
+    @Override
+    public void updateProduct(ProductEntity productEntity) {
+        UserEntity userEntity = getCurrentUser();
+        productEntity.setUpdatedBy(userEntity);
+
+        productRepository.save(productEntity);
+    }
+
     private UserEntity getCurrentUser() {
         String currentUserId = SecurityUtil.getCurrentUserId();
         if (currentUserId == null) {

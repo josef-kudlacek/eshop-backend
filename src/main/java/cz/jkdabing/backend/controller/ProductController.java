@@ -2,6 +2,7 @@ package cz.jkdabing.backend.controller;
 
 import cz.jkdabing.backend.constants.FileConstants;
 import cz.jkdabing.backend.dto.ProductDTO;
+import cz.jkdabing.backend.exception.NotFoundException;
 import cz.jkdabing.backend.service.ImageService;
 import cz.jkdabing.backend.service.ProductService;
 import jakarta.validation.Valid;
@@ -36,11 +37,17 @@ public class ProductController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/{productId}/uploadImage")
+    @PatchMapping("/{productId}/uploadImage")
     public ResponseEntity<String> uploadImage(@PathVariable("productId") String productId,
-                                              @RequestParam("image") MultipartFile imageFile) throws IOException {
-        imageService.saveImage(productId, imageFile, FileConstants.PRODUCT_IMAGE_RELATIVE_PATH);
-
-        return new ResponseEntity<>("Image uploaded successfully", HttpStatus.OK);
+                                              @RequestParam("image") MultipartFile imageFile) {
+        try {
+            imageService.saveImage(productId, imageFile, FileConstants.PRODUCT_IMAGE_RELATIVE_PATH);
+            return new ResponseEntity<>("Image uploaded successfully", HttpStatus.OK);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NotFoundException exception) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

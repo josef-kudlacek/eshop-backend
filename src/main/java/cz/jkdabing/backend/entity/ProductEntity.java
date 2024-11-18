@@ -90,4 +90,9 @@ public class ProductEntity {
     protected void onCreate() {
         this.createdAt = ZonedDateTime.now();
     }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = ZonedDateTime.now();
+    }
 }
