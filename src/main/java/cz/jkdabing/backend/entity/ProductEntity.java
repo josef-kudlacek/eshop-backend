@@ -23,7 +23,7 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID productId;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private Set<AuthorProductEntity> authorProductSet = new HashSet<>();
 
     @Column(nullable = false)
@@ -36,14 +36,14 @@ public class ProductEntity {
     @OneToMany(mappedBy = "product")
     private Set<ProductGenreEntity> genres = new HashSet<>();
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "image_id")
     private ImageEntity image;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String productDescription;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private Set<ProductFormatEntity> formats = new HashSet<>();
 
     @Column(precision = 6, scale = 2, nullable = false)
@@ -58,7 +58,7 @@ public class ProductEntity {
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     private ZonedDateTime withdrawalDate;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "example_audio")
     private AudioFileEntity example;
 

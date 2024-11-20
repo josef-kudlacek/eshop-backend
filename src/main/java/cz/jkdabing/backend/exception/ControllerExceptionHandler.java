@@ -1,5 +1,6 @@
 package cz.jkdabing.backend.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,9 +22,9 @@ import java.util.Map;
 @ResponseBody
 public class ControllerExceptionHandler {
 
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler({BadRequestException.class, ImageAlreadyExistsException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorMessage> resourceNotFoundException(BadRequestException exception, WebRequest webRequest) {
+    public ResponseEntity<ErrorMessage> handleBadRequestExceptions(Exception exception, WebRequest webRequest) {
         ErrorMessage message = new ErrorMessage(
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),
@@ -30,6 +33,19 @@ public class ControllerExceptionHandler {
         );
 
         return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({NotFoundException.class, FileNotFoundException.class, EntityNotFoundException.class})
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorMessage> handleNotFoundExceptions(Exception exception, WebRequest webRequest) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.NOT_FOUND.value(),
+                new Date(),
+                exception.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -76,11 +92,22 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorMessage> globalExceptionHandler(Exception exception, WebRequest webRequest) {
+    public ResponseEntity<ErrorMessage> globalExceptionHandler(WebRequest webRequest) {
         ErrorMessage message = new ErrorMessage(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 new Date(),
-                exception.getMessage(),
+                "Something wrong happened on server, please contact J. K.",
+                webRequest.getDescription(false));
+
+        return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ErrorMessage> handleUserAlreadyExistsException(WebRequest webRequest) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                new Date(),
+                "Processing of file was not successful, please contact J. K.",
                 webRequest.getDescription(false));
 
         return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -3,10 +3,13 @@ package cz.jkdabing.backend.service.impl;
 import cz.jkdabing.backend.configuration.FileStorageProperties;
 import cz.jkdabing.backend.entity.ImageEntity;
 import cz.jkdabing.backend.entity.ProductEntity;
+import cz.jkdabing.backend.exception.ImageAlreadyExistsException;
 import cz.jkdabing.backend.repository.ImageRepository;
 import cz.jkdabing.backend.service.ImageService;
 import cz.jkdabing.backend.service.ProductService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -31,19 +34,33 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
+    @Transactional
     public void saveImage(String productId, MultipartFile image, String imagePath) throws IOException {
         ProductEntity productEntity = productService.findProductByIdOrThrow(UUID.fromString(productId));
 
-        ImageEntity imageEntity = prepareImage(image);
-        imageEntity.setImageUrl(imagePath);
+        if (productEntity.getImage() != null) {
+            throw new ImageAlreadyExistsException(String.format("Product '%s' already has an image", productEntity.getProductName()));
+        }
 
-        Path uploadPath = Paths.get(fileStorageProperties.getUploadDirectory() + imagePath, imageEntity.getImageName());
-        Files.write(uploadPath, image.getBytes());
+        uploadAndSaveImage(productEntity, image, imagePath);
+    }
 
-        imageRepository.save(imageEntity);
+    @Override
+    @Transactional
+    public void updateImage(String productId, MultipartFile image, String imagePath) throws IOException {
+        ProductEntity productEntity = productService.findProductByIdOrThrow(UUID.fromString(productId));
 
-        productEntity.setImage(imageEntity);
-        productService.updateProduct(productEntity);
+        checkAndRemoveImage(productEntity);
+
+        uploadAndSaveImage(productEntity, image, imagePath);
+    }
+
+    @Override
+    @Transactional
+    public void deleteImage(String productId) {
+        ProductEntity productEntity = productService.findProductByIdOrThrow(UUID.fromString(productId));
+
+        checkAndRemoveImage(productEntity);
     }
 
     private ImageEntity prepareImage(MultipartFile image) {
@@ -62,5 +79,41 @@ public class ImageServiceImpl implements ImageService {
         }
 
         return fileName.substring(fileName.lastIndexOf(".") + 1);
+    }
+
+    private void uploadAndSaveImage(ProductEntity productEntity, MultipartFile image, String imagePath) throws IOException {
+        ImageEntity imageEntity = prepareImage(image);
+        imageEntity.setImageUrl(imagePath);
+
+        Path uploadPath = Paths.get(fileStorageProperties.getUploadDirectory() + imagePath, imageEntity.getImageName());
+        Files.write(uploadPath, image.getBytes());
+
+        imageRepository.save(imageEntity);
+
+        productEntity.setImage(imageEntity);
+        productService.updateProduct(productEntity);
+    }
+
+    private void checkAndRemoveImage(ProductEntity productEntity) {
+        ImageEntity imageEntity = productEntity.getImage();
+        if (imageEntity != null) {
+            deleteImageFile(imageEntity.getImageUrl(), imageEntity.getImageName());
+
+            productEntity.setImage(null);
+            productService.updateProduct(productEntity);
+            imageRepository.delete(imageEntity);
+        } else {
+            throw new EntityNotFoundException(String.format("Product '%s' does not have an image", productEntity.getProductName()));
+        }
+    }
+
+    private void deleteImageFile(String imagePath, String imageName) {
+        Path path = Paths.get(fileStorageProperties.getUploadDirectory() + imagePath, imageName);
+
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

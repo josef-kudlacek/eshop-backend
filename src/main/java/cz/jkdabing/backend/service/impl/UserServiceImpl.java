@@ -70,10 +70,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public String authenticateUser(LoginDTO loginDTO) {
         UserEntity userEntity = userRepository.findByUsername(loginDTO.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", loginDTO.getUsername())));
 
         if (!userEntity.isEnabled()) {
-            throw new BadCredentialsException("User is not active");
+            throw new BadCredentialsException(String.format("User '%s' is not active", loginDTO.getUsername()));
         }
 
         if (passwordEncoder.matches(loginDTO.getPassword(), userEntity.getPassword())) {

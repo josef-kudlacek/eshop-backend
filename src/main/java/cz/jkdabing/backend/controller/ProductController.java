@@ -1,18 +1,15 @@
 package cz.jkdabing.backend.controller;
 
-import cz.jkdabing.backend.constants.FileConstants;
 import cz.jkdabing.backend.dto.ProductDTO;
-import cz.jkdabing.backend.exception.NotFoundException;
-import cz.jkdabing.backend.service.ImageService;
 import cz.jkdabing.backend.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
@@ -21,11 +18,8 @@ public class ProductController {
 
     private final ProductService productService;
 
-    private final ImageService imageService;
-
-    public ProductController(ProductService productService, ImageService imageService) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
-        this.imageService = imageService;
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -34,20 +28,5 @@ public class ProductController {
         ProductDTO createdProduct = productService.createProduct(productDTO);
 
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{productId}/uploadImage")
-    public ResponseEntity<String> uploadImage(@PathVariable("productId") String productId,
-                                              @RequestParam("image") MultipartFile imageFile) {
-        try {
-            imageService.saveImage(productId, imageFile, FileConstants.PRODUCT_IMAGE_RELATIVE_PATH);
-            return new ResponseEntity<>("Image uploaded successfully", HttpStatus.OK);
-        } catch (IOException exception) {
-            exception.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (NotFoundException exception) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 }
