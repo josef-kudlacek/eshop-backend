@@ -94,8 +94,8 @@ public class ImageServiceImpl implements ImageService {
         uploadImageFile(image, imagePath, imageEntity.getImageName());
 
         imageEntity.setImageUrl(imagePath);
-        UserEntity userEntity = userService.getCurrentUser();
-        imageEntity.setCreatedBy(userEntity);
+        UserEntity currentUser = userService.getCurrentUser();
+        imageEntity.setCreatedBy(currentUser);
         imageRepository.save(imageEntity);
 
         productEntity.setImage(imageEntity);
