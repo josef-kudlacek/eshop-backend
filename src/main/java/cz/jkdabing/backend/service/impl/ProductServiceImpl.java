@@ -6,9 +6,8 @@ import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.exception.NotFoundException;
 import cz.jkdabing.backend.mapper.ProductMapper;
 import cz.jkdabing.backend.repository.ProductRepository;
-import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.service.ProductService;
-import cz.jkdabing.backend.utils.SecurityUtil;
+import cz.jkdabing.backend.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -20,18 +19,18 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductMapper productMapper;
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper, UserRepository userRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper, UserService userService) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @Override
     public ProductDTO createProduct(ProductDTO productDTO) {
         ProductEntity productEntity = productMapper.toEntity(productDTO);
-        UserEntity userEntity = getCurrentUser();
+        UserEntity userEntity = userService.getCurrentUser();
         productEntity.setCreatedBy(userEntity);
 
         return productMapper.toDTO(productRepository.save(productEntity));
@@ -45,18 +44,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void updateProduct(ProductEntity productEntity) {
-        UserEntity userEntity = getCurrentUser();
+        UserEntity userEntity = userService.getCurrentUser();
         productEntity.setUpdatedBy(userEntity);
 
         productRepository.save(productEntity);
-    }
-
-    private UserEntity getCurrentUser() {
-        String currentUserId = SecurityUtil.getCurrentUserId();
-        if (currentUserId == null) {
-            return null;
-        }
-
-        return userRepository.getReferenceById(UUID.fromString(currentUserId));
     }
 }

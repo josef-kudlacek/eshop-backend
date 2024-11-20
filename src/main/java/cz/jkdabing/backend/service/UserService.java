@@ -2,6 +2,7 @@ package cz.jkdabing.backend.service;
 
 import cz.jkdabing.backend.dto.LoginDTO;
 import cz.jkdabing.backend.dto.UserDTO;
+import cz.jkdabing.backend.entity.UserEntity;
 
 public interface UserService {
 
@@ -10,4 +11,6 @@ public interface UserService {
     void activeUser(String token);
 
     String authenticateUser(LoginDTO loginDTO);
+
+    UserEntity getCurrentUser();
 }

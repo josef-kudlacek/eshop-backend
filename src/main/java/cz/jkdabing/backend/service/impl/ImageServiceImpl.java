@@ -3,10 +3,12 @@ package cz.jkdabing.backend.service.impl;
 import cz.jkdabing.backend.configuration.FileStorageProperties;
 import cz.jkdabing.backend.entity.ImageEntity;
 import cz.jkdabing.backend.entity.ProductEntity;
+import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.exception.ImageAlreadyExistsException;
 import cz.jkdabing.backend.repository.ImageRepository;
 import cz.jkdabing.backend.service.ImageService;
 import cz.jkdabing.backend.service.ProductService;
+import cz.jkdabing.backend.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +25,16 @@ public class ImageServiceImpl implements ImageService {
 
     private final ProductService productService;
 
+    private final UserService userService;
+
     private final ImageRepository imageRepository;
 
     private final FileStorageProperties fileStorageProperties;
 
-    public ImageServiceImpl(ProductService productService, ImageRepository imageRepository, FileStorageProperties fileStorageProperties) {
+    public ImageServiceImpl(ProductService productService, UserService userService,
+                            ImageRepository imageRepository, FileStorageProperties fileStorageProperties) {
         this.productService = productService;
+        this.userService = userService;
         this.imageRepository = imageRepository;
         this.fileStorageProperties = fileStorageProperties;
     }
@@ -39,7 +45,9 @@ public class ImageServiceImpl implements ImageService {
         ProductEntity productEntity = productService.findProductByIdOrThrow(UUID.fromString(productId));
 
         if (productEntity.getImage() != null) {
-            throw new ImageAlreadyExistsException(String.format("Product '%s' already has an image", productEntity.getProductName()));
+            throw new ImageAlreadyExistsException(
+                    String.format("Product '%s' already has an image", productEntity.getProductName())
+            );
         }
 
         uploadAndSaveImage(productEntity, image, imagePath);
@@ -83,15 +91,20 @@ public class ImageServiceImpl implements ImageService {
 
     private void uploadAndSaveImage(ProductEntity productEntity, MultipartFile image, String imagePath) throws IOException {
         ImageEntity imageEntity = prepareImage(image);
+        uploadImageFile(image, imagePath, imageEntity.getImageName());
+
         imageEntity.setImageUrl(imagePath);
-
-        Path uploadPath = Paths.get(fileStorageProperties.getUploadDirectory() + imagePath, imageEntity.getImageName());
-        Files.write(uploadPath, image.getBytes());
-
+        UserEntity userEntity = userService.getCurrentUser();
+        imageEntity.setCreatedBy(userEntity);
         imageRepository.save(imageEntity);
 
         productEntity.setImage(imageEntity);
         productService.updateProduct(productEntity);
+    }
+
+    private void uploadImageFile(MultipartFile image, String imagePath, String imageName) throws IOException {
+        Path uploadPath = Paths.get(fileStorageProperties.getUploadDirectory() + imagePath, imageName);
+        Files.write(uploadPath, image.getBytes());
     }
 
     private void checkAndRemoveImage(ProductEntity productEntity) {

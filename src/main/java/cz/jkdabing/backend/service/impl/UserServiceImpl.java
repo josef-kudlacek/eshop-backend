@@ -10,6 +10,7 @@ import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.CustomerService;
 import cz.jkdabing.backend.service.EmailService;
 import cz.jkdabing.backend.service.UserService;
+import cz.jkdabing.backend.utils.SecurityUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -92,6 +94,16 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new BadCredentialsException("Invalid credentials");
         }
+    }
+
+    @Override
+    public UserEntity getCurrentUser() {
+        String currentUserId = SecurityUtil.getCurrentUserId();
+        if (currentUserId == null) {
+            return null;
+        }
+
+        return userRepository.getReferenceById(UUID.fromString(currentUserId));
     }
 
     private UserEntity findUserByActivationToken(String token) {
