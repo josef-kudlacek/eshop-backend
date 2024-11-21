@@ -6,8 +6,6 @@ import cz.jkdabing.backend.service.SecurityService;
 import cz.jkdabing.backend.utils.SecurityUtil;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 public class SecurityServiceImpl implements SecurityService {
 
@@ -21,11 +19,30 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public UserEntity getCurrentUser() {
-        String currentUserId = SecurityUtil.getCurrentUserId();
-        if (currentUserId == null || currentUserId.equals(ANONYMOUS_USER)) {
+        String currentUserName = SecurityUtil.getCurrentUserPrincipal();
+        if (currentUserName == null || currentUserName.equals(ANONYMOUS_USER)) {
             return null;
         }
 
-        return userRepository.getReferenceById(UUID.fromString(currentUserId));
+        return handleFindUserByUsername(currentUserName);
+    }
+
+    @Override
+    public void logoutUser() {
+        String currentUsername = SecurityUtil.getCurrentUserPrincipal();
+        if (currentUsername == null || currentUsername.equals(ANONYMOUS_USER)) {
+            return;
+        }
+
+        UserEntity user = handleFindUserByUsername(currentUsername);
+        if (user != null) {
+            user.setTokenVersion(user.getTokenVersion() + 1);
+            userRepository.save(user);
+        }
+    }
+
+    private UserEntity handleFindUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElse(null);
     }
 }

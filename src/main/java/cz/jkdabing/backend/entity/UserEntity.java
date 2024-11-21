@@ -41,6 +41,8 @@ public class UserEntity implements UserDetails {
 
     private String activationToken;
 
+    private int tokenVersion = 0;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()

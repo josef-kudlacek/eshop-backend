@@ -5,4 +5,6 @@ import cz.jkdabing.backend.entity.UserEntity;
 public interface SecurityService {
 
     UserEntity getCurrentUser();
+
+    void logoutUser();
 }

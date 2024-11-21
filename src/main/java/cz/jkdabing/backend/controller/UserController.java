@@ -3,6 +3,7 @@ package cz.jkdabing.backend.controller;
 import cz.jkdabing.backend.dto.JwtDTO;
 import cz.jkdabing.backend.dto.LoginDTO;
 import cz.jkdabing.backend.dto.UserDTO;
+import cz.jkdabing.backend.service.SecurityService;
 import cz.jkdabing.backend.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,11 @@ public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    private final SecurityService securityService;
+
+    public UserController(UserService userService, SecurityService securityService) {
         this.userService = userService;
+        this.securityService = securityService;
     }
 
     @PostMapping("/register")
@@ -52,5 +56,10 @@ public class UserController {
         } catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
         }
+    }
+
+    @PostMapping("/logout")
+    public void logout() {
+        securityService.logoutUser();
     }
 }

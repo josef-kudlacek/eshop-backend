@@ -55,12 +55,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createUser(UserDTO userDTO) {
-        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        UserEntity userEntity = userMapper.toEntity(userDTO);
-        userEntity.setActivationToken(UUID.randomUUID().toString());
-        userRepository.save(userEntity);
+        try {
+            userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            UserEntity userEntity = userMapper.toEntity(userDTO);
+            userEntity.setActivationToken(UUID.randomUUID().toString());
+            userRepository.save(userEntity);
 
-        customerService.createCustomer(userEntity, userDTO.getCustomer());
+            customerService.createCustomer(userEntity, userDTO.getCustomer());
+
+            String userEmail = userDTO.getCustomer().getEmail();
+            sendActivationEmail(userEmail, userEntity.getActivationToken());
+
+            auditService.prepareAuditLog(
+                    TableNameUtil.getTableName(userEntity.getClass()),
+                    userEntity.getUserId(),
+                    AuditLogConstants.ACTION_REGISTER
+            );
+        } catch (DataIntegrityViolationException e) {
+            throw new UserAlreadyExistsException(String.format("Username '%s' already exists", userDTO.getUsername()));
+        }
     }
 
     @Override
@@ -97,7 +110,11 @@ public class UserServiceImpl implements UserService {
                         .map(String.class::cast)
                         .toList();
 
-                return jwtTokenProvider.createUserToken(userEntity.getUserId().toString(), userEntity.getUsername(), roles);
+                return jwtTokenProvider.createUserToken(
+                        userEntity.getTokenVersion(),
+                        userEntity.getUserId().toString(),
+                        userEntity.getUsername(),
+                        roles);
             }
 
             throw new IllegalArgumentException("Roles are not in the expected format");

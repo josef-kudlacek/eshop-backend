@@ -1,5 +1,6 @@
 package cz.jkdabing.backend.configuration;
 
+import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.security.CustomerDetailsService;
 import cz.jkdabing.backend.security.JwtTokenFilter;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
@@ -25,9 +26,15 @@ public class SecurityConfiguration {
 
     private final CustomerDetailsService customerDetailsService;
 
-    public SecurityConfiguration(JwtTokenProvider jwtTokenProvider, CustomerDetailsService customerDetailsService) {
+    private final UserRepository userRepository;
+
+    public SecurityConfiguration(
+            JwtTokenProvider jwtTokenProvider,
+            CustomerDetailsService customerDetailsService,
+            UserRepository userRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.customerDetailsService = customerDetailsService;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -41,7 +48,10 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated()
                 )
                 .logout(LogoutConfigurer::permitAll)
-                .addFilterBefore(new JwtTokenFilter(jwtTokenProvider, customerDetailsService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(
+                        new JwtTokenFilter(jwtTokenProvider, customerDetailsService, userRepository),
+                        UsernamePasswordAuthenticationFilter.class
+                )
                 .build();
     }
 

@@ -8,7 +8,7 @@ public class SecurityUtil {
     private SecurityUtil() {
     }
 
-    public static String getCurrentUserId() {
+    public static String getCurrentUserPrincipal() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof String principal) {
             return principal;

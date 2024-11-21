@@ -2,6 +2,9 @@ package cz.jkdabing.backend.security;
 
 import cz.jkdabing.backend.constants.HttpHeaderConstants;
 import cz.jkdabing.backend.constants.JWTConstants;
+import cz.jkdabing.backend.entity.UserEntity;
+import cz.jkdabing.backend.exception.InvalidJwtAuthenticationException;
+import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.security.jwt.JwtAuthenticationToken;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import jakarta.annotation.Nonnull;
@@ -20,6 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class JwtTokenFilter extends OncePerRequestFilter {
 
@@ -27,29 +31,38 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
 
-    public JwtTokenFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService) {
+    private final UserRepository userRepository;
+
+    public JwtTokenFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService, UserRepository userRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userDetailsService = userDetailsService;
+        this.userRepository = userRepository;
     }
 
     @Override
     protected void doFilterInternal(@Nonnull HttpServletRequest request,
                                     @Nonnull HttpServletResponse response,
                                     @Nonnull FilterChain filterChain)
-            throws ServletException, IOException {
-        String token = resolveToken(request);
+            throws ServletException, IOException, RuntimeException {
+        String token = extractToken(request);
 
         if (token != null) {
             if (!jwtTokenProvider.isTokenValid(token)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().println("Invalid or expired token");
+                response.getWriter().println(JWTConstants.INVALID_TOKEN_MESSAGE);
                 return;
             } else {
                 Map<String, Object> userDetails = jwtTokenProvider.getUserDetailsFromToken(token);
                 if (userDetails.isEmpty()) {
                     handleCustomerToken(request, token, userDetails);
                 } else {
-                    handleUserToken(request, userDetails);
+                    try {
+                        handleUserToken(request, userDetails);
+                    } catch (InvalidJwtAuthenticationException exception) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().println(JWTConstants.INVALID_TOKEN_MESSAGE);
+                        return;
+                    }
                 }
             }
         }
@@ -57,7 +70,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String resolveToken(HttpServletRequest request) {
+    private String extractToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(HttpHeaderConstants.AUTHORIZATION);
         if (bearerToken != null && bearerToken.startsWith(JWTConstants.BEARER)) {
             return bearerToken.substring(7);
@@ -77,7 +90,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private void handleUserToken(HttpServletRequest request, Map<String, Object> userDetails) {
-        String username = (String) userDetails.get(JWTConstants.USERNAME);
+        int tokenVersion = (int) userDetails.get(JWTConstants.TOKEN_VERSION);
+        String userName = (String) userDetails.get(JWTConstants.USERNAME);
+        Optional<UserEntity> user = userRepository.findByUsername(userName);
+        if (user.isEmpty() || tokenVersion != user.get().getTokenVersion()) {
+            throw new InvalidJwtAuthenticationException("Invalid user token");
+        }
+
         Object rolesObj = userDetails.get(JWTConstants.ROLES);
         if (rolesObj instanceof List<?> rolesList) {
             List<String> roles = rolesList.stream()
@@ -85,7 +104,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                     .toList();
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    username,
+                    userName,
                     null,
                     roles.stream()
                             .map(SimpleGrantedAuthority::new)

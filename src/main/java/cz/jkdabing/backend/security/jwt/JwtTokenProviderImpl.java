@@ -38,12 +38,13 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     @Override
-    public String createUserToken(String userId, String username, List<String> roles) {
+    public String createUserToken(int tokenVersion, String userId, String username, List<String> roles) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + jwtUserExpiration);
 
         return Jwts.builder()
                 .subject(userId)
+                .claim(JWTConstants.TOKEN_VERSION, tokenVersion)
                 .claim(JWTConstants.USERNAME, username)
                 .claim(JWTConstants.ROLES, roles)
                 .issuedAt(now)
@@ -81,8 +82,9 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
         Claims claims = getClaimsFromToken(token);
         if (claims.get(JWTConstants.ROLES) != null) {
             return Map.of(
-                    JWTConstants.USERNAME, claims.getSubject(),
-                    JWTConstants.ROLES, claims.get(JWTConstants.ROLES)
+                    JWTConstants.ROLES, claims.get(JWTConstants.ROLES),
+                    JWTConstants.TOKEN_VERSION, claims.get(JWTConstants.TOKEN_VERSION),
+                    JWTConstants.USERNAME, claims.get(JWTConstants.USERNAME)
             );
         }
 
