@@ -120,6 +120,12 @@ public class ImageServiceImpl implements ImageService {
             productEntity.setImage(null);
             productService.updateProduct(productEntity);
             imageRepository.delete(imageEntity);
+
+            auditService.prepareAuditLog(
+                    AuditLogConstants.TABLE_NAME_IMAGES,
+                    imageEntity.getImageId(),
+                    AuditLogConstants.ACTION_DELETE
+            );
         } else {
             throw new EntityNotFoundException(String.format("Product '%s' does not have an image", productEntity.getProductName()));
         }
