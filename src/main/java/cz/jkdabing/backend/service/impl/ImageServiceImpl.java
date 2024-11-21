@@ -1,14 +1,15 @@
 package cz.jkdabing.backend.service.impl;
 
 import cz.jkdabing.backend.configuration.FileStorageProperties;
+import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.entity.ImageEntity;
 import cz.jkdabing.backend.entity.ProductEntity;
-import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.exception.ImageAlreadyExistsException;
 import cz.jkdabing.backend.repository.ImageRepository;
+import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.ImageService;
 import cz.jkdabing.backend.service.ProductService;
-import cz.jkdabing.backend.service.UserService;
+import cz.jkdabing.backend.utils.TableNameUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,16 +26,16 @@ public class ImageServiceImpl implements ImageService {
 
     private final ProductService productService;
 
-    private final UserService userService;
+    private final AuditService auditService;
 
     private final ImageRepository imageRepository;
 
     private final FileStorageProperties fileStorageProperties;
 
-    public ImageServiceImpl(ProductService productService, UserService userService,
+    public ImageServiceImpl(ProductService productService, AuditService auditService,
                             ImageRepository imageRepository, FileStorageProperties fileStorageProperties) {
         this.productService = productService;
-        this.userService = userService;
+        this.auditService = auditService;
         this.imageRepository = imageRepository;
         this.fileStorageProperties = fileStorageProperties;
     }
@@ -94,12 +95,16 @@ public class ImageServiceImpl implements ImageService {
         uploadImageFile(image, imagePath, imageEntity.getImageName());
 
         imageEntity.setImageUrl(imagePath);
-        UserEntity currentUser = userService.getCurrentUser();
-        imageEntity.setCreatedBy(currentUser);
         imageRepository.save(imageEntity);
 
         productEntity.setImage(imageEntity);
         productService.updateProduct(productEntity);
+
+        auditService.prepareAuditLog(
+                TableNameUtil.getTableName(imageEntity.getClass()),
+                imageEntity.getImageId(),
+                AuditLogConstants.ACTION_UPLOAD
+        );
     }
 
     private void uploadImageFile(MultipartFile image, String imagePath, String imageName) throws IOException {

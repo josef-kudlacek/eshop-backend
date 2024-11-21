@@ -1,19 +1,20 @@
 package cz.jkdabing.backend.service.impl;
 
+import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.dto.AuthorProductDTO;
 import cz.jkdabing.backend.dto.ProductDTO;
 import cz.jkdabing.backend.entity.AuthorEntity;
 import cz.jkdabing.backend.entity.AuthorProductEntity;
 import cz.jkdabing.backend.entity.ProductEntity;
-import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.exception.NotFoundException;
 import cz.jkdabing.backend.mapper.AuthorProductMapper;
 import cz.jkdabing.backend.mapper.ProductMapper;
 import cz.jkdabing.backend.repository.AuthorProductRepository;
 import cz.jkdabing.backend.repository.ProductRepository;
+import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.AuthorService;
 import cz.jkdabing.backend.service.ProductService;
-import cz.jkdabing.backend.service.UserService;
+import cz.jkdabing.backend.utils.TableNameUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -25,7 +26,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductMapper productMapper;
 
-    private final UserService userService;
+    private final AuditService auditService;
 
     private final AuthorService authorService;
 
@@ -34,12 +35,12 @@ public class ProductServiceImpl implements ProductService {
     private final AuthorProductMapper authorProductMapper;
 
     public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper,
-                              UserService userService, AuthorService authorService,
+                              AuditService auditService, AuthorService authorService,
                               AuthorProductRepository authorProductRepository,
                               AuthorProductMapper authorProductMapper) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
-        this.userService = userService;
+        this.auditService = auditService;
         this.authorService = authorService;
         this.authorProductRepository = authorProductRepository;
         this.authorProductMapper = authorProductMapper;
@@ -48,10 +49,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDTO createProduct(ProductDTO productDTO) {
         ProductEntity productEntity = productMapper.toEntity(productDTO);
-        UserEntity currentUser = userService.getCurrentUser();
-        productEntity.setCreatedBy(currentUser);
+        productRepository.save(productEntity);
 
-        return productMapper.toDTO(productRepository.save(productEntity));
+        auditService.prepareAuditLog(
+                TableNameUtil.getTableName(productEntity.getClass()),
+                productEntity.getProductId(),
+                AuditLogConstants.ACTION_CREATE
+        );
+
+        return productMapper.toDTO(productEntity);
     }
 
     @Override
@@ -69,10 +75,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void updateProduct(ProductEntity productEntity) {
-        UserEntity currentUser = userService.getCurrentUser();
-        productEntity.setUpdatedBy(currentUser);
-
         productRepository.save(productEntity);
+
+        auditService.prepareAuditLog(
+                TableNameUtil.getTableName(productEntity.getClass()),
+                productEntity.getProductId(),
+                AuditLogConstants.ACTION_UPDATE
+        );
     }
 
     @Override
@@ -84,9 +93,12 @@ public class ProductServiceImpl implements ProductService {
         authorProductEntity.setProduct(productEntity);
         authorProductEntity.setAuthor(authorEntity);
 
-        UserEntity currentUser = userService.getCurrentUser();
-        authorProductEntity.setCreatedBy(currentUser);
-
         authorProductRepository.save(authorProductEntity);
+
+        auditService.prepareAuditLog(
+                TableNameUtil.getTableName(authorProductEntity.getClass()),
+                authorProductEntity.getAuthorProductId(),
+                AuditLogConstants.ACTION_CREATE
+        );
     }
 }

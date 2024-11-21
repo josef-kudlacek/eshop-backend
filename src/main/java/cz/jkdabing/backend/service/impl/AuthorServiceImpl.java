@@ -1,13 +1,14 @@
 package cz.jkdabing.backend.service.impl;
 
+import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.dto.AuthorDTO;
 import cz.jkdabing.backend.entity.AuthorEntity;
-import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.exception.NotFoundException;
 import cz.jkdabing.backend.mapper.AuthorMapper;
 import cz.jkdabing.backend.repository.AuthorRepository;
+import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.AuthorService;
-import cz.jkdabing.backend.service.UserService;
+import cz.jkdabing.backend.utils.TableNameUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -15,26 +16,28 @@ import java.util.UUID;
 @Service
 public class AuthorServiceImpl implements AuthorService {
 
-    private final UserService userService;
-
     private final AuthorMapper authorMapper;
 
     private final AuthorRepository authorRepository;
 
-    public AuthorServiceImpl(UserService userService, AuthorMapper authorMapper, AuthorRepository authorRepository) {
-        this.userService = userService;
+    private final AuditService auditService;
+
+    public AuthorServiceImpl(AuthorMapper authorMapper, AuthorRepository authorRepository, AuditService auditService) {
         this.authorMapper = authorMapper;
         this.authorRepository = authorRepository;
+        this.auditService = auditService;
     }
 
     @Override
     public void createAuthor(AuthorDTO authorDTO) {
         AuthorEntity authorEntity = authorMapper.toEntity(authorDTO);
-
-        UserEntity currentUser = userService.getCurrentUser();
-        authorEntity.setCreatedBy(currentUser);
-
         authorRepository.save(authorEntity);
+
+        auditService.prepareAuditLog(
+                TableNameUtil.getTableName(authorEntity.getClass()),
+                authorEntity.getAuthorId(),
+                AuditLogConstants.ACTION_CREATE
+        );
     }
 
     @Override
@@ -43,10 +46,13 @@ public class AuthorServiceImpl implements AuthorService {
         AuthorEntity authorEntity = findAuthorByIdOrThrow(UUID.fromString(authorId));
         authorEntity = authorMapper.updateFromDTO(authorDTO, authorEntity);
 
-        UserEntity currentUser = userService.getCurrentUser();
-        authorEntity.setUpdatedBy(currentUser);
-
         authorRepository.save(authorEntity);
+
+        auditService.prepareAuditLog(
+                TableNameUtil.getTableName(authorEntity.getClass()),
+                authorEntity.getAuthorId(),
+                AuditLogConstants.ACTION_UPDATE
+        );
     }
 
     @Override
@@ -55,6 +61,12 @@ public class AuthorServiceImpl implements AuthorService {
 
         checkAuthorExistsByIdOrThrow(internalId);
         authorRepository.deleteById(internalId);
+
+        auditService.prepareAuditLog(
+                TableNameUtil.getTableName(AuthorEntity.class),
+                internalId,
+                AuditLogConstants.ACTION_DELETE
+        );
     }
 
     @Override

@@ -1,5 +1,6 @@
 package cz.jkdabing.backend.service.impl;
 
+import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.dto.LoginDTO;
 import cz.jkdabing.backend.dto.UserDTO;
 import cz.jkdabing.backend.entity.UserEntity;
@@ -7,10 +8,11 @@ import cz.jkdabing.backend.exception.UserAlreadyExistsException;
 import cz.jkdabing.backend.mapper.UserMapper;
 import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
+import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.CustomerService;
 import cz.jkdabing.backend.service.EmailService;
 import cz.jkdabing.backend.service.UserService;
-import cz.jkdabing.backend.utils.SecurityUtil;
+import cz.jkdabing.backend.utils.TableNameUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -37,15 +39,18 @@ public class UserServiceImpl implements UserService {
 
     private final EmailService emailService;
 
+    private final AuditService auditService;
+
     public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, CustomerService customerService,
-                           PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider,
-                           EmailService emailService) {
+                           PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, EmailService emailService,
+                           AuditService auditService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.customerService = customerService;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.emailService = emailService;
+        this.auditService = auditService;
     }
 
     @Override
@@ -64,9 +69,14 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = findUserByActivationToken(token);
         userEntity.setActive(true);
         userEntity.setActivationToken(null);
-        userEntity.setUpdatedBy(userEntity);
 
         userRepository.save(userEntity);
+
+        auditService.prepareAuditLog(
+                TableNameUtil.getTableName(userEntity.getClass()),
+                userEntity.getUserId(),
+                AuditLogConstants.ACTION_ACTIVATE
+        );
     }
 
     @Override
@@ -94,16 +104,6 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new BadCredentialsException("Invalid credentials");
         }
-    }
-
-    @Override
-    public UserEntity getCurrentUser() {
-        String currentUserId = SecurityUtil.getCurrentUserId();
-        if (currentUserId == null) {
-            return null;
-        }
-
-        return userRepository.getReferenceById(UUID.fromString(currentUserId));
     }
 
     private UserEntity findUserByActivationToken(String token) {

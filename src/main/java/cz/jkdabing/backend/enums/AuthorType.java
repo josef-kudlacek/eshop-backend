@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum AuthorType {
 
-    MAIN(1),
+    AUTHOR(1),
     COAUTHOR(2),
     TRANSLATOR(3),
     INTERPRET(4),

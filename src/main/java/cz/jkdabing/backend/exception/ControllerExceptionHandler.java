@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MultipartException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,7 +23,7 @@ import java.util.Map;
 @ResponseBody
 public class ControllerExceptionHandler {
 
-    @ExceptionHandler({BadRequestException.class, ImageAlreadyExistsException.class})
+    @ExceptionHandler({BadRequestException.class, ImageAlreadyExistsException.class, MultipartException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorMessage> handleBadRequestExceptions(Exception exception, WebRequest webRequest) {
         ErrorMessage message = new ErrorMessage(
