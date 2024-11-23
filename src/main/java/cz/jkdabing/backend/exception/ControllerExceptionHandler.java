@@ -15,9 +15,7 @@ import org.springframework.web.multipart.MultipartException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @ControllerAdvice
 @ResponseBody
@@ -52,11 +50,13 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorMessage> handleValidationExceptions(MethodArgumentNotValidException exception, WebRequest webRequest) {
-        Map<String, String> errors = new HashMap<>();
+        Map<String, List<String>> errors = new HashMap<>();
         exception.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
+
+            errors.computeIfAbsent(fieldName, errorMessages -> new ArrayList<>())
+                    .add(errorMessage);
         });
 
         ErrorMessage message = new ErrorMessage(
