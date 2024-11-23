@@ -20,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfiguration {
+public class SecurityConfigurationFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -28,7 +28,7 @@ public class SecurityConfiguration {
 
     private final UserRepository userRepository;
 
-    public SecurityConfiguration(
+    public SecurityConfigurationFilter(
             JwtTokenProvider jwtTokenProvider,
             CustomerDetailsService customerDetailsService,
             UserRepository userRepository) {

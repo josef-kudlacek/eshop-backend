@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.service.impl;
 
-import cz.jkdabing.backend.config.FileStorageProperties;
+import cz.jkdabing.backend.config.FileUploadProperties;
 import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.entity.ImageEntity;
 import cz.jkdabing.backend.entity.ProductEntity;
@@ -30,14 +30,14 @@ public class ImageServiceImpl implements ImageService {
 
     private final ImageRepository imageRepository;
 
-    private final FileStorageProperties fileStorageProperties;
+    private final FileUploadProperties fileUploadProperties;
 
     public ImageServiceImpl(ProductService productService, AuditService auditService,
-                            ImageRepository imageRepository, FileStorageProperties fileStorageProperties) {
+                            ImageRepository imageRepository, FileUploadProperties fileUploadProperties) {
         this.productService = productService;
         this.auditService = auditService;
         this.imageRepository = imageRepository;
-        this.fileStorageProperties = fileStorageProperties;
+        this.fileUploadProperties = fileUploadProperties;
     }
 
     @Override
@@ -108,7 +108,7 @@ public class ImageServiceImpl implements ImageService {
     }
 
     private void uploadImageFile(MultipartFile image, String imagePath, String imageName) throws IOException {
-        Path uploadPath = Paths.get(fileStorageProperties.getUploadDirectory() + imagePath, imageName);
+        Path uploadPath = Paths.get(fileUploadProperties.getUploadDirectory() + imagePath, imageName);
         Files.write(uploadPath, image.getBytes());
     }
 
@@ -132,7 +132,7 @@ public class ImageServiceImpl implements ImageService {
     }
 
     private void deleteImageFile(String imagePath, String imageName) {
-        Path path = Paths.get(fileStorageProperties.getUploadDirectory() + imagePath, imageName);
+        Path path = Paths.get(fileUploadProperties.getUploadDirectory() + imagePath, imageName);
 
         try {
             Files.deleteIfExists(path);

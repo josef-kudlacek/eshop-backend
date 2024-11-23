@@ -1,10 +1,10 @@
 package cz.jkdabing.backend.security.jwt;
 
 import cz.jkdabing.backend.constants.JWTConstants;
+import cz.jkdabing.backend.security.config.SecurityConfig;
 import cz.jkdabing.backend.util.ConversionClassUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -15,32 +15,29 @@ import java.util.Map;
 @Service
 public class JwtTokenProviderImpl implements JwtTokenProvider {
 
-    @Value("${spring.security.jwt.key}")
-    private String secretKey;
+    private final SecurityConfig securityConfig;
 
-    @Value("${jwt.customer.expiration}")
-    private long jwtCustomerExpiration;
-
-    @Value("${jwt.user.expiration}")
-    private long jwtUserExpiration;
+    public JwtTokenProviderImpl(SecurityConfig securityConfig) {
+        this.securityConfig = securityConfig;
+    }
 
     @Override
     public String createCustomerToken(String customerId) {
         Date now = new Date();
-        Date validity = new Date(now.getTime() + jwtCustomerExpiration);
+        Date validity = new Date(now.getTime() + securityConfig.getJwtCustomerExpiration());
 
         return Jwts.builder()
                 .subject(customerId)
                 .issuedAt(now)
                 .expiration(validity)
-                .signWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
+                .signWith(ConversionClassUtil.convertStringToSecretKey(securityConfig.getSecretKey()))
                 .compact();
     }
 
     @Override
     public String createUserToken(int tokenVersion, String userId, String username, List<String> roles) {
         Date now = new Date();
-        Date validity = new Date(now.getTime() + jwtUserExpiration);
+        Date validity = new Date(now.getTime() + securityConfig.getJwtUserExpiration());
 
         return Jwts.builder()
                 .subject(userId)
@@ -49,14 +46,14 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
                 .claim(JWTConstants.ROLES, roles)
                 .issuedAt(now)
                 .expiration(validity)
-                .signWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
+                .signWith(ConversionClassUtil.convertStringToSecretKey(securityConfig.getSecretKey()))
                 .compact();
     }
 
     @Override
     public String getSubjectIdFromToken(String token) {
         Claims claims = Jwts.parser()
-                .verifyWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
+                .verifyWith(ConversionClassUtil.convertStringToSecretKey(securityConfig.getSecretKey()))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -68,7 +65,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     public boolean isTokenValid(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
+                    .verifyWith(ConversionClassUtil.convertStringToSecretKey(securityConfig.getSecretKey()))
                     .build()
                     .parseSignedClaims(token);
             return true;
@@ -97,7 +94,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
 
         try {
             claims = Jwts.parser()
-                    .verifyWith(ConversionClassUtil.convertStringToSecretKey(secretKey))
+                    .verifyWith(ConversionClassUtil.convertStringToSecretKey(securityConfig.getSecretKey()))
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
