@@ -2,6 +2,7 @@ package cz.jkdabing.backend.controller;
 
 import cz.jkdabing.backend.dto.AuthorProductDTO;
 import cz.jkdabing.backend.dto.ProductDTO;
+import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -13,11 +14,12 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/products")
-public class ProductController {
+public class ProductController extends AbstractBaseController {
 
     private final ProductService productService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(MessageService messageService, ProductService productService) {
+        super(messageService);
         this.productService = productService;
     }
 
@@ -33,6 +35,6 @@ public class ProductController {
                                                      @Valid @RequestBody AuthorProductDTO authorProductDTO) {
         productService.addAuthorToProduct(productId, authorProductDTO);
 
-        return new ResponseEntity<>("Author added to product successfully", HttpStatus.OK);
+        return new ResponseEntity<>(getLocalizedMessage("author.added"), HttpStatus.OK);
     }
 }

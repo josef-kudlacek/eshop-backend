@@ -12,9 +12,9 @@ public class AuthorDTO {
 
     private UUID authorId;
 
-    @NotBlank(message = "First name may not be empty")
+    @NotBlank(message = "{error.author.first.name.empty}")
     private String firstName;
 
-    @NotBlank(message = "Last name may not be empty")
+    @NotBlank(message = "{error.author.last.name.empty}")
     private String lastName;
 }

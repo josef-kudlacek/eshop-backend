@@ -1,8 +1,8 @@
 package cz.jkdabing.backend.controller;
 
-import cz.jkdabing.backend.dto.JwtDTO;
 import cz.jkdabing.backend.dto.LoginDTO;
 import cz.jkdabing.backend.dto.UserDTO;
+import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.SecurityService;
 import cz.jkdabing.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -16,13 +16,14 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/users")
-public class UserController {
+public class UserController extends AbstractBaseController {
 
     private final UserService userService;
 
     private final SecurityService securityService;
 
-    public UserController(UserService userService, SecurityService securityService) {
+    public UserController(MessageService messageService, UserService userService, SecurityService securityService) {
+        super(messageService);
         this.userService = userService;
         this.securityService = securityService;
     }
@@ -45,16 +46,19 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<String> login(@Valid @RequestBody LoginDTO loginDTO) {
         try {
             String token = userService.authenticateUser(loginDTO);
-            return ResponseEntity.ok(new JwtDTO(token));
+            return ResponseEntity.ok(token);
         } catch (UsernameNotFoundException exception) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(getLocalizedMessage("User not found"));
         } catch (BadCredentialsException exception) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(getLocalizedMessage(exception.getMessage()));
         } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
+                    body(getLocalizedMessage("error.occurred"));
         }
     }
 

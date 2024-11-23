@@ -8,9 +8,9 @@ import lombok.Data;
 @Builder
 public class LoginDTO {
 
-    @NotBlank(message = "Username may not be empty")
+    @NotBlank(message = "{error.user.username.empty}")
     private String username;
 
-    @NotBlank(message = "Password may not be empty")
+    @NotBlank(message = "{error.customer.password.empty}")
     private String password;
 }

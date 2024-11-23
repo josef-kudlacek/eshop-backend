@@ -11,22 +11,18 @@ import cz.jkdabing.backend.mapper.AuthorProductMapper;
 import cz.jkdabing.backend.mapper.ProductMapper;
 import cz.jkdabing.backend.repository.AuthorProductRepository;
 import cz.jkdabing.backend.repository.ProductRepository;
-import cz.jkdabing.backend.service.AuditService;
-import cz.jkdabing.backend.service.AuthorService;
-import cz.jkdabing.backend.service.ProductService;
+import cz.jkdabing.backend.service.*;
 import cz.jkdabing.backend.util.TableNameUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-public class ProductServiceImpl implements ProductService {
+public class ProductServiceImpl extends AbstractService implements ProductService {
 
     private final ProductRepository productRepository;
 
     private final ProductMapper productMapper;
-
-    private final AuditService auditService;
 
     private final AuthorService authorService;
 
@@ -34,13 +30,15 @@ public class ProductServiceImpl implements ProductService {
 
     private final AuthorProductMapper authorProductMapper;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper,
-                              AuditService auditService, AuthorService authorService,
-                              AuthorProductRepository authorProductRepository,
-                              AuthorProductMapper authorProductMapper) {
+    public ProductServiceImpl(
+            MessageService messageService,
+            AuditService auditService, AuthorService authorService,
+            ProductRepository productRepository, ProductMapper productMapper,
+            AuthorProductRepository authorProductRepository,
+            AuthorProductMapper authorProductMapper) {
+        super(messageService, auditService);
         this.productRepository = productRepository;
         this.productMapper = productMapper;
-        this.auditService = auditService;
         this.authorService = authorService;
         this.authorProductRepository = authorProductRepository;
         this.authorProductMapper = authorProductMapper;
@@ -51,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity productEntity = productMapper.toEntity(productDTO);
         productRepository.save(productEntity);
 
-        auditService.prepareAuditLog(
+        prepareAuditLog(
                 TableNameUtil.getTableName(productEntity.getClass()),
                 productEntity.getProductId(),
                 AuditLogConstants.ACTION_CREATE
@@ -63,13 +61,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductEntity findProductByIdOrThrow(UUID productId) {
         return productRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Product not found, id was: " + productId));
+                .orElseThrow(() -> new NotFoundException(
+                        getLocalizedMessage("error.product.not.found", productId)
+                ));
     }
 
     @Override
     public void checkProductExistsByIdOrThrow(UUID productId) {
         if (!productRepository.existsById(productId)) {
-            throw new NotFoundException("Product not found, id was: " + productId);
+            String productNotFound = getLocalizedMessage("error.product.not.found", productId);
+            throw new NotFoundException(productNotFound);
         }
     }
 
@@ -77,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
     public void updateProduct(ProductEntity productEntity) {
         productRepository.save(productEntity);
 
-        auditService.prepareAuditLog(
+        prepareAuditLog(
                 TableNameUtil.getTableName(productEntity.getClass()),
                 productEntity.getProductId(),
                 AuditLogConstants.ACTION_UPDATE
@@ -95,7 +96,7 @@ public class ProductServiceImpl implements ProductService {
 
         authorProductRepository.save(authorProductEntity);
 
-        auditService.prepareAuditLog(
+        prepareAuditLog(
                 TableNameUtil.getTableName(authorProductEntity.getClass()),
                 authorProductEntity.getAuthorProductId(),
                 AuditLogConstants.ACTION_CREATE

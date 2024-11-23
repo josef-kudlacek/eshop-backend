@@ -1,5 +1,6 @@
 package cz.jkdabing.backend.service.impl;
 
+import cz.jkdabing.backend.config.ServerAddressConfig;
 import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.dto.LoginDTO;
 import cz.jkdabing.backend.dto.UserDTO;
@@ -8,10 +9,7 @@ import cz.jkdabing.backend.exception.UserAlreadyExistsException;
 import cz.jkdabing.backend.mapper.UserMapper;
 import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
-import cz.jkdabing.backend.service.AuditService;
-import cz.jkdabing.backend.service.CustomerService;
-import cz.jkdabing.backend.service.EmailService;
-import cz.jkdabing.backend.service.UserService;
+import cz.jkdabing.backend.service.*;
 import cz.jkdabing.backend.util.TableNameUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,7 +23,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends AbstractService implements UserService {
 
     private final UserRepository userRepository;
 
@@ -39,18 +37,27 @@ public class UserServiceImpl implements UserService {
 
     private final EmailService emailService;
 
-    private final AuditService auditService;
+    private final ServerAddressConfig serverAddressConfig;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, CustomerService customerService,
-                           PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, EmailService emailService,
-                           AuditService auditService) {
+    public UserServiceImpl(
+            MessageService messageService,
+            AuditService auditService,
+            UserRepository userRepository,
+            UserMapper userMapper,
+            CustomerService customerService,
+            PasswordEncoder passwordEncoder,
+            JwtTokenProvider jwtTokenProvider,
+            EmailService emailService,
+            ServerAddressConfig serverAddressConfig
+    ) {
+        super(messageService, auditService);
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.customerService = customerService;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.emailService = emailService;
-        this.auditService = auditService;
+        this.serverAddressConfig = serverAddressConfig;
     }
 
     @Override
@@ -66,13 +73,15 @@ public class UserServiceImpl implements UserService {
             String userEmail = userDTO.getCustomer().getEmail();
             sendActivationEmail(userEmail, userEntity.getActivationToken());
 
-            auditService.prepareAuditLog(
+            prepareAuditLog(
                     TableNameUtil.getTableName(userEntity.getClass()),
                     userEntity.getUserId(),
                     AuditLogConstants.ACTION_REGISTER
             );
         } catch (DataIntegrityViolationException e) {
-            throw new UserAlreadyExistsException(String.format("Username '%s' already exists", userDTO.getUsername()));
+            throw new UserAlreadyExistsException(
+                    getLocalizedMessage("error.user.username.already.exists", userDTO.getUsername())
+            );
         }
     }
 
@@ -85,7 +94,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(userEntity);
 
-        auditService.prepareAuditLog(
+        prepareAuditLog(
                 TableNameUtil.getTableName(userEntity.getClass()),
                 userEntity.getUserId(),
                 AuditLogConstants.ACTION_ACTIVATE
@@ -95,10 +104,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public String authenticateUser(LoginDTO loginDTO) {
         UserEntity userEntity = userRepository.findByUsername(loginDTO.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", loginDTO.getUsername())));
+                .orElseThrow(() -> new UsernameNotFoundException(
+                                getLocalizedMessage("error.user.not.found", loginDTO.getUsername())
+                        )
+                );
 
         if (!userEntity.isEnabled()) {
-            throw new BadCredentialsException(String.format("User '%s' is not active", loginDTO.getUsername()));
+            throw new BadCredentialsException(
+                    getLocalizedMessage("error.user.not.active", loginDTO.getUsername())
+            );
         }
 
         if (passwordEncoder.matches(loginDTO.getPassword(), userEntity.getPassword())) {
@@ -117,19 +131,21 @@ public class UserServiceImpl implements UserService {
                         roles);
             }
 
-            throw new IllegalArgumentException("Roles are not in the expected format");
+            throw new IllegalArgumentException(getLocalizedMessage("error.user.bad.roles"));
         } else {
-            throw new BadCredentialsException("Invalid credentials");
+            throw new BadCredentialsException(getLocalizedMessage("error.user.bad.credentials"));
         }
     }
 
     private UserEntity findUserByActivationToken(String token) {
         return userRepository.findByActivationToken(token)
-                .orElseThrow(() -> new NoSuchElementException("Invalid activation token: " + token));
+                .orElseThrow(() -> new NoSuchElementException(
+                        getLocalizedMessage("jwt.invalid.activation.token", token)
+                ));
     }
 
     private void sendActivationEmail(String email, String activationToken) {
-        String activationLink = "http://localhost:8080/api/users/activate?token=" + activationToken;
+        String activationLink = serverAddressConfig.getServerAddress() + "api/users/activate?token=" + activationToken;
         emailService.sendActivationEmail(email, activationLink);
     }
 }

@@ -14,7 +14,7 @@ public class UserDTO {
 
     private UUID userId;
 
-    @NotBlank(message = "Username may not be empty")
+    @NotBlank(message = "{error.user.username.empty}")
     private String username;
 
     @ValidPassword

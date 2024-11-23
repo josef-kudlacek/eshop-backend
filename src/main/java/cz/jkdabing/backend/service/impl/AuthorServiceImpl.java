@@ -6,26 +6,30 @@ import cz.jkdabing.backend.entity.AuthorEntity;
 import cz.jkdabing.backend.exception.NotFoundException;
 import cz.jkdabing.backend.mapper.AuthorMapper;
 import cz.jkdabing.backend.repository.AuthorRepository;
+import cz.jkdabing.backend.service.AbstractService;
 import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.AuthorService;
+import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.util.TableNameUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-public class AuthorServiceImpl implements AuthorService {
+public class AuthorServiceImpl extends AbstractService implements AuthorService {
 
     private final AuthorMapper authorMapper;
 
     private final AuthorRepository authorRepository;
 
-    private final AuditService auditService;
-
-    public AuthorServiceImpl(AuthorMapper authorMapper, AuthorRepository authorRepository, AuditService auditService) {
+    public AuthorServiceImpl(
+            MessageService messageService,
+            AuthorMapper authorMapper,
+            AuthorRepository authorRepository,
+            AuditService auditService) {
+        super(messageService, auditService);
         this.authorMapper = authorMapper;
         this.authorRepository = authorRepository;
-        this.auditService = auditService;
     }
 
     @Override
@@ -33,7 +37,7 @@ public class AuthorServiceImpl implements AuthorService {
         AuthorEntity authorEntity = authorMapper.toEntity(authorDTO);
         authorRepository.save(authorEntity);
 
-        auditService.prepareAuditLog(
+        prepareAuditLog(
                 TableNameUtil.getTableName(authorEntity.getClass()),
                 authorEntity.getAuthorId(),
                 AuditLogConstants.ACTION_CREATE
@@ -48,7 +52,7 @@ public class AuthorServiceImpl implements AuthorService {
 
         authorRepository.save(authorEntity);
 
-        auditService.prepareAuditLog(
+        prepareAuditLog(
                 TableNameUtil.getTableName(authorEntity.getClass()),
                 authorEntity.getAuthorId(),
                 AuditLogConstants.ACTION_UPDATE
@@ -62,7 +66,7 @@ public class AuthorServiceImpl implements AuthorService {
         checkAuthorExistsByIdOrThrow(internalId);
         authorRepository.deleteById(internalId);
 
-        auditService.prepareAuditLog(
+        prepareAuditLog(
                 TableNameUtil.getTableName(AuthorEntity.class),
                 internalId,
                 AuditLogConstants.ACTION_DELETE
@@ -72,13 +76,16 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public void checkAuthorExistsByIdOrThrow(UUID authorId) {
         if (!authorRepository.existsById(authorId)) {
-            throw new NotFoundException("Author not found, id was: " + authorId);
+            throw new NotFoundException(getLocalizedMessage("error.author.not.found", authorId)
+            );
         }
     }
 
     @Override
     public AuthorEntity findAuthorByIdOrThrow(UUID authorId) {
         return authorRepository.findById(authorId)
-                .orElseThrow(() -> new NotFoundException("Author not found, id was: " + authorId));
+                .orElseThrow(() -> new NotFoundException(
+                        getLocalizedMessage("error.author.not.found", authorId))
+                );
     }
 }

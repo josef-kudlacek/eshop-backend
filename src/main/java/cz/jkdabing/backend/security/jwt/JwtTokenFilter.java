@@ -5,6 +5,7 @@ import cz.jkdabing.backend.constants.JWTConstants;
 import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.exception.InvalidJwtAuthenticationException;
 import cz.jkdabing.backend.repository.UserRepository;
+import cz.jkdabing.backend.service.MessageService;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -31,10 +32,18 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
 
-    public JwtTokenFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService, UserRepository userRepository) {
+    private final MessageService messageService;
+
+    public JwtTokenFilter(
+            JwtTokenProvider jwtTokenProvider,
+            UserDetailsService userDetailsService,
+            UserRepository userRepository,
+            MessageService messageService
+    ) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userDetailsService = userDetailsService;
         this.userRepository = userRepository;
+        this.messageService = messageService;
     }
 
     @Override
@@ -46,8 +55,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         if (token != null) {
             if (!jwtTokenProvider.isTokenValid(token)) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().println(JWTConstants.INVALID_TOKEN_MESSAGE);
+                prepareUnauthorizedResponse(response);
                 return;
             } else {
                 Map<String, Object> userDetails = jwtTokenProvider.getUserDetailsFromToken(token);
@@ -57,8 +65,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                     try {
                         handleUserToken(request, userDetails);
                     } catch (InvalidJwtAuthenticationException exception) {
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        response.getWriter().println(JWTConstants.INVALID_TOKEN_MESSAGE);
+                        prepareUnauthorizedResponse(response);
                         return;
                     }
                 }
@@ -92,7 +99,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String userName = (String) userDetails.get(JWTConstants.USERNAME);
         Optional<UserEntity> user = userRepository.findByUsername(userName);
         if (user.isEmpty() || tokenVersion != user.get().getTokenVersion()) {
-            throw new InvalidJwtAuthenticationException("Invalid user token");
+            throw new InvalidJwtAuthenticationException(messageService.getMessage(JWTConstants.INVALID_TOKEN_MESSAGE));
         }
 
         Object rolesObj = userDetails.get(JWTConstants.ROLES);
@@ -111,5 +118,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+    }
+
+    private void prepareUnauthorizedResponse(HttpServletResponse response) throws IOException {
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().println(messageService.getMessage(JWTConstants.INVALID_TOKEN_MESSAGE));
     }
 }

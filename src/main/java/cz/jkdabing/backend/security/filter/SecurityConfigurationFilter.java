@@ -4,6 +4,7 @@ import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.security.CustomerDetailsService;
 import cz.jkdabing.backend.security.jwt.JwtTokenFilter;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
+import cz.jkdabing.backend.service.MessageService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -28,13 +29,18 @@ public class SecurityConfigurationFilter {
 
     private final UserRepository userRepository;
 
+    private final MessageService messageService;
+
     public SecurityConfigurationFilter(
             JwtTokenProvider jwtTokenProvider,
             CustomerDetailsService customerDetailsService,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            MessageService messageService
+    ) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.customerDetailsService = customerDetailsService;
         this.userRepository = userRepository;
+        this.messageService = messageService;
     }
 
     @Bean
@@ -49,7 +55,7 @@ public class SecurityConfigurationFilter {
                 )
                 .logout(LogoutConfigurer::permitAll)
                 .addFilterBefore(
-                        new JwtTokenFilter(jwtTokenProvider, customerDetailsService, userRepository),
+                        new JwtTokenFilter(jwtTokenProvider, customerDetailsService, userRepository, messageService),
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .build();

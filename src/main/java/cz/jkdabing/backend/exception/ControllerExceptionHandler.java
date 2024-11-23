@@ -1,5 +1,6 @@
 package cz.jkdabing.backend.exception;
 
+import cz.jkdabing.backend.service.MessageService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,13 @@ import java.util.*;
 @ResponseBody
 public class ControllerExceptionHandler {
 
-    @ExceptionHandler({BadRequestException.class, ImageAlreadyExistsException.class, MultipartException.class})
+    private final MessageService messageService;
+
+    public ControllerExceptionHandler(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @ExceptionHandler({BadRequestException.class, ImageAlreadyExistsException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorMessage> handleBadRequestExceptions(Exception exception, WebRequest webRequest) {
         ErrorMessage message = new ErrorMessage(
@@ -62,7 +69,7 @@ public class ControllerExceptionHandler {
         ErrorMessage message = new ErrorMessage(
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),
-                "Validation failed",
+                messageService.getMessage("error.validation.failed"),
                 errors,
                 webRequest.getDescription(false)
         );
@@ -97,20 +104,33 @@ public class ControllerExceptionHandler {
         ErrorMessage message = new ErrorMessage(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 new Date(),
-                "Something wrong happened on server, please contact J. K.",
+                messageService.getMessage("error.server.side"),
                 webRequest.getDescription(false));
 
         return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<ErrorMessage> handleUserAlreadyExistsException(WebRequest webRequest) {
+    public ResponseEntity<ErrorMessage> handleIOException(WebRequest webRequest) {
         ErrorMessage message = new ErrorMessage(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 new Date(),
-                "Processing of file was not successful, please contact J. K.",
+                messageService.getMessage("error.io.exception"),
                 webRequest.getDescription(false));
 
         return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorMessage> handleMultipartException(WebRequest webRequest) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                messageService.getMessage("error.image.empty.image"),
+                webRequest.getDescription(false)
+        );
+
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
 }

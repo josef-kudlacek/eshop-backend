@@ -10,20 +10,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-public class HelloController {
-
-    private final MessageService messageService;
+public class HelloController extends AbstractBaseController {
 
     private final SecurityService securityService;
 
     public HelloController(MessageService messageService, SecurityService securityService) {
-        this.messageService = messageService;
+        super(messageService);
         this.securityService = securityService;
     }
 
     @GetMapping("/")
     public String hello() {
-        return messageService.getMessage("greeting.message");
+        return getLocalizedMessage("greeting.message");
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -31,6 +29,6 @@ public class HelloController {
     public String admin() {
         UserEntity currentUser = securityService.getCurrentUser();
 
-        return messageService.getMessage("admin.greeting.message", currentUser.getUsername());
+        return getLocalizedMessage("admin.greeting.message", currentUser.getUsername());
     }
 }

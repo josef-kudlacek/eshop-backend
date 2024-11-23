@@ -4,6 +4,7 @@ import cz.jkdabing.backend.config.FileUploadProperties;
 import cz.jkdabing.backend.constants.FileConstants;
 import cz.jkdabing.backend.exception.BadRequestException;
 import cz.jkdabing.backend.service.ImageService;
+import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.util.FileValidationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +16,16 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/products")
-public class ImageController {
+public class ImageController extends AbstractBaseController {
 
     private final ImageService imageService;
 
     private final FileUploadProperties fileUploadProperties;
 
-    public ImageController(ImageService imageService, FileUploadProperties fileUploadProperties) {
+    public ImageController(MessageService messageService,
+                           ImageService imageService,
+                           FileUploadProperties fileUploadProperties) {
+        super(messageService);
         this.imageService = imageService;
         this.fileUploadProperties = fileUploadProperties;
     }
@@ -32,7 +36,7 @@ public class ImageController {
         checkImage(imageFile);
         try {
             imageService.saveImage(productId, imageFile, FileConstants.PRODUCT_IMAGE_RELATIVE_PATH);
-            return new ResponseEntity<>("Image uploaded successfully", HttpStatus.OK);
+            return new ResponseEntity<>(getLocalizedMessage("image.uploaded"), HttpStatus.OK);
         } catch (IOException exception) {
             exception.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -45,7 +49,7 @@ public class ImageController {
         checkImage(imageFile);
         try {
             imageService.updateImage(productId, imageFile, FileConstants.PRODUCT_IMAGE_RELATIVE_PATH);
-            return new ResponseEntity<>("Image uploaded successfully", HttpStatus.OK);
+            return new ResponseEntity<>(getLocalizedMessage("image.uploaded"), HttpStatus.OK);
         } catch (IOException exception) {
             exception.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -56,7 +60,7 @@ public class ImageController {
     public ResponseEntity<String> deleteImage(@PathVariable("productId") String productId) throws FileNotFoundException {
         imageService.deleteImage(productId);
 
-        return new ResponseEntity<>("Image deleted successfully", HttpStatus.OK);
+        return new ResponseEntity<>(getLocalizedMessage("image.deleted"), HttpStatus.OK);
     }
 
     private void checkImage(MultipartFile imageFile) {
@@ -69,21 +73,21 @@ public class ImageController {
     private void checkImageIsNotEmpty(MultipartFile imageFile) {
         boolean imageIsEmpty = imageFile == null || imageFile.isEmpty();
         if (imageIsEmpty) {
-            throw new BadRequestException("No image for upload");
+            throw new BadRequestException(getLocalizedMessage("error.image.empty.image"));
         }
     }
 
     private void checkImageExtension(MultipartFile imageFile) {
         boolean imageFileIsNotValid = !FileValidationUtils.isImageFileValid(imageFile.getOriginalFilename());
         if (imageFileIsNotValid) {
-            throw new BadRequestException("Invalid image extension");
+            throw new BadRequestException(getLocalizedMessage("error.image.invalid.extension"));
         }
     }
 
     private void checkImageSize(MultipartFile imageFile) {
         boolean imageFileIsTooLarge = imageFile.getSize() > fileUploadProperties.getMaxImageFileSize();
         if (imageFileIsTooLarge) {
-            throw new BadRequestException("Image size exceeds max limit");
+            throw new BadRequestException(getLocalizedMessage("error.image.size.exceed.limit"));
         }
     }
 }

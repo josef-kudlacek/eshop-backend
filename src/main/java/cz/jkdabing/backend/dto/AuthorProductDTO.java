@@ -12,6 +12,6 @@ public class AuthorProductDTO {
 
     private UUID authorId;
 
-    @NotEmpty(message = "Author type is required")
+    @NotEmpty(message = "{error.author.type.empty}")
     private String authorType;
 }

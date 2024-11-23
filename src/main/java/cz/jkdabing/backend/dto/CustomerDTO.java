@@ -12,28 +12,28 @@ public class CustomerDTO {
 
     private UUID customerId;
 
-    @NotBlank(message = "Email may not be empty")
+    @NotBlank(message = "{error.customer.email.empty}")
     private String email;
 
-    @NotBlank(message = "First name may not be empty")
+    @NotBlank(message = "{error.customer.first.name.empty}")
     private String firstName;
 
-    @NotBlank(message = "Last name may not be empty")
+    @NotBlank(message = "{error.customer.last.name.empty}")
     private String lastName;
 
     private String companyName;
 
     private String phoneNumber;
 
-    @NotBlank(message = "Street may not be empty")
+    @NotBlank(message = "{error.customer.street.empty}")
     private String street;
 
-    @NotBlank(message = "City may not be empty")
+    @NotBlank(message = "{error.customer.city.empty}")
     private String city;
 
-    @NotBlank(message = "Postal code may not be empty")
+    @NotBlank(message = "{error.customer.postal.code.empty}")
     private String postalCode;
 
-    @NotBlank(message = "Country may not be empty")
+    @NotBlank(message = "{error.customer.country.empty}")
     private String country;
 }

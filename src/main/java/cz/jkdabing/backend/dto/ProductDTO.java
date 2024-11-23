@@ -16,13 +16,13 @@ public class ProductDTO {
 
     private UUID productId;
 
-    @NotBlank(message = "Product name may not be empty")
+    @NotBlank(message = "{error.product.name}")
     private String productName;
 
-    @NotBlank(message = "Product type may not be empty")
+    @NotBlank(message = "{error.product.type}")
     private String productType;
 
-    @NotBlank(message = "Product description may not be empty")
+    @NotBlank(message = "{error.product.description}")
     private String productDescription;
 
     private ZonedDateTime publishedDate;

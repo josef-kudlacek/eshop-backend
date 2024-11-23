@@ -10,7 +10,7 @@ import java.util.Locale;
 @Service
 public class MessageServiceImpl implements MessageService {
 
-    private MessageSource messageSource;
+    private final MessageSource messageSource;
 
     public MessageServiceImpl(MessageSource messageSource) {
         this.messageSource = messageSource;
