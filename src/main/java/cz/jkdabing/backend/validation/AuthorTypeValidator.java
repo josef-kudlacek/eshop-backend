@@ -1,4 +1,4 @@
-package cz.jkdabing.backend.validator;
+package cz.jkdabing.backend.validation;
 
 import cz.jkdabing.backend.enums.AuthorType;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,8 @@
-package cz.jkdabing.backend.configuration;
+package cz.jkdabing.backend.security.filter;
 
 import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.security.CustomerDetailsService;
-import cz.jkdabing.backend.security.JwtTokenFilter;
+import cz.jkdabing.backend.security.jwt.JwtTokenFilter;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

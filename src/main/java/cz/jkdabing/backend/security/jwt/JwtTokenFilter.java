@@ -1,12 +1,10 @@
-package cz.jkdabing.backend.security;
+package cz.jkdabing.backend.security.jwt;
 
 import cz.jkdabing.backend.constants.HttpHeaderConstants;
 import cz.jkdabing.backend.constants.JWTConstants;
 import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.exception.InvalidJwtAuthenticationException;
 import cz.jkdabing.backend.repository.UserRepository;
-import cz.jkdabing.backend.security.jwt.JwtAuthenticationToken;
-import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

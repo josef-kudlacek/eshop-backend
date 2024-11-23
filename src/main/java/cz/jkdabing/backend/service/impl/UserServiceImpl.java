@@ -12,7 +12,7 @@ import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.CustomerService;
 import cz.jkdabing.backend.service.EmailService;
 import cz.jkdabing.backend.service.UserService;
-import cz.jkdabing.backend.utils.TableNameUtil;
+import cz.jkdabing.backend.util.TableNameUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;

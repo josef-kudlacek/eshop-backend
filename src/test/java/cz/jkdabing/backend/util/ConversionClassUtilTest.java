@@ -1,4 +1,4 @@
-package cz.jkdabing.backend.utils;
+package cz.jkdabing.backend.util;
 
 import io.jsonwebtoken.security.WeakKeyException;
 import org.junit.jupiter.api.Test;

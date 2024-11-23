@@ -3,7 +3,7 @@ package cz.jkdabing.backend.service.impl;
 import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.service.SecurityService;
-import cz.jkdabing.backend.utils.SecurityUtil;
+import cz.jkdabing.backend.util.SecurityUtil;
 import org.springframework.stereotype.Service;
 
 @Service

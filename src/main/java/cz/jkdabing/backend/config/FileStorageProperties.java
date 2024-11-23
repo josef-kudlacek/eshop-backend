@@ -1,4 +1,4 @@
-package cz.jkdabing.backend.configuration;
+package cz.jkdabing.backend.config;
 
 
 import lombok.Getter;

@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.service.impl;
 
-import cz.jkdabing.backend.configuration.FileStorageProperties;
+import cz.jkdabing.backend.config.FileStorageProperties;
 import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.entity.ImageEntity;
 import cz.jkdabing.backend.entity.ProductEntity;
@@ -9,7 +9,7 @@ import cz.jkdabing.backend.repository.ImageRepository;
 import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.ImageService;
 import cz.jkdabing.backend.service.ProductService;
-import cz.jkdabing.backend.utils.TableNameUtil;
+import cz.jkdabing.backend.util.TableNameUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,4 +1,4 @@
-package cz.jkdabing.backend.utils;
+package cz.jkdabing.backend.util;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

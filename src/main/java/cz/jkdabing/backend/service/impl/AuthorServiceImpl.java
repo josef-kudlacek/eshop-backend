@@ -8,7 +8,7 @@ import cz.jkdabing.backend.mapper.AuthorMapper;
 import cz.jkdabing.backend.repository.AuthorRepository;
 import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.AuthorService;
-import cz.jkdabing.backend.utils.TableNameUtil;
+import cz.jkdabing.backend.util.TableNameUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

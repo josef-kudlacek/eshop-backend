@@ -1,4 +1,4 @@
-package cz.jkdabing.backend.utils;
+package cz.jkdabing.backend.util;
 
 import jakarta.persistence.Table;
 

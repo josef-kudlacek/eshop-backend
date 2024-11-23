@@ -1,4 +1,4 @@
-package cz.jkdabing.backend.configuration;
+package cz.jkdabing.backend.security;
 
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 import org.springframework.context.annotation.Configuration;

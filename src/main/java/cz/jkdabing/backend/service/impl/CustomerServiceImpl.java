@@ -8,7 +8,7 @@ import cz.jkdabing.backend.mapper.CustomerMapper;
 import cz.jkdabing.backend.repository.CustomerRepository;
 import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.CustomerService;
-import cz.jkdabing.backend.utils.TableNameUtil;
+import cz.jkdabing.backend.util.TableNameUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

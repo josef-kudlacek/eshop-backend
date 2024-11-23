@@ -1,7 +1,7 @@
 package cz.jkdabing.backend.security.jwt;
 
 import cz.jkdabing.backend.constants.JWTConstants;
-import cz.jkdabing.backend.utils.ConversionClassUtil;
+import cz.jkdabing.backend.util.ConversionClassUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
