@@ -1,5 +1,6 @@
 package cz.jkdabing.backend.controller;
 
+import cz.jkdabing.backend.dto.JwtDTO;
 import cz.jkdabing.backend.dto.LoginDTO;
 import cz.jkdabing.backend.dto.UserDTO;
 import cz.jkdabing.backend.service.MessageService;
@@ -46,13 +47,13 @@ public class UserController extends AbstractBaseController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
         try {
             String token = userService.authenticateUser(loginDTO);
-            return ResponseEntity.ok(token);
+            return ResponseEntity.ok(new JwtDTO(token));
         } catch (UsernameNotFoundException exception) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(getLocalizedMessage("User not found"));
+                    .body(getLocalizedMessage("error.user.not.found"));
         } catch (BadCredentialsException exception) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(getLocalizedMessage(exception.getMessage()));
@@ -63,7 +64,10 @@ public class UserController extends AbstractBaseController {
     }
 
     @PostMapping("/logout")
-    public void logout() {
+    public ResponseEntity<?> logout() {
         securityService.logoutUser();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(getLocalizedMessage("user.logout"));
     }
 }

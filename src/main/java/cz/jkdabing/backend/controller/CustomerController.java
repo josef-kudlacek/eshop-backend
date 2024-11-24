@@ -1,6 +1,7 @@
 package cz.jkdabing.backend.controller;
 
 import cz.jkdabing.backend.dto.CustomerDTO;
+import cz.jkdabing.backend.dto.JwtDTO;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.CustomerService;
 import jakarta.validation.Valid;
@@ -26,10 +27,10 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<String> register(@Valid @RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<JwtDTO> register(@Valid @RequestBody CustomerDTO customerDTO) {
         UUID customerId = customerService.createCustomer(customerDTO);
         String token = jwtTokenProvider.createCustomerToken(customerId.toString());
 
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(new JwtDTO(token));
     }
 }
