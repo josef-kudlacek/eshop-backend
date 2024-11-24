@@ -5,8 +5,6 @@ import cz.jkdabing.backend.entity.AuthorEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
-import java.util.List;
-
 @Mapper(componentModel = "spring")
 public interface AuthorMapper {
 
@@ -14,5 +12,5 @@ public interface AuthorMapper {
 
     AuthorEntity updateFromDTO(AuthorDTO authorDTO, @MappingTarget AuthorEntity authorEntity);
 
-    List<AuthorDTO> toDTOs(List<AuthorEntity> authorEntityList);
+    AuthorDTO toDTO(AuthorEntity authorEntity);
 }

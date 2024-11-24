@@ -20,7 +20,6 @@ public class AuthorEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID authorId;
 
-    @Column(nullable = false)
     private String firstName;
 
     @Column(nullable = false)

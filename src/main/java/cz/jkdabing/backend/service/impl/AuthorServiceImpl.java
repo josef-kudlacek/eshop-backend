@@ -13,7 +13,10 @@ import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.util.TableNameUtil;
 import org.springframework.stereotype.Service;
 
+import java.text.Collator;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -35,9 +38,10 @@ public class AuthorServiceImpl extends AbstractService implements AuthorService 
 
     @Override
     public List<AuthorDTO> getAuthors() {
-        List<AuthorEntity> authorEntityList = authorRepository.findAll();
-
-        return authorMapper.toDTOs(authorEntityList);
+        return authorRepository.findAll().stream()
+                .sorted(getAuthorEntityComparator())
+                .map(authorMapper::toDTO)
+                .toList();
     }
 
     @Override
@@ -95,5 +99,18 @@ public class AuthorServiceImpl extends AbstractService implements AuthorService 
                 .orElseThrow(() -> new NotFoundException(
                         getLocalizedMessage("error.author.not.found", authorId))
                 );
+    }
+
+    private Comparator<AuthorEntity> getAuthorEntityComparator() {
+        Collator collator = Collator.getInstance(Locale.forLanguageTag("cs-CZ"));
+
+        return (authorEntityOne, authorEntityTwo) -> {
+            int lastNameComparison = collator.compare(authorEntityOne.getLastName(), authorEntityTwo.getLastName());
+            if (lastNameComparison != 0) {
+                return lastNameComparison;
+            } else {
+                return collator.compare(authorEntityTwo.getFirstName(), authorEntityOne.getFirstName());
+            }
+        };
     }
 }
