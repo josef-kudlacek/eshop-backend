@@ -1,8 +1,6 @@
 package cz.jkdabing.backend.controller;
 
-import cz.jkdabing.backend.dto.AuthorProductDTO;
 import cz.jkdabing.backend.dto.ProductDTO;
-import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductService;
 import jakarta.validation.Valid;
@@ -41,15 +39,5 @@ public class ProductController extends AbstractBaseController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(updatedProduct);
-    }
-
-    @PatchMapping("/{productId}/addAuthor")
-    public ResponseEntity<MessageResponse> addAuthorToProduct(
-            @PathVariable UUID productId,
-            @Valid @RequestBody AuthorProductDTO authorProductDTO
-    ) {
-        productService.addAuthorToProduct(productId, authorProductDTO);
-
-        return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("author.added")));
     }
 }

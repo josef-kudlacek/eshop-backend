@@ -1,6 +1,5 @@
 package cz.jkdabing.backend.service;
 
-import cz.jkdabing.backend.dto.AuthorProductDTO;
 import cz.jkdabing.backend.dto.ProductDTO;
 import cz.jkdabing.backend.entity.ProductEntity;
 
@@ -16,5 +15,4 @@ public interface ProductService {
 
     void updateProduct(ProductEntity productEntity);
 
-    void addAuthorToProduct(UUID productId, AuthorProductDTO authorProductDTO);
 }

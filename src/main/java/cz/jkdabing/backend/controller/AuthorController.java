@@ -7,6 +7,8 @@ import cz.jkdabing.backend.service.MessageService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/authors")
 public class AuthorController extends AbstractBaseController {
@@ -16,6 +18,11 @@ public class AuthorController extends AbstractBaseController {
     public AuthorController(MessageService messageService, AuthorService authorService) {
         super(messageService);
         this.authorService = authorService;
+    }
+
+    @GetMapping
+    public List<AuthorDTO> getAuthors() {
+        return authorService.getAuthors();
     }
 
     @PostMapping

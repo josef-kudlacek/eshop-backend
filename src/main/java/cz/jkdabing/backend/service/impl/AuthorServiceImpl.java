@@ -13,6 +13,7 @@ import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.util.TableNameUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,6 +31,13 @@ public class AuthorServiceImpl extends AbstractService implements AuthorService 
         super(messageService, auditService);
         this.authorMapper = authorMapper;
         this.authorRepository = authorRepository;
+    }
+
+    @Override
+    public List<AuthorDTO> getAuthors() {
+        List<AuthorEntity> authorEntityList = authorRepository.findAll();
+
+        return authorMapper.toDTOs(authorEntityList);
     }
 
     @Override

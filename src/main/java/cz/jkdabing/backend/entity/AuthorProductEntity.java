@@ -20,11 +20,11 @@ public class AuthorProductEntity {
     private UUID authorProductId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
+    @JoinColumn(name = "author_id", nullable = false)
     private AuthorEntity author;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 
     @Enumerated(EnumType.STRING)
