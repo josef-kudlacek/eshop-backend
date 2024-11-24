@@ -7,6 +7,7 @@ import cz.jkdabing.backend.dto.CustomerDTO;
 import cz.jkdabing.backend.entity.CustomerEntity;
 import cz.jkdabing.backend.mapper.CustomerMapper;
 import cz.jkdabing.backend.repository.CustomerRepository;
+import cz.jkdabing.backend.service.AuditService;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -30,6 +31,9 @@ class CustomerServiceImplTest {
 
     @Mock
     private CustomerRepository customerRepository;
+
+    @Mock
+    private AuditService auditService;
 
     @Test
     void testCreateCustomer() {
