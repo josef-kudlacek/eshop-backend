@@ -67,11 +67,19 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
-    public void checkProductExistsByIdOrThrow(UUID productId) {
-        if (!productRepository.existsById(productId)) {
-            String productNotFound = getLocalizedMessage("error.product.not.found", productId);
-            throw new NotFoundException(productNotFound);
-        }
+    public ProductDTO updateProduct(UUID productId, ProductDTO productDTO) {
+        ProductEntity productEntity = findProductByIdOrThrow(productId);
+        productDTO.setProductId(productId);
+        productEntity = productMapper.updateEntity(productDTO, productEntity);
+        productRepository.save(productEntity);
+
+        prepareAuditLog(
+                TableNameUtil.getTableName(productEntity.getClass()),
+                productEntity.getProductId(),
+                AuditLogConstants.ACTION_UPDATE
+        );
+
+        return productMapper.toDTO(productEntity);
     }
 
     @Override

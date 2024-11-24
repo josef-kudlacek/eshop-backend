@@ -30,9 +30,21 @@ public class ProductController extends AbstractBaseController {
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{productId}")
+    public ResponseEntity<ProductDTO> updateProduct(
+            @PathVariable UUID productId,
+            @Valid @RequestBody ProductDTO productDTO
+    ) {
+        ProductDTO updatedProduct = productService.updateProduct(productId, productDTO);
+
+        return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
+    }
+
     @PatchMapping("/{productId}/addAuthor")
-    public ResponseEntity<String> addAuthorToProduct(@PathVariable UUID productId,
-                                                     @Valid @RequestBody AuthorProductDTO authorProductDTO) {
+    public ResponseEntity<String> addAuthorToProduct(
+            @PathVariable UUID productId,
+            @Valid @RequestBody AuthorProductDTO authorProductDTO
+    ) {
         productService.addAuthorToProduct(productId, authorProductDTO);
 
         return new ResponseEntity<>(getLocalizedMessage("author.added"), HttpStatus.OK);

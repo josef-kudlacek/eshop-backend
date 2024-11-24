@@ -12,7 +12,7 @@ public interface ProductService {
 
     ProductEntity findProductByIdOrThrow(UUID productId);
 
-    void checkProductExistsByIdOrThrow(UUID productId);
+    ProductDTO updateProduct(UUID productId, ProductDTO productDTO);
 
     void updateProduct(ProductEntity productEntity);
 
