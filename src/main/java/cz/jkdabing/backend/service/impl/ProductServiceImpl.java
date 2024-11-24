@@ -2,6 +2,7 @@ package cz.jkdabing.backend.service.impl;
 
 import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.dto.ProductDTO;
+import cz.jkdabing.backend.dto.ProductDetailDTO;
 import cz.jkdabing.backend.entity.ProductEntity;
 import cz.jkdabing.backend.exception.custom.NotFoundException;
 import cz.jkdabing.backend.mapper.ProductMapper;
@@ -80,5 +81,15 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
                 productEntity.getProductId(),
                 AuditLogConstants.ACTION_UPDATE
         );
+    }
+
+    @Override
+    public ProductDetailDTO getProduct(UUID productId) {
+        ProductEntity productEntityWithDetail = productRepository.findProductDetailByProductId(productId)
+                .orElseThrow(() -> new NotFoundException(
+                        getLocalizedMessage("error.product.not.found", productId)
+                ));
+
+        return productMapper.toDetailDTO(productEntityWithDetail);
     }
 }

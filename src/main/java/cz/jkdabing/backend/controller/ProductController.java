@@ -1,6 +1,7 @@
 package cz.jkdabing.backend.controller;
 
 import cz.jkdabing.backend.dto.ProductDTO;
+import cz.jkdabing.backend.dto.ProductDetailDTO;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductService;
 import jakarta.validation.Valid;
@@ -22,6 +23,11 @@ public class ProductController extends AbstractBaseController {
         this.productService = productService;
     }
 
+    @GetMapping("/{productId}")
+    public ProductDetailDTO getProduct(@PathVariable UUID productId) {
+        return productService.getProduct(productId);
+    }
+
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody ProductDTO productDTO) {
         ProductDTO createdProduct = productService.createProduct(productDTO);
@@ -31,13 +37,10 @@ public class ProductController extends AbstractBaseController {
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<ProductDTO> updateProduct(
+    public ProductDTO updateProduct(
             @PathVariable UUID productId,
             @Valid @RequestBody ProductDTO productDTO
     ) {
-        ProductDTO updatedProduct = productService.updateProduct(productId, productDTO);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(updatedProduct);
+        return productService.updateProduct(productId, productDTO);
     }
 }

@@ -3,15 +3,19 @@ package cz.jkdabing.backend.dto;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Data
-@Builder
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductDTO {
 
     private UUID productId;
