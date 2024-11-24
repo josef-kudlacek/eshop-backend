@@ -2,6 +2,7 @@ package cz.jkdabing.backend.controller;
 
 import cz.jkdabing.backend.dto.AuthorProductDTO;
 import cz.jkdabing.backend.dto.ProductDTO;
+import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductService;
 import jakarta.validation.Valid;
@@ -27,7 +28,8 @@ public class ProductController extends AbstractBaseController {
     public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody ProductDTO productDTO) {
         ProductDTO createdProduct = productService.createProduct(productDTO);
 
-        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(createdProduct);
     }
 
     @PutMapping("/{productId}")
@@ -37,16 +39,17 @@ public class ProductController extends AbstractBaseController {
     ) {
         ProductDTO updatedProduct = productService.updateProduct(productId, productDTO);
 
-        return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(updatedProduct);
     }
 
     @PatchMapping("/{productId}/addAuthor")
-    public ResponseEntity<String> addAuthorToProduct(
+    public ResponseEntity<MessageResponse> addAuthorToProduct(
             @PathVariable UUID productId,
             @Valid @RequestBody AuthorProductDTO authorProductDTO
     ) {
         productService.addAuthorToProduct(productId, authorProductDTO);
 
-        return new ResponseEntity<>(getLocalizedMessage("author.added"), HttpStatus.OK);
+        return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("author.added")));
     }
 }

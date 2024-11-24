@@ -1,11 +1,10 @@
 package cz.jkdabing.backend.controller;
 
 import cz.jkdabing.backend.dto.CustomerDTO;
-import cz.jkdabing.backend.dto.JwtDTO;
+import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.CustomerService;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,10 +26,10 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<JwtDTO> register(@Valid @RequestBody CustomerDTO customerDTO) {
+    public MessageResponse register(@Valid @RequestBody CustomerDTO customerDTO) {
         UUID customerId = customerService.createCustomer(customerDTO);
         String token = jwtTokenProvider.createCustomerToken(customerId.toString());
 
-        return ResponseEntity.ok(new JwtDTO(token));
+        return new MessageResponse(token);
     }
 }

@@ -1,5 +1,6 @@
 package cz.jkdabing.backend.controller;
 
+import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.SecurityService;
@@ -20,15 +21,15 @@ public class HelloController extends AbstractBaseController {
     }
 
     @GetMapping("/")
-    public String hello() {
-        return getLocalizedMessage("greeting.message");
+    public MessageResponse hello() {
+        return new MessageResponse(getLocalizedMessage("greeting.message"));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin")
-    public String admin() {
+    public MessageResponse admin() {
         UserEntity currentUser = securityService.getCurrentUser();
 
-        return getLocalizedMessage("admin.greeting.message", currentUser.getUsername());
+        return new MessageResponse(getLocalizedMessage("admin.greeting.message", currentUser.getUsername()));
     }
 }

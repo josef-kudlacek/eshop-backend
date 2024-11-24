@@ -1,8 +1,8 @@
 package cz.jkdabing.backend.controller;
 
-import cz.jkdabing.backend.dto.JwtDTO;
 import cz.jkdabing.backend.dto.LoginDTO;
 import cz.jkdabing.backend.dto.UserDTO;
+import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.SecurityService;
 import cz.jkdabing.backend.service.UserService;
@@ -23,51 +23,55 @@ public class UserController extends AbstractBaseController {
 
     private final SecurityService securityService;
 
-    public UserController(MessageService messageService, UserService userService, SecurityService securityService) {
+    public UserController(
+            MessageService messageService,
+            UserService userService,
+            SecurityService securityService
+    ) {
         super(messageService);
         this.userService = userService;
         this.securityService = securityService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<MessageResponse> register(@Valid @RequestBody UserDTO userDTO) {
         userService.createUser(userDTO);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("user.registration.success")));
     }
 
     @GetMapping("/activate")
-    public ResponseEntity<Void> activate(@RequestParam String token) {
+    public ResponseEntity<MessageResponse> activate(@RequestParam String token) {
         try {
             userService.activeUser(token);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("user.activation")));
         } catch (NoSuchElementException exception) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageResponse(getLocalizedMessage("error.user.activation.not.found")));
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<MessageResponse> login(@Valid @RequestBody LoginDTO loginDTO) {
         try {
             String token = userService.authenticateUser(loginDTO);
-            return ResponseEntity.ok(new JwtDTO(token));
+            return ResponseEntity.ok(new MessageResponse(token));
         } catch (UsernameNotFoundException exception) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(getLocalizedMessage("error.user.not.found"));
+                    .body(new MessageResponse(getLocalizedMessage("error.user.not.found")));
         } catch (BadCredentialsException exception) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(getLocalizedMessage(exception.getMessage()));
+                    .body(new MessageResponse(getLocalizedMessage(exception.getMessage())));
         } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
-                    body(getLocalizedMessage("error.occurred"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse(getLocalizedMessage("error.occurred")));
         }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<MessageResponse> logout() {
         securityService.logoutUser();
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(getLocalizedMessage("user.logout"));
+        return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("user.logout")));
     }
 }

@@ -31,32 +31,37 @@ public class ControllerExceptionHandler {
     @ExceptionHandler({BadRequestException.class, ImageAlreadyExistsException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorMessage> handleBadRequestExceptions(Exception exception, WebRequest webRequest) {
-        ErrorMessage message = new ErrorMessage(
+        ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),
                 exception.getMessage(),
                 webRequest.getDescription(false)
         );
 
-        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(errorMessage);
     }
 
     @ExceptionHandler({NotFoundException.class, FileNotFoundException.class, EntityNotFoundException.class})
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorMessage> handleNotFoundExceptions(Exception exception, WebRequest webRequest) {
-        ErrorMessage message = new ErrorMessage(
+        ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.NOT_FOUND.value(),
                 new Date(),
                 exception.getMessage(),
                 webRequest.getDescription(false)
         );
 
-        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(errorMessage);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorMessage> handleValidationExceptions(MethodArgumentNotValidException exception, WebRequest webRequest) {
+    public ResponseEntity<ErrorMessage> handleValidationExceptions(
+            MethodArgumentNotValidException exception,
+            WebRequest webRequest
+    ) {
         Map<String, List<String>> errors = new HashMap<>();
         exception.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
@@ -66,7 +71,7 @@ public class ControllerExceptionHandler {
                     .add(errorMessage);
         });
 
-        ErrorMessage message = new ErrorMessage(
+        ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),
                 messageService.getMessage("error.validation.failed"),
@@ -74,63 +79,75 @@ public class ControllerExceptionHandler {
                 webRequest.getDescription(false)
         );
 
-        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(errorMessage);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ErrorMessage> handleAccessDeniedException(AuthorizationDeniedException exception, WebRequest webRequest) {
-        ErrorMessage message = new ErrorMessage(
+    public ResponseEntity<ErrorMessage> handleAccessDeniedException(
+            AuthorizationDeniedException exception,
+            WebRequest webRequest
+    ) {
+        ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.FORBIDDEN.value(),
                 new Date(),
                 exception.getMessage(),
                 webRequest.getDescription(false));
 
-        return new ResponseEntity<>(message, HttpStatus.FORBIDDEN);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(errorMessage);
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorMessage> handleUserAlreadyExistsException(UserAlreadyExistsException exception, WebRequest webRequest) {
-        ErrorMessage message = new ErrorMessage(
+    public ResponseEntity<ErrorMessage> handleUserAlreadyExistsException(
+            UserAlreadyExistsException exception,
+            WebRequest webRequest
+    ) {
+        ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.CONFLICT.value(),
                 new Date(),
                 exception.getMessage(),
                 webRequest.getDescription(false));
 
-        return new ResponseEntity<>(message, HttpStatus.CONFLICT);
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(errorMessage);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessage> globalExceptionHandler(WebRequest webRequest) {
-        ErrorMessage message = new ErrorMessage(
+        ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 new Date(),
                 messageService.getMessage("error.server.side"),
                 webRequest.getDescription(false));
 
-        return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorMessage);
     }
 
     @ExceptionHandler(IOException.class)
     public ResponseEntity<ErrorMessage> handleIOException(WebRequest webRequest) {
-        ErrorMessage message = new ErrorMessage(
+        ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 new Date(),
                 messageService.getMessage("error.io.exception"),
                 webRequest.getDescription(false));
 
-        return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorMessage);
     }
 
     @ExceptionHandler(MultipartException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorMessage> handleMultipartException(WebRequest webRequest) {
-        ErrorMessage message = new ErrorMessage(
+        ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),
                 messageService.getMessage("error.image.empty.image"),
                 webRequest.getDescription(false)
         );
 
-        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(errorMessage);
     }
 }

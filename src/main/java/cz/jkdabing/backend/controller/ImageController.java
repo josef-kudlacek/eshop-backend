@@ -2,6 +2,7 @@ package cz.jkdabing.backend.controller;
 
 import cz.jkdabing.backend.config.FileUploadProperties;
 import cz.jkdabing.backend.constants.FileConstants;
+import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.exception.BadRequestException;
 import cz.jkdabing.backend.service.ImageService;
 import cz.jkdabing.backend.service.MessageService;
@@ -22,45 +23,55 @@ public class ImageController extends AbstractBaseController {
 
     private final FileUploadProperties fileUploadProperties;
 
-    public ImageController(MessageService messageService,
-                           ImageService imageService,
-                           FileUploadProperties fileUploadProperties) {
+    public ImageController(
+            MessageService messageService,
+            ImageService imageService,
+            FileUploadProperties fileUploadProperties
+    ) {
         super(messageService);
         this.imageService = imageService;
         this.fileUploadProperties = fileUploadProperties;
     }
 
     @PatchMapping("/{productId}/uploadImage")
-    public ResponseEntity<String> saveImage(@PathVariable("productId") String productId,
-                                            @RequestParam("image") MultipartFile imageFile) {
+    public ResponseEntity<MessageResponse> saveImage(
+            @PathVariable("productId") String productId,
+            @RequestParam("image") MultipartFile imageFile
+    ) {
         checkImage(imageFile);
         try {
             imageService.saveImage(productId, imageFile, FileConstants.PRODUCT_IMAGE_RELATIVE_PATH);
-            return new ResponseEntity<>(getLocalizedMessage("image.uploaded"), HttpStatus.OK);
+            return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("image.uploaded")));
         } catch (IOException exception) {
             exception.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse(getLocalizedMessage("error.server.side")));
         }
     }
 
     @PutMapping("/{productId}/uploadImage")
-    public ResponseEntity<String> updateImage(@PathVariable("productId") String productId,
-                                              @RequestParam("image") MultipartFile imageFile) {
+    public ResponseEntity<MessageResponse> updateImage(
+            @PathVariable("productId") String productId,
+            @RequestParam("image") MultipartFile imageFile
+    ) {
         checkImage(imageFile);
         try {
             imageService.updateImage(productId, imageFile, FileConstants.PRODUCT_IMAGE_RELATIVE_PATH);
-            return new ResponseEntity<>(getLocalizedMessage("image.uploaded"), HttpStatus.OK);
+            return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("image.uploaded")));
         } catch (IOException exception) {
             exception.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse(getLocalizedMessage("error.server.side")));
         }
     }
 
     @DeleteMapping("/{productId}/deleteImage")
-    public ResponseEntity<String> deleteImage(@PathVariable("productId") String productId) throws FileNotFoundException {
+    public ResponseEntity<MessageResponse> deleteImage(
+            @PathVariable("productId") String productId
+    ) throws FileNotFoundException {
         imageService.deleteImage(productId);
 
-        return new ResponseEntity<>(getLocalizedMessage("image.deleted"), HttpStatus.OK);
+        return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("image.deleted")));
     }
 
     private void checkImage(MultipartFile imageFile) {
