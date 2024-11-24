@@ -5,7 +5,7 @@ import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.dto.LoginDTO;
 import cz.jkdabing.backend.dto.UserDTO;
 import cz.jkdabing.backend.entity.UserEntity;
-import cz.jkdabing.backend.exception.UserAlreadyExistsException;
+import cz.jkdabing.backend.exception.custom.UserAlreadyExistsException;
 import cz.jkdabing.backend.mapper.UserMapper;
 import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;

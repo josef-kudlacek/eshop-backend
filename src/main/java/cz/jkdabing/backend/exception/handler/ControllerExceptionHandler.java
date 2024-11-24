@@ -1,7 +1,14 @@
-package cz.jkdabing.backend.exception;
+package cz.jkdabing.backend.exception.handler;
 
+import cz.jkdabing.backend.exception.custom.BadRequestException;
+import cz.jkdabing.backend.exception.custom.ImageAlreadyExistsException;
+import cz.jkdabing.backend.exception.custom.NotFoundException;
+import cz.jkdabing.backend.exception.custom.UserAlreadyExistsException;
+import cz.jkdabing.backend.exception.dto.ErrorMessageResponse;
 import cz.jkdabing.backend.service.MessageService;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -22,6 +29,8 @@ import java.util.*;
 @ResponseBody
 public class ControllerExceptionHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(ControllerExceptionHandler.class);
+
     private final MessageService messageService;
 
     public ControllerExceptionHandler(MessageService messageService) {
@@ -30,8 +39,10 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler({BadRequestException.class, ImageAlreadyExistsException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorMessage> handleBadRequestExceptions(Exception exception, WebRequest webRequest) {
-        ErrorMessage errorMessage = new ErrorMessage(
+    public ResponseEntity<ErrorMessageResponse> handleBadRequestExceptions(Exception exception, WebRequest webRequest) {
+        logger.warn("Bad request exception occurred: ", exception);
+
+        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),
                 exception.getMessage(),
@@ -39,13 +50,15 @@ public class ControllerExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(errorMessage);
+                .body(errorMessageResponse);
     }
 
     @ExceptionHandler({NotFoundException.class, FileNotFoundException.class, EntityNotFoundException.class})
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public ResponseEntity<ErrorMessage> handleNotFoundExceptions(Exception exception, WebRequest webRequest) {
-        ErrorMessage errorMessage = new ErrorMessage(
+    public ResponseEntity<ErrorMessageResponse> handleNotFoundExceptions(Exception exception, WebRequest webRequest) {
+        logger.info("Resource not found exception: ", exception);
+
+        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
                 HttpStatus.NOT_FOUND.value(),
                 new Date(),
                 exception.getMessage(),
@@ -53,15 +66,17 @@ public class ControllerExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(errorMessage);
+                .body(errorMessageResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorMessage> handleValidationExceptions(
+    public ResponseEntity<ErrorMessageResponse> handleValidationExceptions(
             MethodArgumentNotValidException exception,
             WebRequest webRequest
     ) {
+        logger.warn("Bad request exception occurred: ", exception);
+
         Map<String, List<String>> errors = new HashMap<>();
         exception.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
@@ -71,7 +86,7 @@ public class ControllerExceptionHandler {
                     .add(errorMessage);
         });
 
-        ErrorMessage errorMessage = new ErrorMessage(
+        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),
                 messageService.getMessage("error.validation.failed"),
@@ -80,67 +95,77 @@ public class ControllerExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(errorMessage);
+                .body(errorMessageResponse);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ErrorMessage> handleAccessDeniedException(
+    public ResponseEntity<ErrorMessageResponse> handleAccessDeniedException(
             AuthorizationDeniedException exception,
             WebRequest webRequest
     ) {
-        ErrorMessage errorMessage = new ErrorMessage(
+        logger.error("Unauthorized exception occurred: ", exception);
+
+        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
                 HttpStatus.FORBIDDEN.value(),
                 new Date(),
                 exception.getMessage(),
                 webRequest.getDescription(false));
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(errorMessage);
+                .body(errorMessageResponse);
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorMessage> handleUserAlreadyExistsException(
+    public ResponseEntity<ErrorMessageResponse> handleUserAlreadyExistsException(
             UserAlreadyExistsException exception,
             WebRequest webRequest
     ) {
-        ErrorMessage errorMessage = new ErrorMessage(
+        logger.warn("User already exists exception occurred: ", exception);
+
+        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
                 HttpStatus.CONFLICT.value(),
                 new Date(),
                 exception.getMessage(),
                 webRequest.getDescription(false));
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(errorMessage);
+                .body(errorMessageResponse);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorMessage> globalExceptionHandler(WebRequest webRequest) {
-        ErrorMessage errorMessage = new ErrorMessage(
+    public ResponseEntity<ErrorMessageResponse> globalExceptionHandler(Exception exception, WebRequest webRequest) {
+        logger.error("Exception occurred: ", exception);
+
+        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 new Date(),
                 messageService.getMessage("error.server.side"),
                 webRequest.getDescription(false));
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(errorMessage);
+                .body(errorMessageResponse);
     }
 
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<ErrorMessage> handleIOException(WebRequest webRequest) {
-        ErrorMessage errorMessage = new ErrorMessage(
+    public ResponseEntity<ErrorMessageResponse> handleIOException(Exception exception, WebRequest webRequest) {
+        logger.error("IO Exception occurred: ", exception);
+
+        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 new Date(),
                 messageService.getMessage("error.io.exception"),
                 webRequest.getDescription(false));
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(errorMessage);
+                .body(errorMessageResponse);
     }
 
     @ExceptionHandler(MultipartException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorMessage> handleMultipartException(WebRequest webRequest) {
-        ErrorMessage errorMessage = new ErrorMessage(
+    public ResponseEntity<ErrorMessageResponse> handleMultipartException(Exception exception, WebRequest webRequest) {
+        logger.warn("Multipart exception occurred: ", exception);
+
+        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),
                 messageService.getMessage("error.image.empty.image"),
@@ -148,6 +173,6 @@ public class ControllerExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(errorMessage);
+                .body(errorMessageResponse);
     }
 }

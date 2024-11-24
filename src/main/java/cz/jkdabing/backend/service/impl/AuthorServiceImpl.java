@@ -3,7 +3,7 @@ package cz.jkdabing.backend.service.impl;
 import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.dto.AuthorDTO;
 import cz.jkdabing.backend.entity.AuthorEntity;
-import cz.jkdabing.backend.exception.NotFoundException;
+import cz.jkdabing.backend.exception.custom.NotFoundException;
 import cz.jkdabing.backend.mapper.AuthorMapper;
 import cz.jkdabing.backend.repository.AuthorRepository;
 import cz.jkdabing.backend.service.AbstractService;

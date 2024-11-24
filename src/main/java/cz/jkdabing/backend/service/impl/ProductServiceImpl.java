@@ -6,7 +6,7 @@ import cz.jkdabing.backend.dto.ProductDTO;
 import cz.jkdabing.backend.entity.AuthorEntity;
 import cz.jkdabing.backend.entity.AuthorProductEntity;
 import cz.jkdabing.backend.entity.ProductEntity;
-import cz.jkdabing.backend.exception.NotFoundException;
+import cz.jkdabing.backend.exception.custom.NotFoundException;
 import cz.jkdabing.backend.mapper.AuthorProductMapper;
 import cz.jkdabing.backend.mapper.ProductMapper;
 import cz.jkdabing.backend.repository.AuthorProductRepository;

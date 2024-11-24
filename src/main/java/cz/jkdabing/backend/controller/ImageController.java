@@ -3,10 +3,12 @@ package cz.jkdabing.backend.controller;
 import cz.jkdabing.backend.config.FileUploadProperties;
 import cz.jkdabing.backend.constants.FileConstants;
 import cz.jkdabing.backend.dto.response.MessageResponse;
-import cz.jkdabing.backend.exception.BadRequestException;
+import cz.jkdabing.backend.exception.custom.BadRequestException;
 import cz.jkdabing.backend.service.ImageService;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.util.FileValidationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,8 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/products")
 public class ImageController extends AbstractBaseController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ImageController.class);
 
     private final ImageService imageService;
 
@@ -43,7 +47,7 @@ public class ImageController extends AbstractBaseController {
             imageService.saveImage(productId, imageFile, FileConstants.PRODUCT_IMAGE_RELATIVE_PATH);
             return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("image.uploaded")));
         } catch (IOException exception) {
-            exception.printStackTrace();
+            logger.error("Image was not saved correctly", exception);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse(getLocalizedMessage("error.server.side")));
         }
@@ -59,7 +63,7 @@ public class ImageController extends AbstractBaseController {
             imageService.updateImage(productId, imageFile, FileConstants.PRODUCT_IMAGE_RELATIVE_PATH);
             return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("image.uploaded")));
         } catch (IOException exception) {
-            exception.printStackTrace();
+            logger.error("Image was not updated correctly", exception);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse(getLocalizedMessage("error.server.side")));
         }

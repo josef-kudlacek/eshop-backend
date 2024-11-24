@@ -5,7 +5,7 @@ import cz.jkdabing.backend.constants.HttpHeaderConstants;
 import cz.jkdabing.backend.constants.JWTConstants;
 import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.entity.UserEntity;
-import cz.jkdabing.backend.exception.InvalidJwtAuthenticationException;
+import cz.jkdabing.backend.exception.custom.InvalidJwtAuthenticationException;
 import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.service.MessageService;
 import jakarta.annotation.Nonnull;

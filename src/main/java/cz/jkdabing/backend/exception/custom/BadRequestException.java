@@ -1,4 +1,4 @@
-package cz.jkdabing.backend.exception;
+package cz.jkdabing.backend.exception.custom;
 
 import java.io.Serial;
 

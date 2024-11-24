@@ -1,4 +1,4 @@
-package cz.jkdabing.backend.exception;
+package cz.jkdabing.backend.exception.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.Map;
 @Setter
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ErrorMessage {
+public class ErrorMessageResponse {
 
     private int statusCode;
 
@@ -25,7 +25,7 @@ public class ErrorMessage {
 
     private String description;
 
-    public ErrorMessage(int statusCode, Date timestamp, String message, String description) {
+    public ErrorMessageResponse(int statusCode, Date timestamp, String message, String description) {
         this.statusCode = statusCode;
         this.description = description;
         this.message = message;

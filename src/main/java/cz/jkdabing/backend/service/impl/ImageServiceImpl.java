@@ -4,11 +4,13 @@ import cz.jkdabing.backend.config.FileUploadProperties;
 import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.entity.ImageEntity;
 import cz.jkdabing.backend.entity.ProductEntity;
-import cz.jkdabing.backend.exception.ImageAlreadyExistsException;
+import cz.jkdabing.backend.exception.custom.ImageAlreadyExistsException;
 import cz.jkdabing.backend.repository.ImageRepository;
 import cz.jkdabing.backend.service.*;
 import cz.jkdabing.backend.util.TableNameUtil;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +23,8 @@ import java.util.UUID;
 
 @Service
 public class ImageServiceImpl extends AbstractService implements ImageService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ImageServiceImpl.class);
 
     private final ProductService productService;
 
@@ -136,8 +140,8 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
 
         try {
             Files.deleteIfExists(path);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ioException) {
+            logger.warn("File cannot be deleted: ", ioException);
         }
     }
 }
