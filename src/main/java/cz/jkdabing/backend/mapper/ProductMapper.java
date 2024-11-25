@@ -9,7 +9,7 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(
         componentModel = "spring",
-        uses = {AuthorMapper.class, AuthorProductMapper.class}
+        uses = {AuthorMapper.class, ProductAuthorMapper.class}
 )
 public interface ProductMapper {
 
@@ -17,7 +17,7 @@ public interface ProductMapper {
 
     ProductDTO toDTO(ProductEntity productEntity);
 
-    @Mapping(source = "authorProductSet", target = "authors")
+    @Mapping(source = "productAuthorSet", target = "authors")
     ProductDetailDTO toDetailDTO(ProductEntity productEntity);
 
     ProductEntity updateEntity(ProductDTO productDTO, @MappingTarget ProductEntity productEntity);
