@@ -3,7 +3,5 @@ package cz.jkdabing.backend.repository;
 import cz.jkdabing.backend.entity.ProductGenreEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.UUID;
-
-public interface ProductGenreRepository extends JpaRepository<ProductGenreEntity, UUID> {
+public interface ProductGenreRepository extends JpaRepository<ProductGenreEntity, Long> {
 }

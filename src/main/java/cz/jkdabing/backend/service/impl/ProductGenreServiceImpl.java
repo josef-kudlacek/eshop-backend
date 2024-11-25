@@ -57,4 +57,19 @@ public class ProductGenreServiceImpl extends AbstractService implements ProductG
             throw new NotFoundException(getLocalizedMessage("error.product.not.found", productGenreDTO.getProductId()));
         }
     }
+
+    @Override
+    public void deleteGenreFromProduct(long genreId) {
+        if (!productGenreRepository.existsById(genreId)) {
+            throw new NotFoundException(getLocalizedMessage("error.genre.not.found", genreId));
+        }
+
+        productGenreRepository.deleteById(genreId);
+
+        prepareAuditLog(
+                TableNameUtil.getTableName(ProductGenreEntity.class),
+                genreId,
+                AuditLogConstants.ACTION_DELETE
+        );
+    }
 }
