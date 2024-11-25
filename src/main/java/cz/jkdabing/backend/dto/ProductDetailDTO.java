@@ -1,5 +1,7 @@
 package cz.jkdabing.backend.dto;
 
+import cz.jkdabing.backend.dto.response.ProductFormatResponse;
+import cz.jkdabing.backend.dto.response.ProductGenreResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +17,7 @@ public class ProductDetailDTO extends ProductDTO {
 
     private List<AuthorDTO> authors;
 
-    private List<ProductGenreDTO> genres;
+    private List<ProductGenreResponse> genres;
 
-    private List<ProductFormatDTO> formats;
+    private List<ProductFormatResponse> formats;
 }
