@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.dto;
 
-import cz.jkdabing.backend.validation.ValidPassword;
+import cz.jkdabing.backend.validation.annotation.ValidPassword;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
