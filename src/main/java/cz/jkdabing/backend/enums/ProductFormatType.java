@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.enums;
 
-public enum AudioFormatType {
+public enum ProductFormatType {
     MP3,
     WAV
 }

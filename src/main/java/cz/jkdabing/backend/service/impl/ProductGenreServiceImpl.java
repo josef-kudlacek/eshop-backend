@@ -43,7 +43,6 @@ public class ProductGenreServiceImpl extends AbstractService implements ProductG
         try {
             ProductEntity productEntity = productRepository.getReferenceById(productGenreDTO.getProductId());
             ProductGenreEntity productGenreEntity = productGenreMapper.toEntity(productGenreDTO);
-
             productGenreEntity.setProduct(productEntity);
 
             productGenreRepository.save(productGenreEntity);
