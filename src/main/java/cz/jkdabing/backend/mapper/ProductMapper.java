@@ -9,7 +9,7 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(
         componentModel = "spring",
-        uses = {AuthorMapper.class, ProductAuthorMapper.class}
+        uses = {AuthorMapper.class, ProductAuthorMapper.class, ProductFormatMapper.class, ProductGenreMapper.class}
 )
 public interface ProductMapper {
 
