@@ -12,6 +12,9 @@ import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductService;
 import cz.jkdabing.backend.util.TableNameUtil;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -35,7 +38,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
-    public ProductDTO createProduct(ProductDTO productDTO) {
+    public ProductDTO createProduct(@Valid ProductDTO productDTO) {
         ProductEntity productEntity = productMapper.toEntity(productDTO);
         productRepository.save(productEntity);
 
@@ -49,7 +52,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
-    public ProductEntity findProductByIdOrThrow(UUID productId) {
+    public ProductEntity findProductByIdOrThrow(@NotNull UUID productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException(
                         getLocalizedMessage("error.product.not.found", productId)
@@ -57,7 +60,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
-    public ProductDTO updateProduct(UUID productId, ProductDTO productDTO) {
+    public ProductDTO updateProduct(@NotEmpty UUID productId, @Valid ProductDTO productDTO) {
         ProductEntity productEntity = findProductByIdOrThrow(productId);
         productDTO.setProductId(productId);
         productEntity = productMapper.updateEntity(productDTO, productEntity);
@@ -84,7 +87,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
-    public ProductDetailDTO getProduct(UUID productId) {
+    public ProductDetailDTO getProduct(@NotEmpty UUID productId) {
         ProductEntity productEntityWithDetail = productRepository.findProductDetailByProductId(productId)
                 .orElseThrow(() -> new NotFoundException(
                         getLocalizedMessage("error.product.not.found", productId)

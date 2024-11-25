@@ -11,6 +11,9 @@ import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.AuthorService;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.util.TableNameUtil;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.text.Collator;
@@ -45,7 +48,7 @@ public class AuthorServiceImpl extends AbstractService implements AuthorService 
     }
 
     @Override
-    public void createAuthor(AuthorDTO authorDTO) {
+    public void createAuthor(@Valid AuthorDTO authorDTO) {
         AuthorEntity authorEntity = authorMapper.toEntity(authorDTO);
         authorRepository.save(authorEntity);
 
@@ -57,7 +60,7 @@ public class AuthorServiceImpl extends AbstractService implements AuthorService 
     }
 
     @Override
-    public void updateAuthor(String authorId, AuthorDTO authorDTO) {
+    public void updateAuthor(@NotEmpty String authorId, @Valid AuthorDTO authorDTO) {
         authorDTO.setAuthorId(UUID.fromString(authorId));
         AuthorEntity authorEntity = findAuthorByIdOrThrow(UUID.fromString(authorId));
         authorEntity = authorMapper.updateFromDTO(authorDTO, authorEntity);
@@ -72,7 +75,7 @@ public class AuthorServiceImpl extends AbstractService implements AuthorService 
     }
 
     @Override
-    public void deleteAuthor(String authorId) {
+    public void deleteAuthor(@NotEmpty String authorId) {
         UUID internalId = UUID.fromString(authorId);
 
         checkAuthorExistsByIdOrThrow(internalId);
@@ -86,7 +89,7 @@ public class AuthorServiceImpl extends AbstractService implements AuthorService 
     }
 
     @Override
-    public void checkAuthorExistsByIdOrThrow(UUID authorId) {
+    public void checkAuthorExistsByIdOrThrow(@NotNull UUID authorId) {
         if (!authorRepository.existsById(authorId)) {
             throw new NotFoundException(getLocalizedMessage("error.author.not.found", authorId)
             );
@@ -94,7 +97,7 @@ public class AuthorServiceImpl extends AbstractService implements AuthorService 
     }
 
     @Override
-    public AuthorEntity findAuthorByIdOrThrow(UUID authorId) {
+    public AuthorEntity findAuthorByIdOrThrow(@NotNull UUID authorId) {
         return authorRepository.findById(authorId)
                 .orElseThrow(() -> new NotFoundException(
                         getLocalizedMessage("error.author.not.found", authorId))

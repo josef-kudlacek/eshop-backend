@@ -15,5 +15,5 @@ public class ProductFormatDTO {
     private UUID productId;
 
     @ValidProductFormatType
-    private String productFormatType;
+    private String formatType;
 }

@@ -2,6 +2,7 @@ package cz.jkdabing.backend.service.impl;
 
 import cz.jkdabing.backend.service.EmailService;
 import cz.jkdabing.backend.service.MessageService;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendActivationEmail(String recipient, String activationLink) {
+    public void sendActivationEmail(@NotEmpty String recipient, @NotEmpty String activationLink) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(recipient);
         message.setSubject(messageService.getMessage("activation.email.subject"));
@@ -31,7 +32,7 @@ public class EmailServiceImpl implements EmailService {
         mailSender.send(message);
     }
 
-    private String prepareActivationText(String activationLink) {
+    private String prepareActivationText(@NotEmpty String activationLink) {
         return messageService.getMessage("activation.email.text", activationLink);
     }
 }

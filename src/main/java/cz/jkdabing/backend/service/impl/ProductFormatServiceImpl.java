@@ -13,6 +13,7 @@ import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductFormatService;
 import cz.jkdabing.backend.util.TableNameUtil;
+import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,7 @@ public class ProductFormatServiceImpl extends AbstractService implements Product
     }
 
     @Override
-    public void addFormatToProduct(ProductFormatDTO productFormatDTO) {
+    public void addFormatToProduct(@Valid ProductFormatDTO productFormatDTO) {
         UUID productId = productFormatDTO.getProductId();
         try {
             ProductEntity productEntity = productRepository.getReferenceById(productId);

@@ -4,6 +4,7 @@ import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.service.SecurityService;
 import cz.jkdabing.backend.util.SecurityUtil;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,7 +42,7 @@ public class SecurityServiceImpl implements SecurityService {
         }
     }
 
-    private UserEntity handleFindUserByUsername(String username) {
+    private UserEntity handleFindUserByUsername(@NotEmpty String username) {
         return userRepository.findByUsername(username)
                 .orElse(null);
     }
