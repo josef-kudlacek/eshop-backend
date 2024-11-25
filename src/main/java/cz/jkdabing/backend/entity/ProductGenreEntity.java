@@ -17,6 +17,7 @@ public class ProductGenreEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long genreId;
 
+    //TODO: Rename to ProductGenreType
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductGenreType genreType;
