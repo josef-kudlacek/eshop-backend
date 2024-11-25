@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.entity;
 
-import cz.jkdabing.backend.enums.CarStatusType;
+import cz.jkdabing.backend.enums.CartStatusType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.TimeZoneStorage;
@@ -30,7 +30,7 @@ public class CartEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private CarStatusType statusType;
+    private CartStatusType statusType;
 
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     @Column(nullable = false)

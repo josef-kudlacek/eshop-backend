@@ -39,9 +39,9 @@ public class CouponEntity {
 
     @ManyToMany
     @JoinTable(
-            name = "coupon_product",
-            joinColumns = @JoinColumn(name = "coupon_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
+            name = "product_coupon",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "coupon_id")
     )
     private List<ProductEntity> applicableProducts;
 
