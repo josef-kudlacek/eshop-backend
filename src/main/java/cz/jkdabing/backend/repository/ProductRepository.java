@@ -13,8 +13,8 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
     @Query("""
             SELECT productEntity
             FROM ProductEntity productEntity
-            LEFT JOIN FETCH productEntity.authorProductSet authorProductSet
-            LEFT JOIN FETCH authorProductSet.author
+            LEFT JOIN FETCH productEntity.productAuthorSet productAuthorSet
+            LEFT JOIN FETCH productAuthorSet.author
             WHERE productEntity.productId = :productId
             """)
     Optional<ProductEntity> findProductDetailByProductId(@Param("productId") UUID productId);
