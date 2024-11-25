@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.entity;
 
-import cz.jkdabing.backend.enums.AudioFormatType;
+import cz.jkdabing.backend.enums.ProductFormatType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,7 +30,7 @@ public class AudioFileEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AudioFormatType audioFormatType;
+    private ProductFormatType productFormatType;
 
     @Column(nullable = false)
     private LocalTime length;
