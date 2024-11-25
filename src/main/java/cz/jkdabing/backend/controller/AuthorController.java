@@ -33,7 +33,7 @@ public class AuthorController extends AbstractBaseController {
     }
 
     @PutMapping("/{authorId}")
-    public MessageResponse updateAuthor(@PathVariable String authorId, @RequestBody AuthorDTO authorDTO) {
+    public MessageResponse updateAuthor(@PathVariable String authorId, @Valid @RequestBody AuthorDTO authorDTO) {
         authorService.updateAuthor(authorId, authorDTO);
 
         return new MessageResponse(getLocalizedMessage("author.updated"));

@@ -9,6 +9,8 @@ import cz.jkdabing.backend.repository.ImageRepository;
 import cz.jkdabing.backend.service.*;
 import cz.jkdabing.backend.util.TableNameUtil;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -46,7 +48,11 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
 
     @Override
     @Transactional
-    public void saveImage(String productId, MultipartFile image, String imagePath) throws IOException {
+    public void saveImage(
+            @NotEmpty String productId,
+            MultipartFile image,
+            @NotEmpty String imagePath
+    ) throws IOException {
         ProductEntity productEntity = productService.findProductByIdOrThrow(UUID.fromString(productId));
 
         if (productEntity.getImage() != null) {
@@ -59,7 +65,11 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
 
     @Override
     @Transactional
-    public void updateImage(String productId, MultipartFile image, String imagePath) throws IOException {
+    public void updateImage(
+            @NotEmpty String productId,
+            @NotNull MultipartFile image,
+            @NotEmpty String imagePath
+    ) throws IOException {
         ProductEntity productEntity = productService.findProductByIdOrThrow(UUID.fromString(productId));
 
         checkAndRemoveImage(productEntity);
@@ -69,13 +79,13 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
 
     @Override
     @Transactional
-    public void deleteImage(String productId) {
+    public void deleteImage(@NotEmpty String productId) {
         ProductEntity productEntity = productService.findProductByIdOrThrow(UUID.fromString(productId));
 
         checkAndRemoveImage(productEntity);
     }
 
-    private ImageEntity prepareImage(MultipartFile image) {
+    private ImageEntity prepareImage(@NotNull MultipartFile image) {
         String fileName = image.getOriginalFilename();
         String fileFormat = getFileExtension(fileName);
 
@@ -85,7 +95,7 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
                 .build();
     }
 
-    private String getFileExtension(String fileName) {
+    private String getFileExtension(@NotEmpty String fileName) {
         if (fileName == null || fileName.lastIndexOf(".") == -1) {
             return null;
         }
@@ -93,7 +103,11 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
-    private void uploadAndSaveImage(ProductEntity productEntity, MultipartFile image, String imagePath) throws IOException {
+    private void uploadAndSaveImage(
+            ProductEntity productEntity,
+            @NotNull MultipartFile image,
+            @NotEmpty String imagePath
+    ) throws IOException {
         ImageEntity imageEntity = prepareImage(image);
         uploadImageFile(image, imagePath, imageEntity.getImageName());
 
@@ -110,7 +124,11 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
         );
     }
 
-    private void uploadImageFile(MultipartFile image, String imagePath, String imageName) throws IOException {
+    private void uploadImageFile(
+            @NotNull MultipartFile image,
+            @NotEmpty String imagePath,
+            @NotEmpty String imageName
+    ) throws IOException {
         Path uploadPath = Paths.get(fileUploadProperties.getUploadDirectory() + imagePath, imageName);
         Files.write(uploadPath, image.getBytes());
     }
@@ -135,7 +153,10 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
         }
     }
 
-    private void deleteImageFile(String imagePath, String imageName) {
+    private void deleteImageFile(
+            @NotEmpty String imagePath,
+            @NotEmpty String imageName
+    ) {
         Path path = Paths.get(fileUploadProperties.getUploadDirectory() + imagePath, imageName);
 
         try {

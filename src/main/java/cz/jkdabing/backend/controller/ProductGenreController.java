@@ -27,7 +27,7 @@ public class ProductGenreController extends AbstractBaseController {
     }
 
     @DeleteMapping("/{genreId}")
-    public ResponseEntity<MessageResponse> removeGenreFromProduct(@PathVariable long genreId) {
+    public ResponseEntity<MessageResponse> removeGenreFromProduct(@PathVariable Long genreId) {
         genreProductService.removeGenreFromProduct(genreId);
 
         return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("product.genre.removed")));

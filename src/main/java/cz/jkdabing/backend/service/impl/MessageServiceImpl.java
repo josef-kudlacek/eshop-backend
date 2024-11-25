@@ -1,6 +1,7 @@
 package cz.jkdabing.backend.service.impl;
 
 import cz.jkdabing.backend.service.MessageService;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
@@ -17,13 +18,13 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public String getMessage(String key, Object... args) {
+    public String getMessage(@NotEmpty String key, Object... args) {
         Locale locale = LocaleContextHolder.getLocale();
         return messageSource.getMessage(key, args, locale);
     }
 
     @Override
-    public String getMessage(String key) {
+    public String getMessage(@NotEmpty String key) {
         Locale locale = LocaleContextHolder.getLocale();
         return messageSource.getMessage(key, null, locale);
     }

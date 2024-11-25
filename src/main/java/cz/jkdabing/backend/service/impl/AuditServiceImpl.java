@@ -6,6 +6,8 @@ import cz.jkdabing.backend.repository.AuditLogRepository;
 import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.SecurityService;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,7 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public void prepareAuditLog(String entityName, UUID entityId, String action) {
+    public void prepareAuditLog(@NotEmpty String entityName, @NotNull UUID entityId, @NotEmpty String action) {
         UserEntity currentUser = service.getCurrentUser();
 
         auditService.createAuditLog(ZonedDateTime.now(), currentUser, entityName, entityId, action);
@@ -40,7 +42,13 @@ public class AuditServiceImpl implements AuditService {
     @Override
     @Async
     @Transactional
-    public void createAuditLog(ZonedDateTime loggedAt, UserEntity user, String entityName, UUID entityId, String action) {
+    public void createAuditLog(
+            @NotNull ZonedDateTime loggedAt,
+            UserEntity user,
+            @NotEmpty String entityName,
+            @NotNull UUID entityId,
+            @NotEmpty String action
+    ) {
         AuditLogEntity auditLogEntity = new AuditLogEntity();
         auditLogEntity.setLoggedAt(loggedAt);
         auditLogEntity.setUser(user);

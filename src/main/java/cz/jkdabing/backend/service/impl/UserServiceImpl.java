@@ -12,6 +12,8 @@ import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.*;
 import cz.jkdabing.backend.util.TableNameUtil;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -61,7 +63,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
     }
 
     @Override
-    public void createUser(UserDTO userDTO) {
+    public void createUser(@Valid UserDTO userDTO) {
         try {
             userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
             UserEntity userEntity = userMapper.toEntity(userDTO);
@@ -87,7 +89,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
 
     @Override
     @Transactional
-    public void activeUser(String token) {
+    public void activeUser(@NotEmpty String token) {
         UserEntity userEntity = findUserByActivationToken(token);
         userEntity.setActive(true);
         userEntity.setActivationToken(null);
@@ -102,7 +104,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
     }
 
     @Override
-    public String authenticateUser(LoginDTO loginDTO) {
+    public String authenticateUser(@Valid LoginDTO loginDTO) {
         UserEntity userEntity = userRepository.findByUsername(loginDTO.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException(
                                 getLocalizedMessage("error.user.not.found", loginDTO.getUsername())
@@ -137,14 +139,14 @@ public class UserServiceImpl extends AbstractService implements UserService {
         }
     }
 
-    private UserEntity findUserByActivationToken(String token) {
+    private UserEntity findUserByActivationToken(@NotEmpty String token) {
         return userRepository.findByActivationToken(token)
                 .orElseThrow(() -> new NoSuchElementException(
                         getLocalizedMessage("jwt.invalid.activation.token", token)
                 ));
     }
 
-    private void sendActivationEmail(String email, String activationToken) {
+    private void sendActivationEmail(@NotEmpty String email, @NotEmpty String activationToken) {
         String activationLink = serverAddressConfig.getServerAddress() + "api/users/activate?token=" + activationToken;
         emailService.sendActivationEmail(email, activationLink);
     }

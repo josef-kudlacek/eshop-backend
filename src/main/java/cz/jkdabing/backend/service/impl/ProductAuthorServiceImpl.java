@@ -17,6 +17,8 @@ import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductAuthorService;
 import cz.jkdabing.backend.util.TableNameUtil;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -48,7 +50,7 @@ public class ProductAuthorServiceImpl extends AbstractService implements Product
     }
 
     @Override
-    public void addAuthorToProduct(ProductAuthorDTO productAuthorDTO) {
+    public void addAuthorToProduct(@Valid ProductAuthorDTO productAuthorDTO) {
         try {
             AuthorEntity authorEntity = authorRepository.getReferenceById(productAuthorDTO.getAuthorId());
             ProductEntity productEntity = productRepository.getReferenceById(productAuthorDTO.getProductId());
@@ -70,7 +72,7 @@ public class ProductAuthorServiceImpl extends AbstractService implements Product
     }
 
     @Override
-    public void removeAuthorFromProduct(String authorProductId) {
+    public void removeAuthorFromProduct(@NotEmpty String authorProductId) {
         UUID internalId = UUID.fromString(authorProductId);
         if (!productAuthorRepository.existsById(internalId)) {
             throw new BadRequestException(getLocalizedMessage("error.product.author.relationship.not.exist"));

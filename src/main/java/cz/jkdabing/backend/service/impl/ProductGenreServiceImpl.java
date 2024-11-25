@@ -13,6 +13,7 @@ import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductGenreService;
 import cz.jkdabing.backend.util.TableNameUtil;
+import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,7 @@ public class ProductGenreServiceImpl extends AbstractService implements ProductG
     }
 
     @Override
-    public void addGenreToProduct(ProductGenreDTO productGenreDTO) {
+    public void addGenreToProduct(@Valid ProductGenreDTO productGenreDTO) {
         try {
             ProductEntity productEntity = productRepository.getReferenceById(productGenreDTO.getProductId());
             ProductGenreEntity productGenreEntity = productGenreMapper.toEntity(productGenreDTO);

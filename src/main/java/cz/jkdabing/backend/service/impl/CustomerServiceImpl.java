@@ -11,6 +11,7 @@ import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.CustomerService;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.util.TableNameUtil;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -33,7 +34,7 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    public void createCustomer(UserEntity userEntity, CustomerDTO customerDTO) {
+    public void createCustomer(UserEntity userEntity, @Valid CustomerDTO customerDTO) {
         CustomerEntity customerEntity = customerMapper.toEntity(customerDTO);
         customerEntity.setUser(userEntity);
 
@@ -41,7 +42,7 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    public UUID createCustomer(CustomerDTO customerDTO) {
+    public UUID createCustomer(@Valid CustomerDTO customerDTO) {
         CustomerEntity customerEntity = customerMapper.toEntity(customerDTO);
         customerRepository.saveAndFlush(customerEntity);
 
