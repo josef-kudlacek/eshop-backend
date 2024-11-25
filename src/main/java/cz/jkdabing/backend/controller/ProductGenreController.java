@@ -6,10 +6,7 @@ import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductGenreService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/productGenre")
@@ -27,5 +24,12 @@ public class ProductGenreController extends AbstractBaseController {
         genreProductService.addGenreToProduct(productGenreDTO);
 
         return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("product.genre.added")));
+    }
+
+    @DeleteMapping("/{genreId}")
+    public ResponseEntity<MessageResponse> deleteAuthorFromProduct(@PathVariable long genreId) {
+        genreProductService.deleteGenreFromProduct(genreId);
+
+        return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("product.genre.removed")));
     }
 }
