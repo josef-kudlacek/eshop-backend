@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class AuthorProductDTO {
+public class ProductAuthorDTO {
 
     @NotNull(message = "{error.product.id.empty}")
     private UUID productId;

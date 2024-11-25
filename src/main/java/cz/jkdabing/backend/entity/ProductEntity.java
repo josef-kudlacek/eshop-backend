@@ -24,7 +24,7 @@ public class ProductEntity {
     private UUID productId;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private Set<AuthorProductEntity> authorProductSet = new HashSet<>();
+    private Set<ProductAuthorEntity> productAuthorSet = new HashSet<>();
 
     @Column(nullable = false)
     private String productName;

@@ -26,6 +26,6 @@ public class AuthorEntity {
     private String lastName;
 
     @OneToMany(mappedBy = "author", fetch = FetchType.EAGER)
-    private Set<AuthorProductEntity> authorProductSet = new HashSet<>();
+    private Set<ProductAuthorEntity> authorProductSet = new HashSet<>();
 
 }

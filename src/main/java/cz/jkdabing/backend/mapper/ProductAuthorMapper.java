@@ -1,8 +1,8 @@
 package cz.jkdabing.backend.mapper;
 
 import cz.jkdabing.backend.dto.AuthorDTO;
-import cz.jkdabing.backend.dto.AuthorProductDTO;
-import cz.jkdabing.backend.entity.AuthorProductEntity;
+import cz.jkdabing.backend.dto.ProductAuthorDTO;
+import cz.jkdabing.backend.entity.ProductAuthorEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -10,13 +10,12 @@ import org.mapstruct.Mapping;
         componentModel = "spring",
         uses = {AuthorMapper.class}
 )
-public interface AuthorProductMapper {
+public interface ProductAuthorMapper {
 
-    AuthorProductEntity toEntity(AuthorProductDTO authorProductDTO);
-
+    ProductAuthorEntity toEntity(ProductAuthorDTO productAuthorDTO);
 
     @Mapping(source = "author.authorId", target = "authorId")
     @Mapping(source = "author.firstName", target = "firstName")
     @Mapping(source = "author.lastName", target = "lastName")
-    AuthorDTO toAuthorDTO(AuthorProductEntity authorProductEntity);
+    AuthorDTO toAuthorDTO(ProductAuthorEntity productAuthorEntity);
 }
