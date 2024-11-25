@@ -18,7 +18,4 @@ public class AuthorDTO {
 
     @NotBlank(message = "{error.author.last.name.empty}")
     private String lastName;
-
-    //TODO: enum validace
-    private String authorType;
 }
