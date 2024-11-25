@@ -15,5 +15,5 @@ public class ProductGenreDTO {
     private UUID productId;
 
     @ValidProductGenre
-    private String productGenreType;
+    private String genreType;
 }
