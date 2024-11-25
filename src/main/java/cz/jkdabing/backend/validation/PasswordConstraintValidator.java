@@ -1,6 +1,7 @@
 package cz.jkdabing.backend.validation;
 
 
+import cz.jkdabing.backend.validation.annotation.ValidPassword;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.util.StringUtils;

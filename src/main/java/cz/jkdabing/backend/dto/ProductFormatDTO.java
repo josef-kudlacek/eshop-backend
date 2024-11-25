@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.dto;
 
-import cz.jkdabing.backend.validation.ValidProductFormatType;
+import cz.jkdabing.backend.validation.annotation.ValidProductFormatType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;

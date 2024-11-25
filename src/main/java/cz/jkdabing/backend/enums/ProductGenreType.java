@@ -1,7 +1,6 @@
 package cz.jkdabing.backend.enums;
 
-//TODO: Rename to ProductGenreType
-public enum GenreType {
+public enum ProductGenreType {
     BIOGRAPHY,
     COMEDY,
     CRIME,

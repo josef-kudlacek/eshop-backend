@@ -1,5 +1,6 @@
-package cz.jkdabing.backend.validation;
+package cz.jkdabing.backend.validation.annotation;
 
+import cz.jkdabing.backend.validation.PasswordConstraintValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
