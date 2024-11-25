@@ -5,4 +5,6 @@ import cz.jkdabing.backend.dto.ProductGenreDTO;
 public interface ProductGenreService {
 
     void addGenreToProduct(ProductGenreDTO productGenreDTO);
+
+    void deleteGenreFromProduct(long genreId);
 }
