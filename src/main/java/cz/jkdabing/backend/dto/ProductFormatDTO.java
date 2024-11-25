@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.dto;
 
-import cz.jkdabing.backend.validation.annotation.ValidProductGenre;
+import cz.jkdabing.backend.validation.annotation.ValidProductFormatType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -9,11 +9,11 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class ProductGenreDTO {
+public class ProductFormatDTO {
 
     @NotNull(message = "{error.product.id.empty}")
     private UUID productId;
 
-    @ValidProductGenre
-    private String productGenreType;
+    @ValidProductFormatType
+    private String productFormatType;
 }
