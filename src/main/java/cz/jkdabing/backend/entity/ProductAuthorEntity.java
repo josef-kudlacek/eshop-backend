@@ -12,12 +12,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "author_product")
-public class AuthorProductEntity {
+@Table(name = "product_author")
+public class ProductAuthorEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID authorProductId;
+    private UUID productAuthorId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
