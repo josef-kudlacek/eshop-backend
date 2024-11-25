@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.dto;
 
-import jakarta.validation.constraints.NotEmpty;
+import cz.jkdabing.backend.validation.annotation.ValidAuthorType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +17,6 @@ public class ProductAuthorDTO {
     @NotNull(message = "{error.author.id.empty}")
     private UUID authorId;
 
-    @NotEmpty(message = "{error.author.type.empty}")
+    @ValidAuthorType
     private String authorType;
 }
