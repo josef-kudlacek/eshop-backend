@@ -49,23 +49,24 @@ public class AuthorProductServiceImpl extends AbstractService implements AuthorP
 
     @Override
     public void addAuthorToProduct(AuthorProductDTO authorProductDTO) {
-        AuthorProductEntity authorProductEntity = authorProductMapper.toEntity(authorProductDTO);
         try {
             AuthorEntity authorEntity = authorRepository.getReferenceById(authorProductDTO.getAuthorId());
             ProductEntity productEntity = productRepository.getReferenceById(authorProductDTO.getProductId());
 
+            AuthorProductEntity authorProductEntity = authorProductMapper.toEntity(authorProductDTO);
+
             authorProductEntity.setAuthor(authorEntity);
             authorProductEntity.setProduct(productEntity);
             authorProductRepository.save(authorProductEntity);
+
+            prepareAuditLog(
+                    TableNameUtil.getTableName(authorProductEntity.getClass()),
+                    authorProductEntity.getAuthorProductId(),
+                    AuditLogConstants.ACTION_CREATE
+            );
         } catch (EntityNotFoundException exception) {
             throw new NotFoundException(getLocalizedMessage("error.author.or.product.not.exist"));
         }
-
-        prepareAuditLog(
-                TableNameUtil.getTableName(authorProductEntity.getClass()),
-                authorProductEntity.getAuthorProductId(),
-                AuditLogConstants.ACTION_CREATE
-        );
     }
 
     @Override

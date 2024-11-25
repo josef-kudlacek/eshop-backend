@@ -1,6 +1,5 @@
 package cz.jkdabing.backend.entity;
 
-import cz.jkdabing.backend.entity.key.ProductGenreKey;
 import cz.jkdabing.backend.enums.GenreType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,14 +13,15 @@ import lombok.*;
 @Table(name = "product_genre")
 public class ProductGenreEntity {
 
-    @EmbeddedId
-    private ProductGenreKey id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long genreId;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private GenreType genreType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("productId")
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 }
