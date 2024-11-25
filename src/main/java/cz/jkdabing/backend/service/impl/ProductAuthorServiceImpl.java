@@ -1,20 +1,20 @@
 package cz.jkdabing.backend.service.impl;
 
 import cz.jkdabing.backend.constants.AuditLogConstants;
-import cz.jkdabing.backend.dto.AuthorProductDTO;
+import cz.jkdabing.backend.dto.ProductAuthorDTO;
 import cz.jkdabing.backend.entity.AuthorEntity;
-import cz.jkdabing.backend.entity.AuthorProductEntity;
+import cz.jkdabing.backend.entity.ProductAuthorEntity;
 import cz.jkdabing.backend.entity.ProductEntity;
 import cz.jkdabing.backend.exception.custom.BadRequestException;
 import cz.jkdabing.backend.exception.custom.NotFoundException;
-import cz.jkdabing.backend.mapper.AuthorProductMapper;
-import cz.jkdabing.backend.repository.AuthorProductRepository;
+import cz.jkdabing.backend.mapper.ProductAuthorMapper;
 import cz.jkdabing.backend.repository.AuthorRepository;
+import cz.jkdabing.backend.repository.ProductAuthorRepository;
 import cz.jkdabing.backend.repository.ProductRepository;
 import cz.jkdabing.backend.service.AbstractService;
 import cz.jkdabing.backend.service.AuditService;
-import cz.jkdabing.backend.service.AuthorProductService;
 import cz.jkdabing.backend.service.MessageService;
+import cz.jkdabing.backend.service.ProductAuthorService;
 import cz.jkdabing.backend.util.TableNameUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -22,46 +22,46 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class AuthorProductServiceImpl extends AbstractService implements AuthorProductService {
+public class ProductAuthorServiceImpl extends AbstractService implements ProductAuthorService {
 
-    private final AuthorProductRepository authorProductRepository;
+    private final ProductAuthorRepository productAuthorRepository;
 
-    private final AuthorProductMapper authorProductMapper;
+    private final ProductAuthorMapper productAuthorMapper;
 
     private final AuthorRepository authorRepository;
 
     private final ProductRepository productRepository;
 
-    public AuthorProductServiceImpl(
+    public ProductAuthorServiceImpl(
             MessageService messageService,
             AuditService auditService,
-            AuthorProductRepository authorProductRepository,
-            AuthorProductMapper authorProductMapper,
+            ProductAuthorRepository productAuthorRepository,
+            ProductAuthorMapper productAuthorMapper,
             AuthorRepository authorRepository,
             ProductRepository productRepository
     ) {
         super(messageService, auditService);
-        this.authorProductRepository = authorProductRepository;
-        this.authorProductMapper = authorProductMapper;
+        this.productAuthorRepository = productAuthorRepository;
+        this.productAuthorMapper = productAuthorMapper;
         this.authorRepository = authorRepository;
         this.productRepository = productRepository;
     }
 
     @Override
-    public void addAuthorToProduct(AuthorProductDTO authorProductDTO) {
+    public void addAuthorToProduct(ProductAuthorDTO productAuthorDTO) {
         try {
-            AuthorEntity authorEntity = authorRepository.getReferenceById(authorProductDTO.getAuthorId());
-            ProductEntity productEntity = productRepository.getReferenceById(authorProductDTO.getProductId());
+            AuthorEntity authorEntity = authorRepository.getReferenceById(productAuthorDTO.getAuthorId());
+            ProductEntity productEntity = productRepository.getReferenceById(productAuthorDTO.getProductId());
 
-            AuthorProductEntity authorProductEntity = authorProductMapper.toEntity(authorProductDTO);
+            ProductAuthorEntity productAuthorEntity = productAuthorMapper.toEntity(productAuthorDTO);
 
-            authorProductEntity.setAuthor(authorEntity);
-            authorProductEntity.setProduct(productEntity);
-            authorProductRepository.save(authorProductEntity);
+            productAuthorEntity.setAuthor(authorEntity);
+            productAuthorEntity.setProduct(productEntity);
+            productAuthorRepository.save(productAuthorEntity);
 
             prepareAuditLog(
-                    TableNameUtil.getTableName(authorProductEntity.getClass()),
-                    authorProductEntity.getAuthorProductId(),
+                    TableNameUtil.getTableName(productAuthorEntity.getClass()),
+                    productAuthorEntity.getProductAuthorId(),
                     AuditLogConstants.ACTION_CREATE
             );
         } catch (EntityNotFoundException exception) {
@@ -72,14 +72,14 @@ public class AuthorProductServiceImpl extends AbstractService implements AuthorP
     @Override
     public void removeAuthorFromProduct(String authorProductId) {
         UUID internalId = UUID.fromString(authorProductId);
-        if (!authorProductRepository.existsById(internalId)) {
-            throw new BadRequestException(getLocalizedMessage("error.author.product.not.exist"));
+        if (!productAuthorRepository.existsById(internalId)) {
+            throw new BadRequestException(getLocalizedMessage("error.product.author.relationship.not.exist"));
         }
 
-        authorProductRepository.deleteById(internalId);
+        productAuthorRepository.deleteById(internalId);
 
         prepareAuditLog(
-                TableNameUtil.getTableName(AuthorProductEntity.class),
+                TableNameUtil.getTableName(ProductAuthorEntity.class),
                 internalId,
                 AuditLogConstants.ACTION_DELETE
         );
