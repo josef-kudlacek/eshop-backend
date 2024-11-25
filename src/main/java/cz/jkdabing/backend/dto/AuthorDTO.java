@@ -18,6 +18,4 @@ public class AuthorDTO {
 
     @NotBlank(message = "{error.author.last.name.empty}")
     private String lastName;
-
-    private String authorType;
 }
