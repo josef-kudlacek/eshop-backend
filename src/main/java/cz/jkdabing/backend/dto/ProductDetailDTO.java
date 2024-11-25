@@ -17,4 +17,6 @@ public class ProductDetailDTO extends ProductDTO {
     private List<AuthorDTO> authors;
 
     private List<ProductGenreResponse> genres;
+
+    private List<ProductFormatDTO> formats;
 }
