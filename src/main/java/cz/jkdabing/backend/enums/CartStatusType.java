@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.enums;
 
-public enum CarStatusType {
+public enum CartStatusType {
     ACTIVE,
     ORDERED,
     ABANDONED
