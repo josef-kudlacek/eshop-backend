@@ -80,7 +80,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
         productRepository.save(productEntity);
 
         prepareAuditLog(
-                TableNameUtil.getTableName(productEntity.getClass()),
+                TableNameUtil.getTableName(ProductEntity.class),
                 productEntity.getProductId(),
                 AuditLogConstants.ACTION_UPDATE
         );
