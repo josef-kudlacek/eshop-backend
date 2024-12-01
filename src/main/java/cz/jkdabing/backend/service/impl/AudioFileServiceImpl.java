@@ -112,8 +112,10 @@ public class AudioFileServiceImpl extends AbstractService implements AudioFileSe
         audioFileEntity.setProduct(productEntity);
         audioFileRepository.save(audioFileEntity);
 
-        productEntity.setExample(audioFileEntity);
-        productService.updateProduct(productEntity);
+        if (audioFileDTO.isSample()) {
+            productEntity.setExample(audioFileEntity);
+            productService.updateProduct(productEntity);
+        }
 
         prepareAuditLog(
                 TableNameUtil.getTableName(audioFileEntity.getClass()),
