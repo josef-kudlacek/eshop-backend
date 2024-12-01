@@ -62,10 +62,10 @@ public class ProductEntity {
     @JoinColumn(name = "example_audio")
     private AudioFileEntity example;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<AudioFileEntity> audioFiles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FileEntity> files = new ArrayList<>();
 
     @ManyToMany(mappedBy = "applicableProducts")

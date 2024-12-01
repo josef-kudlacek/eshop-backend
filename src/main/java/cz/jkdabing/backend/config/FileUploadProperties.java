@@ -11,9 +11,13 @@ import org.springframework.util.unit.DataUnit;
 @Configuration
 public class FileUploadProperties {
 
-    @Value("${file.upload.directory}")
+    @Value("${file.upload.public.directory}")
     @Getter
-    private String uploadDirectory;
+    private String uploadPublicDirectory;
+
+    @Value("${file.upload.private.directory}")
+    @Getter
+    private String uploadPrivateDirectory;
 
     @Value("${file.upload.image.max.size}")
     @DataSizeUnit(DataUnit.MEGABYTES)
