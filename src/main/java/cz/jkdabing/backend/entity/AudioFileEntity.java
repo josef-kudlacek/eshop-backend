@@ -1,10 +1,12 @@
 package cz.jkdabing.backend.entity;
 
-import cz.jkdabing.backend.enums.ProductFormatType;
+import cz.jkdabing.backend.enums.AudioFormatType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.TimeZoneStorage;
+import org.hibernate.annotations.TimeZoneStorageType;
 
-import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Entity
@@ -20,23 +22,40 @@ public class AudioFileEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID audioFileId;
 
-    @OneToOne
-    @JoinColumn(name = "file_id")
-    private FileEntity fileId;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ProductFormatType productFormatType;
+    private AudioFormatType audioFormatType;
 
     @Column(nullable = false)
-    private LocalTime length;
+    private long length;
 
+    @Column(nullable = false)
     private Integer bitrate;
 
+    private Integer trackNumber;
+
     @Column(nullable = false)
-    private int sequence;
+    private boolean isSample;
+
+    @Column(nullable = false)
+    private String fileName;
+
+    @Column(nullable = false)
+    private String fileUrl;
+
+    @Column(nullable = false)
+    private Long size;
+
+    @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
+    @Column(nullable = false)
+    private ZonedDateTime uploadDate;
+
+    @PrePersist
+    protected void onCreate() {
+        this.uploadDate = ZonedDateTime.now();
+    }
 }
