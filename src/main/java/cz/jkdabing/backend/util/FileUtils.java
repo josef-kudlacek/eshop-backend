@@ -2,13 +2,13 @@ package cz.jkdabing.backend.util;
 
 import org.springframework.util.StringUtils;
 
-public class FileValidationUtils {
+public class FileUtils {
 
     private static final String[] AUDIO_EXTENSIONS = {"mp3"};
 
     private static final String[] IMAGE_EXTENSIONS = {"jpg", "jpeg", "png"};
 
-    private FileValidationUtils() {
+    private FileUtils() {
     }
 
     public static boolean isAudioFileValid(String fileName) {
@@ -19,8 +19,28 @@ public class FileValidationUtils {
         return isFileExtensionValid(fileName, IMAGE_EXTENSIONS);
     }
 
+    public static String getFileExtension(String fileName) {
+        String fileExtension = null;
+        boolean emptyFileNameOrNoExtension = !StringUtils.hasText(fileName) || !fileName.contains(".");
+        if (emptyFileNameOrNoExtension) {
+            return null;
+        }
+
+        int fileExtensionIndex = getFileExtensionIndex(fileName);
+        if (fileExtensionIndex > 0) {
+            fileExtension = fileName.substring(fileExtensionIndex);
+        }
+
+        return fileExtension;
+    }
+
     private static boolean isFileExtensionValid(String fileName, String... allowedExtensions) {
         String fileExtension = getFileExtension(fileName);
+        boolean noFileExtension = !StringUtils.hasText(fileExtension);
+        if (noFileExtension) {
+            return false;
+        }
+
         for (String allowedExtension : allowedExtensions) {
             if (fileExtension.equalsIgnoreCase(allowedExtension)) {
                 return true;
@@ -28,18 +48,6 @@ public class FileValidationUtils {
         }
 
         return false;
-    }
-
-    private static String getFileExtension(String fileName) {
-        String fileExtension = "";
-        if (StringUtils.hasText(fileName) && fileName.contains(".")) {
-            int fileExtensionIndex = getFileExtensionIndex(fileName);
-            if (fileExtensionIndex > 0) {
-                fileExtension = fileName.substring(fileExtensionIndex);
-            }
-        }
-
-        return fileExtension;
     }
 
     private static int getFileExtensionIndex(String fileName) {

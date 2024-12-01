@@ -7,6 +7,7 @@ import cz.jkdabing.backend.entity.ProductEntity;
 import cz.jkdabing.backend.exception.custom.ImageAlreadyExistsException;
 import cz.jkdabing.backend.repository.ImageRepository;
 import cz.jkdabing.backend.service.*;
+import cz.jkdabing.backend.util.FileUtils;
 import cz.jkdabing.backend.util.TableNameUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotEmpty;
@@ -87,20 +88,12 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
 
     private ImageEntity prepareImage(@NotNull MultipartFile image) {
         String fileName = image.getOriginalFilename();
-        String fileFormat = getFileExtension(fileName);
+        String fileFormat = FileUtils.getFileExtension(fileName);
 
         return ImageEntity.builder()
                 .imageName(fileName)
                 .imageFormatType(fileFormat)
                 .build();
-    }
-
-    private String getFileExtension(@NotEmpty String fileName) {
-        if (fileName == null || fileName.lastIndexOf(".") == -1) {
-            return null;
-        }
-
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
     private void uploadAndSaveImage(
@@ -129,7 +122,7 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
             @NotEmpty String imagePath,
             @NotEmpty String imageName
     ) throws IOException {
-        Path uploadPath = Paths.get(fileUploadProperties.getUploadDirectory() + imagePath, imageName);
+        Path uploadPath = Paths.get(fileUploadProperties.getUploadPublicDirectory() + imagePath, imageName);
         Files.write(uploadPath, image.getBytes());
     }
 
@@ -157,7 +150,7 @@ public class ImageServiceImpl extends AbstractService implements ImageService {
             @NotEmpty String imagePath,
             @NotEmpty String imageName
     ) {
-        Path path = Paths.get(fileUploadProperties.getUploadDirectory() + imagePath, imageName);
+        Path path = Paths.get(fileUploadProperties.getUploadPublicDirectory() + imagePath, imageName);
 
         try {
             Files.deleteIfExists(path);
