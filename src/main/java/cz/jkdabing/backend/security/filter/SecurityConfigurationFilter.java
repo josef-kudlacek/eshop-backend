@@ -49,7 +49,7 @@ public class SecurityConfigurationFilter {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/customers", "/api/users/**", "/products/images/**")
+                        .requestMatchers("/api/customers", "/api/users/**", "/products/images/**", "/products/audio/**")
                         .permitAll()
                         .anyRequest().authenticated()
                 )
