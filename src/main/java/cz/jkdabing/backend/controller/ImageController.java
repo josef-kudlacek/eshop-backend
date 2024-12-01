@@ -6,7 +6,7 @@ import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.exception.custom.BadRequestException;
 import cz.jkdabing.backend.service.ImageService;
 import cz.jkdabing.backend.service.MessageService;
-import cz.jkdabing.backend.util.FileValidationUtils;
+import cz.jkdabing.backend.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -93,7 +93,7 @@ public class ImageController extends AbstractBaseController {
     }
 
     private void checkImageExtension(MultipartFile imageFile) {
-        boolean imageFileIsNotValid = !FileValidationUtils.isImageFileValid(imageFile.getOriginalFilename());
+        boolean imageFileIsNotValid = !FileUtils.isImageFileValid(imageFile.getOriginalFilename());
         if (imageFileIsNotValid) {
             throw new BadRequestException(getLocalizedMessage("error.image.invalid.extension"));
         }

@@ -1,9 +1,6 @@
 package cz.jkdabing.backend.exception.handler;
 
-import cz.jkdabing.backend.exception.custom.BadRequestException;
-import cz.jkdabing.backend.exception.custom.ImageAlreadyExistsException;
-import cz.jkdabing.backend.exception.custom.NotFoundException;
-import cz.jkdabing.backend.exception.custom.UserAlreadyExistsException;
+import cz.jkdabing.backend.exception.custom.*;
 import cz.jkdabing.backend.exception.dto.ErrorMessageResponse;
 import cz.jkdabing.backend.service.MessageService;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,14 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
 import java.io.FileNotFoundException;
@@ -37,40 +35,39 @@ public class ControllerExceptionHandler {
         this.messageService = messageService;
     }
 
-    @ExceptionHandler({BadRequestException.class, ImageAlreadyExistsException.class})
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({
+            BadRequestException.class, ImageAlreadyExistsException.class, ExampleAlreadyExistsException.class,
+            FileNameAlreadyExistsException.class
+    })
     public ResponseEntity<ErrorMessageResponse> handleBadRequestExceptions(Exception exception, WebRequest webRequest) {
         logger.warn("Bad request exception occurred: ", exception);
 
-        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                new Date(),
-                exception.getMessage(),
-                webRequest.getDescription(false)
+        HttpStatus httpStatusBadRequest = HttpStatus.BAD_REQUEST;
+        ErrorMessageResponse errorMessageResponse = getErrorMessageResponse(
+                httpStatusBadRequest.value(), exception.getMessage(), webRequest
         );
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(httpStatusBadRequest)
                 .body(errorMessageResponse);
     }
 
-    @ExceptionHandler({NotFoundException.class, FileNotFoundException.class, EntityNotFoundException.class})
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    @ExceptionHandler({
+            NotFoundException.class, FileNotFoundException.class, EntityNotFoundException.class,
+            AudioFileNotExistException.class
+    })
     public ResponseEntity<ErrorMessageResponse> handleNotFoundExceptions(Exception exception, WebRequest webRequest) {
         logger.info("Resource not found exception: ", exception);
 
-        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
-                HttpStatus.NOT_FOUND.value(),
-                new Date(),
-                exception.getMessage(),
-                webRequest.getDescription(false)
+        HttpStatus httpStatusNotFound = HttpStatus.NOT_FOUND;
+        ErrorMessageResponse errorMessageResponse = getErrorMessageResponse(
+                httpStatusNotFound.value(), exception.getMessage(), webRequest
         );
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(httpStatusNotFound)
                 .body(errorMessageResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorMessageResponse> handleValidationExceptions(
             MethodArgumentNotValidException exception,
             WebRequest webRequest
@@ -86,15 +83,16 @@ public class ControllerExceptionHandler {
                     .add(errorMessage);
         });
 
+        HttpStatus httpStatusBadRequest = HttpStatus.BAD_REQUEST;
         ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
-                HttpStatus.BAD_REQUEST.value(),
+                httpStatusBadRequest.value(),
                 new Date(),
                 messageService.getMessage("error.validation.failed"),
                 errors,
                 webRequest.getDescription(false)
         );
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(httpStatusBadRequest)
                 .body(errorMessageResponse);
     }
 
@@ -105,13 +103,12 @@ public class ControllerExceptionHandler {
     ) {
         logger.error("Unauthorized exception occurred: ", exception);
 
-        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
-                HttpStatus.FORBIDDEN.value(),
-                new Date(),
-                exception.getMessage(),
-                webRequest.getDescription(false));
+        HttpStatus httpStatusForbidden = HttpStatus.FORBIDDEN;
+        ErrorMessageResponse errorMessageResponse = getErrorMessageResponse(
+                httpStatusForbidden.value(), exception.getMessage(), webRequest
+        );
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        return ResponseEntity.status(httpStatusForbidden)
                 .body(errorMessageResponse);
     }
 
@@ -122,27 +119,27 @@ public class ControllerExceptionHandler {
     ) {
         logger.warn("User already exists exception occurred: ", exception);
 
-        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
-                HttpStatus.CONFLICT.value(),
-                new Date(),
-                exception.getMessage(),
-                webRequest.getDescription(false));
+        HttpStatus httpStatusConflict = HttpStatus.CONFLICT;
+        ErrorMessageResponse errorMessageResponse = getErrorMessageResponse(
+                httpStatusConflict.value(), exception.getMessage(), webRequest
+        );
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(errorMessageResponse);
     }
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler({Exception.class, InvalidFileExtensionException.class})
     public ResponseEntity<ErrorMessageResponse> globalExceptionHandler(Exception exception, WebRequest webRequest) {
         logger.error("Exception occurred: ", exception);
 
-        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                new Date(),
-                messageService.getMessage("error.server.side"),
-                webRequest.getDescription(false));
+        HttpStatus httpStatusInternalServerError = HttpStatus.INTERNAL_SERVER_ERROR;
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        String errorMessage = messageService.getMessage("error.server.side");
+        ErrorMessageResponse errorMessageResponse = getErrorMessageResponse(
+                httpStatusInternalServerError.value(), errorMessage, webRequest
+        );
+
+        return ResponseEntity.status(httpStatusInternalServerError)
                 .body(errorMessageResponse);
     }
 
@@ -150,29 +147,69 @@ public class ControllerExceptionHandler {
     public ResponseEntity<ErrorMessageResponse> handleIOException(Exception exception, WebRequest webRequest) {
         logger.error("IO Exception occurred: ", exception);
 
-        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                new Date(),
-                messageService.getMessage("error.io.exception"),
-                webRequest.getDescription(false));
+        HttpStatus httpStatusInternalServerError = HttpStatus.INTERNAL_SERVER_ERROR;
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        String errorMessage = messageService.getMessage("error.io.exception");
+        ErrorMessageResponse errorMessageResponse = getErrorMessageResponse(
+                httpStatusInternalServerError.value(), errorMessage, webRequest
+        );
+
+        return ResponseEntity.status(httpStatusInternalServerError)
                 .body(errorMessageResponse);
     }
 
     @ExceptionHandler(MultipartException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorMessageResponse> handleMultipartException(Exception exception, WebRequest webRequest) {
+    public ResponseEntity<ErrorMessageResponse> handleImageMultipartException(Exception exception, WebRequest webRequest) {
         logger.warn("Multipart exception occurred: ", exception);
 
-        ErrorMessageResponse errorMessageResponse = new ErrorMessageResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                new Date(),
-                messageService.getMessage("error.image.empty.image"),
-                webRequest.getDescription(false)
+        HttpStatus httpStatusBadRequest = HttpStatus.BAD_REQUEST;
+
+        String errorMessage = messageService.getMessage("error.image.empty.image");
+        ErrorMessageResponse errorMessageResponse = getErrorMessageResponse(
+                httpStatusBadRequest.value(), errorMessage, webRequest
         );
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(httpStatusBadRequest)
                 .body(errorMessageResponse);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorMessageResponse> handleAudioFileMultipartException(Exception exception, WebRequest webRequest) {
+        logger.warn("Multipart exception occurred: ", exception);
+
+        HttpStatus httpStatusBadRequest = HttpStatus.BAD_REQUEST;
+
+        String errorMessage = messageService.getMessage("error.audio.file.empty");
+        ErrorMessageResponse errorMessageResponse = getErrorMessageResponse(
+                httpStatusBadRequest.value(), errorMessage, webRequest
+        );
+
+        return ResponseEntity.status(httpStatusBadRequest)
+                .body(errorMessageResponse);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorMessageResponse> handleMaximumUploadSizeExceeded(Exception exception, WebRequest webRequest) {
+        logger.warn("Multipart maximum upload size exceeded: ", exception);
+
+        HttpStatus httpStatusBadRequest = HttpStatus.BAD_REQUEST;
+
+        String errorMessage = messageService.getMessage("error.file.size.exceed.limit");
+        ErrorMessageResponse errorMessageResponse = getErrorMessageResponse(
+                httpStatusBadRequest.value(), errorMessage, webRequest
+        );
+
+        return ResponseEntity.status(httpStatusBadRequest)
+                .body(errorMessageResponse);
+    }
+
+    private ErrorMessageResponse getErrorMessageResponse(
+            int httpStatusCode,
+            String errorMessage,
+            WebRequest webRequest
+    ) {
+        return new ErrorMessageResponse(
+                httpStatusCode, new Date(), errorMessage, webRequest.getDescription(false)
+        );
     }
 }

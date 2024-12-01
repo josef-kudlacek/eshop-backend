@@ -1,7 +1,10 @@
 package cz.jkdabing.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.TimeZoneStorage;
 import org.hibernate.annotations.TimeZoneStorageType;
 
@@ -15,7 +18,6 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Table(name = "files")
 public class FileEntity {
 
@@ -42,4 +44,9 @@ public class FileEntity {
 
     @OneToMany(mappedBy = "file")
     private List<UserAccessEntity> accessEntityList = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        this.uploadDate = ZonedDateTime.now();
+    }
 }
