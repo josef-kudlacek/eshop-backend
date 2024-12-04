@@ -1,7 +1,8 @@
-package cz.jkdabing.backend.controller;
+package cz.jkdabing.backend.controller.admin;
 
 import cz.jkdabing.backend.config.FileUploadProperties;
 import cz.jkdabing.backend.constants.FileConstants;
+import cz.jkdabing.backend.controller.AbstractBaseController;
 import cz.jkdabing.backend.dto.FileDTO;
 import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.exception.custom.BadRequestException;
@@ -19,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/files")
+@RequestMapping("/api/admin/files")
 public class FileController extends AbstractBaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);

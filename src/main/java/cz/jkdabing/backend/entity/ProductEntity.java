@@ -55,6 +55,9 @@ public class ProductEntity {
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     private ZonedDateTime publishedDate;
 
+    @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
+    private ZonedDateTime withdrawalDate;
+
     private boolean isActive = false;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

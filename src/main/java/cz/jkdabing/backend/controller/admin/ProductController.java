@@ -1,5 +1,6 @@
-package cz.jkdabing.backend.controller;
+package cz.jkdabing.backend.controller.admin;
 
+import cz.jkdabing.backend.controller.AbstractBaseController;
 import cz.jkdabing.backend.dto.ProductDTO;
 import cz.jkdabing.backend.dto.ProductDetailDTO;
 import cz.jkdabing.backend.service.MessageService;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/admin/products")
 public class ProductController extends AbstractBaseController {
 
     private final ProductService productService;

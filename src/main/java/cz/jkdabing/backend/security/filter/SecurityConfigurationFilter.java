@@ -2,6 +2,7 @@ package cz.jkdabing.backend.security.filter;
 
 import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.security.CustomerDetailsService;
+import cz.jkdabing.backend.security.handler.CustomAuthenticationEntryPoint;
 import cz.jkdabing.backend.security.jwt.JwtTokenFilter;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.MessageService;
@@ -31,16 +32,20 @@ public class SecurityConfigurationFilter {
 
     private final MessageService messageService;
 
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
     public SecurityConfigurationFilter(
             JwtTokenProvider jwtTokenProvider,
             CustomerDetailsService customerDetailsService,
             UserRepository userRepository,
-            MessageService messageService
+            MessageService messageService,
+            CustomAuthenticationEntryPoint customAuthenticationEntryPoint
     ) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.customerDetailsService = customerDetailsService;
         this.userRepository = userRepository;
         this.messageService = messageService;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
 
     @Bean
@@ -51,12 +56,16 @@ public class SecurityConfigurationFilter {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/customers", "/api/users/**", "/products/images/**", "/products/audio/**")
                         .permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .logout(LogoutConfigurer::permitAll)
                 .addFilterBefore(
                         new JwtTokenFilter(jwtTokenProvider, customerDetailsService, userRepository, messageService),
                         UsernamePasswordAuthenticationFilter.class
+                )
+                .exceptionHandling(authentication -> authentication
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                 .build();
     }
