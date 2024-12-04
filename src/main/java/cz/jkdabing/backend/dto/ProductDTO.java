@@ -31,6 +31,8 @@ public class ProductDTO {
 
     private ZonedDateTime publishedDate;
 
+    private ZonedDateTime withdrawalDate;
+
     private boolean isActive;
 
     @NotNull
