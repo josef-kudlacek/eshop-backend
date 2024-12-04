@@ -1,7 +1,8 @@
-package cz.jkdabing.backend.controller;
+package cz.jkdabing.backend.controller.admin;
 
 import cz.jkdabing.backend.config.FileUploadProperties;
 import cz.jkdabing.backend.constants.FileConstants;
+import cz.jkdabing.backend.controller.AbstractBaseController;
 import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.exception.custom.BadRequestException;
 import cz.jkdabing.backend.service.ImageService;
@@ -18,7 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/admin/products")
 public class ImageController extends AbstractBaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(ImageController.class);

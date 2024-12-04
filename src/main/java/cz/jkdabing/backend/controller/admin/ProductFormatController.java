@@ -1,5 +1,6 @@
-package cz.jkdabing.backend.controller;
+package cz.jkdabing.backend.controller.admin;
 
+import cz.jkdabing.backend.controller.AbstractBaseController;
 import cz.jkdabing.backend.dto.ProductFormatDTO;
 import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.service.MessageService;
@@ -9,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/productFormat")
+@RequestMapping("/api/admin/productFormat")
 public class ProductFormatController extends AbstractBaseController {
 
     private final ProductFormatService productFormatService;

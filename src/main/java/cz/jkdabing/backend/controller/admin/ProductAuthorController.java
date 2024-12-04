@@ -1,5 +1,6 @@
-package cz.jkdabing.backend.controller;
+package cz.jkdabing.backend.controller.admin;
 
+import cz.jkdabing.backend.controller.AbstractBaseController;
 import cz.jkdabing.backend.dto.ProductAuthorDTO;
 import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.service.MessageService;
@@ -9,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/productAuthor")
+@RequestMapping("/api/admin/productAuthor")
 public class ProductAuthorController extends AbstractBaseController {
 
     private final ProductAuthorService productAuthorService;
