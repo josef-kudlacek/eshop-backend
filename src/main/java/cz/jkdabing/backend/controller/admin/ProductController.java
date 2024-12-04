@@ -1,4 +1,4 @@
-package cz.jkdabing.backend.controller;
+package cz.jkdabing.backend.controller.admin;
 
 import cz.jkdabing.backend.dto.ProductBaseDTO;
 import cz.jkdabing.backend.service.MessageService;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/admin/products")
 public class ProductController extends AbstractBaseController {
 
     private final ProductService productService;
