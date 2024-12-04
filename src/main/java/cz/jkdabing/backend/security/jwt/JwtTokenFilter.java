@@ -3,6 +3,7 @@ package cz.jkdabing.backend.security.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.jkdabing.backend.constants.HttpHeaderConstants;
 import cz.jkdabing.backend.constants.JWTConstants;
+import cz.jkdabing.backend.constants.ResponseConstants;
 import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.exception.custom.InvalidJwtAuthenticationException;
@@ -124,8 +125,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private void prepareUnauthorizedResponse(HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json");
+        response.setCharacterEncoding(ResponseConstants.CHARACTER_ENCODING_UTF_8);
+        response.setContentType(ResponseConstants.CONTENT_TYPE_APPLICATION_JSON);
 
         MessageResponse messageResponse = MessageResponse.builder()
                 .message(messageService.getMessage(JWTConstants.INVALID_TOKEN_MESSAGE))
