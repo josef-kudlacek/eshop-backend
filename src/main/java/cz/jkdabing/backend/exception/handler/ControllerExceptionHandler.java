@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler({
             NotFoundException.class, FileNotFoundException.class, EntityNotFoundException.class,
-            AudioFileNotExistException.class
+            AudioFileNotExistException.class, NoResourceFoundException.class
     })
     public ResponseEntity<ErrorMessageResponse> handleNotFoundExceptions(Exception exception, WebRequest webRequest) {
         logger.info("Resource not found exception: ", exception);
