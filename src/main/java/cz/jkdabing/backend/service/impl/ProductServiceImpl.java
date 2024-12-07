@@ -1,6 +1,7 @@
 package cz.jkdabing.backend.service.impl;
 
 import cz.jkdabing.backend.constants.AuditLogConstants;
+import cz.jkdabing.backend.dto.ProductBaseDTO;
 import cz.jkdabing.backend.dto.ProductDTO;
 import cz.jkdabing.backend.dto.ProductDetailDTO;
 import cz.jkdabing.backend.entity.ProductEntity;
@@ -17,6 +18,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -94,5 +97,15 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
                 ));
 
         return productMapper.toDetailDTO(productEntityWithDetail);
+    }
+
+    @Override
+    public List<ProductBaseDTO> getActiveProducts() {
+        ZonedDateTime currentDateTime = ZonedDateTime.now();
+        List<ProductEntity> productEntities = productRepository.findActiveProducts(currentDateTime);
+
+        return productEntities.stream()
+                .map(productMapper::toBaseDTO)
+                .toList();
     }
 }
