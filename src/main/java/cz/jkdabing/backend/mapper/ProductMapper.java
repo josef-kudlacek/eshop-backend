@@ -25,6 +25,7 @@ public interface ProductMapper {
 
     @Mapping(source = "productAuthorSet", target = "authors")
     @Mapping(source = "example", target = "example")
+    @Mapping(source = "active", target = "isActive")
     ProductDetailDTO toDetailDTO(ProductEntity productEntity);
 
     ProductEntity updateEntity(ProductDTO productDTO, @MappingTarget ProductEntity productEntity);
