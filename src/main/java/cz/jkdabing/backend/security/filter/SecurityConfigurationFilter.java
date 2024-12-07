@@ -19,10 +19,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static cz.jkdabing.backend.constants.ApiPathConstants.*;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfigurationFilter {
+
+    private static final String ADMIN_PATHS = ADMIN_PATH;
+    private static final String[] PUBLIC_PATHS = {
+            CUSTOMERS, USERS_PATHS, IMAGES_PATHS, AUDIO_PATHS, PRODUCTS
+    };
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -54,9 +61,9 @@ public class SecurityConfigurationFilter {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/customers", "/api/users/**", "/products/images/**", "/products/audio/**")
+                        .requestMatchers(PUBLIC_PATHS)
                         .permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(ADMIN_PATHS).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .logout(LogoutConfigurer::permitAll)
