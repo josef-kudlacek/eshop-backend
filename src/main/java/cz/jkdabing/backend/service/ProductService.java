@@ -1,9 +1,11 @@
 package cz.jkdabing.backend.service;
 
+import cz.jkdabing.backend.dto.ProductBaseDTO;
 import cz.jkdabing.backend.dto.ProductDTO;
 import cz.jkdabing.backend.dto.ProductDetailDTO;
 import cz.jkdabing.backend.entity.ProductEntity;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ProductService {
@@ -17,4 +19,6 @@ public interface ProductService {
     void updateProduct(ProductEntity productEntity);
 
     ProductDetailDTO getProduct(UUID productId);
+
+    List<ProductBaseDTO> getActiveProducts();
 }

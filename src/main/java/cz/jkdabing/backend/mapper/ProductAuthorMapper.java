@@ -1,7 +1,7 @@
 package cz.jkdabing.backend.mapper;
 
-import cz.jkdabing.backend.dto.AuthorDTO;
 import cz.jkdabing.backend.dto.ProductAuthorDTO;
+import cz.jkdabing.backend.dto.response.ProductAuthorResponse;
 import cz.jkdabing.backend.entity.ProductAuthorEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,5 +17,5 @@ public interface ProductAuthorMapper {
     @Mapping(source = "author.authorId", target = "authorId")
     @Mapping(source = "author.firstName", target = "firstName")
     @Mapping(source = "author.lastName", target = "lastName")
-    AuthorDTO toAuthorDTO(ProductAuthorEntity productAuthorEntity);
+    ProductAuthorResponse toResponse(ProductAuthorEntity productAuthorEntity);
 }

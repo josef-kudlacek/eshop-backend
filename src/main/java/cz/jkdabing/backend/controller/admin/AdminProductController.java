@@ -15,11 +15,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin/products")
-public class ProductController extends AbstractBaseController {
+public class AdminProductController extends AbstractBaseController {
 
     private final ProductService productService;
 
-    public ProductController(MessageService messageService, ProductService productService) {
+    public AdminProductController(MessageService messageService, ProductService productService) {
         super(messageService);
         this.productService = productService;
     }
