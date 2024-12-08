@@ -24,4 +24,6 @@ public class ProductController extends AbstractBaseController {
     public List<ProductBaseDTO> getProducts() {
         return productService.getActiveProducts();
     }
+
+    //TODO: Ziskat detail produktu, kde nebude datum stazeni a zda je produkt aktivni (ProductSummaryDTO a ProductDetailDTO)
 }
