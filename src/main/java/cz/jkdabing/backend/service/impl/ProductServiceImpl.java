@@ -13,6 +13,10 @@ import cz.jkdabing.backend.service.AuditService;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductService;
 import cz.jkdabing.backend.util.TableNameUtil;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
@@ -38,7 +42,8 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
-    public ProductDTO createProduct(ProductDTO productDTO) {
+    @CacheEvict(value = "activeProducts", allEntries = true)
+    public ProductDTO createProduct(@Valid ProductDTO productDTO) {
         ProductEntity productEntity = productMapper.toEntity(productDTO);
         productRepository.save(productEntity);
 
@@ -60,7 +65,8 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
-    public ProductDTO updateProduct(UUID productId, ProductDTO productDTO) {
+    @CacheEvict(value = "activeProducts", key = "#productId")
+    public ProductDTO updateProduct(@NotEmpty UUID productId, @Valid ProductDTO productDTO) {
         ProductEntity productEntity = findProductByIdOrThrow(productId);
         productDTO.setProductId(productId);
         productEntity = productMapper.updateEntity(productDTO, productEntity);
@@ -76,6 +82,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
+    @CacheEvict(value = "activeProducts", key = "#productEntity.productId")
     public void updateProduct(ProductEntity productEntity) {
         productRepository.save(productEntity);
 
@@ -87,7 +94,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
-    public ProductDetailDTO getProduct(UUID productId) {
+    public ProductDetailDTO getProduct(@NotEmpty UUID productId) {
         ProductEntity productEntityWithDetail = productRepository.findProductDetailByProductId(productId)
                 .orElseThrow(() -> new NotFoundException(
                         getLocalizedMessage("error.product.not.found", productId)
@@ -97,6 +104,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
+    @Cacheable(value = "activeProducts", unless = "#result.size() == 0")
     public List<ProductBaseDTO> getActiveProducts() {
         ZonedDateTime currentDateTime = ZonedDateTime.now();
         List<ProductEntity> productEntities = productRepository.findActiveProducts(currentDateTime);
