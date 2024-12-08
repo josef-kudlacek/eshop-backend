@@ -16,6 +16,8 @@ import cz.jkdabing.backend.util.TableNameUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
@@ -41,6 +43,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
+    @CacheEvict(value = "activeProducts", allEntries = true)
     public ProductDTO createProduct(@Valid ProductDTO productDTO) {
         ProductEntity productEntity = productMapper.toEntity(productDTO);
         productRepository.save(productEntity);
@@ -63,6 +66,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
+    @CacheEvict(value = "activeProducts", key = "#productId")
     public ProductDTO updateProduct(@NotEmpty UUID productId, @Valid ProductDTO productDTO) {
         ProductEntity productEntity = findProductByIdOrThrow(productId);
         productDTO.setProductId(productId);
@@ -79,6 +83,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
+    @CacheEvict(value = "activeProducts", key = "#productEntity.productId")
     public void updateProduct(ProductEntity productEntity) {
         productRepository.save(productEntity);
 
@@ -100,6 +105,7 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     }
 
     @Override
+    @Cacheable(value = "activeProducts", unless = "#result.size() == 0")
     public List<ProductBaseDTO> getActiveProducts() {
         ZonedDateTime currentDateTime = ZonedDateTime.now();
         List<ProductEntity> productEntities = productRepository.findActiveProducts(currentDateTime);
