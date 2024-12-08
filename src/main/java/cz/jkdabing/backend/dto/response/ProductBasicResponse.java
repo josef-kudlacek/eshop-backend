@@ -1,11 +1,6 @@
-package cz.jkdabing.backend.dto;
+package cz.jkdabing.backend.dto.response;
 
-import cz.jkdabing.backend.dto.response.ImageResponse;
-import cz.jkdabing.backend.dto.response.ProductAuthorResponse;
 import cz.jkdabing.backend.util.PriceUtils;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,27 +14,20 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductBaseDTO {
+public class ProductBasicResponse {
 
     private UUID productId;
 
-    @NotBlank(message = "{error.product.name}")
     private String productName;
 
-    @NotBlank(message = "{error.product.type}")
     private String productType;
 
     private ImageResponse image;
 
-    @NotNull
-    @DecimalMin(value = "0.0")
     private BigDecimal price;
 
-    @NotNull
-    @DecimalMin(value = "0.0")
     private BigDecimal vat;
 
-    @DecimalMin(value = "0.0")
     private BigDecimal totalPrice;
 
     private List<ProductAuthorResponse> authors;

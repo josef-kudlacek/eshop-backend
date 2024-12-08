@@ -1,14 +1,12 @@
-package cz.jkdabing.backend.dto;
+package cz.jkdabing.backend.dto.response;
 
-import cz.jkdabing.backend.dto.response.AudioFileResponse;
-import cz.jkdabing.backend.dto.response.ProductFormatResponse;
-import cz.jkdabing.backend.dto.response.ProductGenreResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Data
@@ -16,14 +14,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ProductDetailDTO extends ProductDTO {
+public class ProductCustomerResponse extends ProductBasicResponse {
 
     private AudioFileResponse example;
+
+    private String productDescription;
+
+    private ZonedDateTime publishedDate;
 
     private List<ProductGenreResponse> genres;
 
     private List<ProductFormatResponse> formats;
 }
-
-
-
