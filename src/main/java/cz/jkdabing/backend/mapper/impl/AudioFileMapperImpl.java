@@ -36,7 +36,11 @@ public class AudioFileMapperImpl implements AudioFileMapper {
                 .build();
     }
 
-    public AudioFileResponse toDTO(@NotNull AudioFileEntity audioFileEntity) {
+    public AudioFileResponse toDTO(AudioFileEntity audioFileEntity) {
+        if (audioFileEntity == null) {
+            return null;
+        }
+
         String fileName = audioFileEntity.getFileName();
         String filePath = audioFileEntity.getFileUrl() + fileName;
 
