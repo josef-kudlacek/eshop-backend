@@ -2,7 +2,8 @@ package cz.jkdabing.backend.controller.admin;
 
 import cz.jkdabing.backend.controller.AbstractBaseController;
 import cz.jkdabing.backend.dto.ProductDTO;
-import cz.jkdabing.backend.dto.ProductDetailDTO;
+import cz.jkdabing.backend.dto.response.ProductAdminResponse;
+import cz.jkdabing.backend.mapper.response.ProductResponseMapper;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductService;
 import jakarta.validation.Valid;
@@ -19,29 +20,37 @@ public class AdminProductController extends AbstractBaseController {
 
     private final ProductService productService;
 
-    public AdminProductController(MessageService messageService, ProductService productService) {
+    private final ProductResponseMapper productResponseMapper;
+
+    public AdminProductController(
+            MessageService messageService,
+            ProductService productService,
+            ProductResponseMapper productResponseMapper
+    ) {
         super(messageService);
         this.productService = productService;
+        this.productResponseMapper = productResponseMapper;
     }
 
     @GetMapping("/{productId}")
-    public ProductDetailDTO getProduct(@PathVariable UUID productId) {
-        return productService.getProduct(productId);
+    public ProductAdminResponse getProduct(@PathVariable UUID productId) {
+        ProductDTO productDTO = productService.getProduct(productId);
+        return productResponseMapper.toProductAdminResponse(productDTO);
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody ProductDTO productDTO) {
+    public ResponseEntity<ProductAdminResponse> createProduct(@Valid @RequestBody ProductDTO productDTO) {
         ProductDTO createdProduct = productService.createProduct(productDTO);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(createdProduct);
+        ProductAdminResponse productAdminResponse = productResponseMapper.toProductAdminResponse(createdProduct);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productAdminResponse);
     }
 
     @PutMapping("/{productId}")
-    public ProductDTO updateProduct(
+    public ProductAdminResponse updateProduct(
             @PathVariable UUID productId,
             @Valid @RequestBody ProductDTO productDTO
     ) {
-        return productService.updateProduct(productId, productDTO);
+        ProductDTO updatedProduct = productService.updateProduct(productId, productDTO);
+        return productResponseMapper.toProductAdminResponse(updatedProduct);
     }
 }
