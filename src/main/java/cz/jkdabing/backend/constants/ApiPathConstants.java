@@ -15,6 +15,7 @@ public class ApiPathConstants {
     public static final String ADMIN_PATH = ADMIN + "/**";
     public static final String AUDIO_PATHS = PRODUCT_PATH + "/audio/**";
     public static final String IMAGES_PATHS = PRODUCT_PATH + "/images/**";
+    public static final String PRODUCTS_PATHS = PRODUCTS + "/**";
     public static final String USERS_PATHS = USERS + "/**";
 
     private ApiPathConstants() {
