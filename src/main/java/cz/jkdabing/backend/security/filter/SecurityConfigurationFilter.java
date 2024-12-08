@@ -28,7 +28,7 @@ public class SecurityConfigurationFilter {
 
     private static final String ADMIN_PATHS = ADMIN_PATH;
     private static final String[] PUBLIC_PATHS = {
-            CUSTOMERS, USERS_PATHS, IMAGES_PATHS, AUDIO_PATHS, PRODUCTS
+            CUSTOMERS, USERS_PATHS, IMAGES_PATHS, AUDIO_PATHS, PRODUCTS, PRODUCTS_PATHS
     };
 
     private final JwtTokenProvider jwtTokenProvider;

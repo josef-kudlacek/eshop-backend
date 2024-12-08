@@ -1,13 +1,18 @@
 package cz.jkdabing.backend.controller;
 
-import cz.jkdabing.backend.dto.ProductBaseDTO;
+import cz.jkdabing.backend.dto.ProductDTO;
+import cz.jkdabing.backend.dto.response.ProductBasicResponse;
+import cz.jkdabing.backend.dto.response.ProductCustomerResponse;
+import cz.jkdabing.backend.mapper.response.ProductResponseMapper;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/products")
@@ -15,15 +20,27 @@ public class ProductController extends AbstractBaseController {
 
     private final ProductService productService;
 
-    public ProductController(MessageService messageService, ProductService productService) {
+    private final ProductResponseMapper productResponseMapper;
+
+    public ProductController(
+            MessageService messageService,
+            ProductService productService,
+            ProductResponseMapper productResponseMapper
+    ) {
         super(messageService);
         this.productService = productService;
+        this.productResponseMapper = productResponseMapper;
     }
 
     @GetMapping
-    public List<ProductBaseDTO> getProducts() {
-        return productService.getActiveProducts();
+    public List<ProductBasicResponse> getBasicProducts() {
+        List<ProductDTO> activeProducts = productService.getActiveProducts();
+        return productResponseMapper.toProductBasicResponseList(activeProducts);
     }
 
-    //TODO: Ziskat detail produktu, kde nebude datum stazeni a zda je produkt aktivni (ProductSummaryDTO a ProductDetailDTO)
+    @GetMapping("/{productId}")
+    public ProductCustomerResponse getProduct(@PathVariable UUID productId) {
+        ProductDTO productDTO = productService.getProduct(productId);
+        return productResponseMapper.toProductCustomerResponse(productDTO);
+    }
 }
