@@ -10,6 +10,9 @@ public class AuditLogConstants {
     public static final String ACTION_DELETE = "delete";
     public static final String ACTION_UPLOAD = "upload";
 
+    public static final String ACTION_ADD = "add";
+    public static final String ACTION_REMOVE = "remove";
+
     public static final String TABLE_NAME_IMAGES = "images";
 
     private AuditLogConstants() {

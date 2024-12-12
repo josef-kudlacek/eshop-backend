@@ -4,6 +4,7 @@ public class JWTConstants {
 
     public static final String BEARER = "Bearer ";
     public static final String ROLES = "roles";
+    public static final String USER_ID = "userId";
     public static final String USERNAME = "username";
     public static final String TOKEN_VERSION = "tokenVersion";
 

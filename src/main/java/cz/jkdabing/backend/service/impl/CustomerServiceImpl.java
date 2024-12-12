@@ -14,6 +14,7 @@ import cz.jkdabing.backend.util.TableNameUtil;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -53,5 +54,14 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
         );
 
         return customerEntity.getCustomerId();
+    }
+
+    @Override
+    public CustomerEntity getCustomerByUserNameOrThrow(String username) {
+        return customerRepository.findCustomerByUser_username(username)
+                .orElseThrow(() -> new NoSuchElementException(
+                                getLocalizedMessage("error.customer.not.found")
+                        )
+                );
     }
 }

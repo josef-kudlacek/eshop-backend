@@ -29,10 +29,8 @@ public class CustomerEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
     private String firstName;
 
     @Column(nullable = false)
@@ -40,16 +38,12 @@ public class CustomerEntity {
 
     private String phoneNumber;
 
-    @Column(nullable = false)
     private String street;
 
-    @Column(nullable = false)
     private String city;
 
-    @Column(nullable = false)
     private String postalCode;
 
-    @Column(nullable = false)
     private String country;
 
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
