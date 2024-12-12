@@ -9,6 +9,7 @@ import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.exception.custom.InvalidJwtAuthenticationException;
 import cz.jkdabing.backend.repository.UserRepository;
 import cz.jkdabing.backend.service.MessageService;
+import cz.jkdabing.backend.util.SecurityUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -80,10 +81,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private String extractToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(HttpHeaderConstants.AUTHORIZATION);
-        if (bearerToken != null && bearerToken.startsWith(JWTConstants.BEARER)) {
-            return bearerToken.substring(7);
-        }
-        return null;
+        return SecurityUtil.extractToken(bearerToken);
     }
 
     private void handleCustomerToken(HttpServletRequest request, String token, Map<String, Object> userDetails) {

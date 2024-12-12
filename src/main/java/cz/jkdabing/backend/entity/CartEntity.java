@@ -40,6 +40,24 @@ public class CartEntity {
     private ZonedDateTime updatedAt;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CartItemEntity> cartItems = new ArrayList<>();
+    private List<CartItemEntity> cartItems;
+
+    public void addCartItem(CartItemEntity cartItemEntity) {
+        if (cartItems == null) {
+            cartItems = new ArrayList<>();
+        }
+
+        cartItems.add(cartItemEntity);
+    }
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = ZonedDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = ZonedDateTime.now();
+    }
 
 }

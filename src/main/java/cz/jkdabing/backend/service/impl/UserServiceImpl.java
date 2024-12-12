@@ -4,6 +4,7 @@ import cz.jkdabing.backend.config.ServerAddressConfig;
 import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.dto.LoginDTO;
 import cz.jkdabing.backend.dto.UserDTO;
+import cz.jkdabing.backend.entity.CustomerEntity;
 import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.exception.custom.UserAlreadyExistsException;
 import cz.jkdabing.backend.mapper.UserMapper;
@@ -16,7 +17,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -105,12 +105,8 @@ public class UserServiceImpl extends AbstractService implements UserService {
 
     @Override
     public String authenticateUser(@Valid LoginDTO loginDTO) {
-        UserEntity userEntity = userRepository.findByUsername(loginDTO.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException(
-                                getLocalizedMessage("error.user.not.found", loginDTO.getUsername())
-                        )
-                );
-
+        CustomerEntity customerEntity = customerService.getCustomerByUserNameOrThrow(loginDTO.getUsername());
+        UserEntity userEntity = customerEntity.getUser();
         if (!userEntity.isEnabled()) {
             throw new BadCredentialsException(
                     getLocalizedMessage("error.user.not.active", loginDTO.getUsername())
@@ -128,6 +124,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
 
                 return jwtTokenProvider.createUserToken(
                         userEntity.getTokenVersion(),
+                        customerEntity.getCustomerId().toString(),
                         userEntity.getUserId().toString(),
                         userEntity.getUsername(),
                         roles);
