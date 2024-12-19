@@ -24,4 +24,9 @@ public abstract class AbstractService {
     protected void prepareAuditLog(String entityName, UUID entityId, String action) {
         auditService.prepareAuditLog(entityName, entityId, action);
     }
+
+    protected void prepareAuditLog(String entityName, Long entityId, String action) {
+        String uuid = String.format("00000000-0000-0000-0000-%012d", entityId);
+        auditService.prepareAuditLog(entityName, UUID.fromString(uuid), action);
+    }
 }
