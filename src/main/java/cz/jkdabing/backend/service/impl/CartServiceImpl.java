@@ -99,6 +99,23 @@ public class CartServiceImpl extends AbstractService implements CartService {
         return cartMapper.toDTO(cartEntity);
     }
 
+    @Override
+    public void removeItemFromCart(UUID customerId, UUID cartItemId) {
+        if (customerId == null) {
+            throw new BadRequestException(getLocalizedMessage("error.customer.not.found"));
+        }
+
+        CartItemEntity cartItemEntity = cartItemRepository.findByCartItemIdAndCart_Customer_CustomerId(cartItemId, customerId)
+                .orElseThrow(() -> new NotFoundException(getLocalizedMessage("error.cart.item.not.found")));
+        cartItemRepository.delete(cartItemEntity);
+
+        prepareAuditLog(
+                TableNameUtil.getTableName(CartItemEntity.class),
+                cartItemId,
+                AuditLogConstants.ACTION_REMOVE
+        );
+    }
+
     private CartEntity createCartForCustomer(UUID customerId, UUID cartId, ProductEntity productEntity) {
         CartEntity cartEntity;
         if (customerId == null) {

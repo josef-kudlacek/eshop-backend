@@ -10,4 +10,6 @@ public interface CartService {
     CartDTO addItemToCart(UUID customerId, CartItemDTO cartItemDTO);
 
     CartDTO getCart(UUID customerId);
+
+    void removeItemFromCart(UUID customerId, UUID cartItemId);
 }
