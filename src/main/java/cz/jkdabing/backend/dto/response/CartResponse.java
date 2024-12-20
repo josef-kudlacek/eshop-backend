@@ -1,5 +1,6 @@
 package cz.jkdabing.backend.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import cz.jkdabing.backend.enums.CartStatusType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class CartResponse {
 
     private UUID cartId;

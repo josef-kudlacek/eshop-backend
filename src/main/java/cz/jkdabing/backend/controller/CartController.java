@@ -63,6 +63,15 @@ public class CartController extends AbstractBaseController {
                 .body(cartResponse);
     }
 
+    @DeleteMapping("/remove/{cartItemId}")
+    public void removeItemFromCart(
+            @RequestHeader(value = "Authorization") String token,
+            @PathVariable String cartItemId
+    ) {
+        UUID customerId = getCustomerId(token);
+        cartService.removeItemFromCart(customerId, UUID.fromString(cartItemId));
+    }
+
     private UUID getCustomerId(String token) {
         String extractedToken = SecurityUtil.extractToken(token);
         if (extractedToken == null) {
