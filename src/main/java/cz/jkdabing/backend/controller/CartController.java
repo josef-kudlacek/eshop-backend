@@ -12,6 +12,7 @@ import cz.jkdabing.backend.service.CartService;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.util.SecurityUtil;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -82,6 +83,13 @@ public class CartController extends AbstractBaseController {
     ) {
         UUID customerId = getCustomerId(token);
         cartService.updateCartItemQuantity(customerId, cartId, cartItemId, request.getQuantity());
+    }
+
+    @DeleteMapping("/{cartId}/clear")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void clearCart(@RequestHeader(value = "Authorization") String token, @PathVariable UUID cartId) {
+        UUID customerId = getCustomerId(token);
+        cartService.clearCart(customerId, cartId);
     }
 
     private UUID getCustomerId(String token) {
