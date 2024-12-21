@@ -12,4 +12,6 @@ public interface CartService {
     CartDTO getCart(UUID customerId);
 
     void removeItemFromCart(UUID customerId, UUID cartItemId);
+
+    void updateCartItemQuantity(UUID customerId, UUID cartId, UUID cartItemId, int quantity);
 }
