@@ -4,6 +4,7 @@ import cz.jkdabing.backend.constants.HttpHeaderConstants;
 import cz.jkdabing.backend.constants.JWTConstants;
 import cz.jkdabing.backend.dto.CartDTO;
 import cz.jkdabing.backend.dto.CartItemDTO;
+import cz.jkdabing.backend.dto.request.UpdateCartItemQuantityRequest;
 import cz.jkdabing.backend.dto.response.CartResponse;
 import cz.jkdabing.backend.mapper.response.CartResponseMapper;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
@@ -55,11 +56,11 @@ public class CartController extends AbstractBaseController {
         CartResponse cartResponse = cartResponseMapper.toCartResponse(cartDTO);
 
         if (token == null || customerId == null) {
-            token = jwtTokenProvider.createCustomerToken(cartDTO.getCustomer().getCustomerId().toString());
+            token = JWTConstants.BEARER + jwtTokenProvider.createCustomerToken(cartDTO.getCustomer().getCustomerId().toString());
         }
 
         return ResponseEntity.ok()
-                .header(HttpHeaderConstants.AUTHORIZATION, JWTConstants.BEARER + token)
+                .header(HttpHeaderConstants.AUTHORIZATION, token)
                 .body(cartResponse);
     }
 
@@ -70,6 +71,17 @@ public class CartController extends AbstractBaseController {
     ) {
         UUID customerId = getCustomerId(token);
         cartService.removeItemFromCart(customerId, UUID.fromString(cartItemId));
+    }
+
+    @PatchMapping("/{cartId}/items/{cartItemId}")
+    public void updateCartItemQuantity(
+            @RequestHeader(value = "Authorization") String token,
+            @PathVariable UUID cartId,
+            @PathVariable UUID cartItemId,
+            @Valid @RequestBody UpdateCartItemQuantityRequest request
+    ) {
+        UUID customerId = getCustomerId(token);
+        cartService.updateCartItemQuantity(customerId, cartId, cartItemId, request.getQuantity());
     }
 
     private UUID getCustomerId(String token) {

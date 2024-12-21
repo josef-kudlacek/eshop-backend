@@ -116,6 +116,21 @@ public class CartServiceImpl extends AbstractService implements CartService {
         );
     }
 
+    @Override
+    public void updateCartItemQuantity(UUID customerId, UUID cartId, UUID cartItemId, int quantity) {
+        CartItemEntity cartItemEntity = cartItemRepository.findByCartItemIdAndCart_Customer_CustomerId(cartItemId, customerId)
+                .orElseThrow(() -> new NotFoundException(getLocalizedMessage("error.cart.item.not.found")));
+
+        cartItemEntity.setQuantity(quantity);
+        cartItemRepository.save(cartItemEntity);
+
+        prepareAuditLog(
+                TableNameUtil.getTableName(CartItemEntity.class),
+                cartItemId,
+                AuditLogConstants.ACTION_UPDATE
+        );
+    }
+
     private CartEntity createCartForCustomer(UUID customerId, UUID cartId, ProductEntity productEntity) {
         CartEntity cartEntity;
         if (customerId == null) {
