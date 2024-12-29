@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/admin/productFormat")
+@RequestMapping("/api/admin/product-format")
 public class ProductFormatController extends AbstractBaseController {
 
     private final ProductFormatService productFormatService;
