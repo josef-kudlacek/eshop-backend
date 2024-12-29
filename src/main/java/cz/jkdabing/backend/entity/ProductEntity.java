@@ -55,17 +55,16 @@ public class ProductEntity {
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     private ZonedDateTime publishedDate;
 
-    @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
-    private ZonedDateTime withdrawalDate;
+    private boolean isActive = false;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "example_audio")
     private AudioFileEntity example;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<AudioFileEntity> audioFiles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FileEntity> files = new ArrayList<>();
 
     @ManyToMany(mappedBy = "applicableProducts")
