@@ -1,27 +1,26 @@
 package cz.jkdabing.backend.validation;
 
-import cz.jkdabing.backend.enums.AuthorType;
-import cz.jkdabing.backend.validation.annotation.ValidAuthorType;
+import cz.jkdabing.backend.enums.ProductGenreType;
+import cz.jkdabing.backend.validation.annotation.ValidProductGenre;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Component
-public class AuthorTypeValidator implements ConstraintValidator<ValidAuthorType, String> {
-
+public class ProductGenreValidator implements ConstraintValidator<ValidProductGenre, String> {
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
         if (!StringUtils.hasText(value)) {
-            addErrorMessage(constraintValidatorContext, "Author type cannot be null");
+            addErrorMessage(constraintValidatorContext, "Product genre cannot be null");
             return false;
         }
 
         try {
-            AuthorType.valueOf(value);
+            ProductGenreType.valueOf(value);
         } catch (IllegalArgumentException e) {
-            addErrorMessage(constraintValidatorContext, "Invalid author type: " + value);
+            addErrorMessage(constraintValidatorContext, "Invalid product genre: " + value);
             return false;
         }
 
