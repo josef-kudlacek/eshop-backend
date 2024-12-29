@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/admin/productGenre")
+@RequestMapping("/api/admin/product-genre")
 public class ProductGenreController extends AbstractBaseController {
 
     private final ProductGenreService genreProductService;

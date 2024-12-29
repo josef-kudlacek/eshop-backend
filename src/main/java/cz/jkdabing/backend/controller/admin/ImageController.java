@@ -38,7 +38,7 @@ public class ImageController extends AbstractBaseController {
         this.fileUploadProperties = fileUploadProperties;
     }
 
-    @PatchMapping("/{productId}/uploadImage")
+    @PatchMapping("/{productId}/upload-image")
     public ResponseEntity<MessageResponse> saveImage(
             @PathVariable("productId") String productId,
             @RequestParam("image") MultipartFile imageFile
@@ -54,7 +54,7 @@ public class ImageController extends AbstractBaseController {
         }
     }
 
-    @PutMapping("/{productId}/uploadImage")
+    @PutMapping("/{productId}/upload-image")
     public ResponseEntity<MessageResponse> updateImage(
             @PathVariable("productId") String productId,
             @RequestParam("image") MultipartFile imageFile
@@ -70,7 +70,7 @@ public class ImageController extends AbstractBaseController {
         }
     }
 
-    @DeleteMapping("/{productId}/deleteImage")
+    @DeleteMapping("/{productId}/delete-image")
     public ResponseEntity<MessageResponse> deleteImage(
             @PathVariable("productId") String productId
     ) throws FileNotFoundException {
