@@ -21,15 +21,15 @@ public class ProductGenreController extends AbstractBaseController {
     }
 
     @PostMapping
-    public ResponseEntity<MessageResponse> addAuthorToProduct(@Valid @RequestBody ProductGenreDTO productGenreDTO) {
+    public ResponseEntity<MessageResponse> addGenreToProduct(@Valid @RequestBody ProductGenreDTO productGenreDTO) {
         genreProductService.addGenreToProduct(productGenreDTO);
 
         return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("product.genre.added")));
     }
 
     @DeleteMapping("/{genreId}")
-    public ResponseEntity<MessageResponse> deleteAuthorFromProduct(@PathVariable Long genreId) {
-        genreProductService.deleteGenreFromProduct(genreId);
+    public ResponseEntity<MessageResponse> removeGenreFromProduct(@PathVariable long genreId) {
+        genreProductService.removeGenreFromProduct(genreId);
 
         return ResponseEntity.ok(new MessageResponse(getLocalizedMessage("product.genre.removed")));
     }

@@ -6,5 +6,5 @@ public interface ProductGenreService {
 
     void addGenreToProduct(ProductGenreDTO productGenreDTO);
 
-    void deleteGenreFromProduct(long genreId);
+    void removeGenreFromProduct(long genreId);
 }
