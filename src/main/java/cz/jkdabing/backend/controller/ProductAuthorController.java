@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/productAuthor")
+@RequestMapping("/api/product-author")
 public class ProductAuthorController extends AbstractBaseController {
 
     private final ProductAuthorService productAuthorService;
