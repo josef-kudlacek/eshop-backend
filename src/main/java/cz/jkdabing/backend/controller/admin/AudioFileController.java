@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/admin/audioFiles")
+@RequestMapping("/api/admin/audio-files")
 public class AudioFileController extends AbstractBaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(AudioFileController.class);
