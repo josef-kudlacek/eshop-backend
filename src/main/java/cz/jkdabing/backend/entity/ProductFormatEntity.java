@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.entity;
 
-import cz.jkdabing.backend.enums.AudioFormatType;
+import cz.jkdabing.backend.enums.ProductFormatType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +19,7 @@ public class ProductFormatEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AudioFormatType audioFormatType;
+    private ProductFormatType formatType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
