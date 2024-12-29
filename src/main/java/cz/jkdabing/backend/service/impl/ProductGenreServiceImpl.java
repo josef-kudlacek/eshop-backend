@@ -59,7 +59,7 @@ public class ProductGenreServiceImpl extends AbstractService implements ProductG
     }
 
     @Override
-    public void deleteGenreFromProduct(long genreId) {
+    public void removeGenreFromProduct(long genreId) {
         if (!productGenreRepository.existsById(genreId)) {
             throw new NotFoundException(getLocalizedMessage("error.genre.not.found", genreId));
         }
