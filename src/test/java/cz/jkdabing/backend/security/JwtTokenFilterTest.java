@@ -33,7 +33,7 @@ class JwtTokenFilterTest {
         when(jwtTokenProvider.getSubjectIdFromToken((anyString())))
                 .thenReturn(CustomerTestConstants.TOKEN);
 
-        mockMvc.perform(get("/api/")
+        mockMvc.perform(get("/api/products")
                         .header("Authorization", "Bearer validToken"))
                 .andExpect(status().isOk());
     }

@@ -1,10 +1,12 @@
 package cz.jkdabing.backend.controller;
 
+import cz.jkdabing.backend.constants.HttpHeaderConstants;
 import cz.jkdabing.backend.dto.CustomerDTO;
-import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.CustomerService;
+import cz.jkdabing.backend.util.SecurityUtil;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,10 +28,12 @@ public class CustomerController {
     }
 
     @PostMapping
-    public MessageResponse register(@Valid @RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<Void> register(@Valid @RequestBody CustomerDTO customerDTO) {
         UUID customerId = customerService.createCustomer(customerDTO);
         String token = jwtTokenProvider.createCustomerToken(customerId.toString());
 
-        return new MessageResponse(token);
+        return ResponseEntity.ok()
+                .header(HttpHeaderConstants.AUTHORIZATION, SecurityUtil.addBearerPrefix(token))
+                .build();
     }
 }
