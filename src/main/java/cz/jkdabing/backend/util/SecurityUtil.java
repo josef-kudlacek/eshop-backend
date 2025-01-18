@@ -24,4 +24,8 @@ public class SecurityUtil {
         }
         return null;
     }
+
+    public static String addBearerPrefix(String token) {
+        return JWTConstants.BEARER + token;
+    }
 }
