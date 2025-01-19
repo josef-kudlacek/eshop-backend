@@ -1,9 +1,9 @@
 package cz.jkdabing.backend.mapper.response;
 
+import cz.jkdabing.backend.dto.ProductBasicDTO;
 import cz.jkdabing.backend.dto.ProductDTO;
-import cz.jkdabing.backend.dto.response.ProductAdminResponse;
-import cz.jkdabing.backend.dto.response.ProductBasicResponse;
-import cz.jkdabing.backend.dto.response.ProductCustomerResponse;
+import cz.jkdabing.backend.dto.response.ProductAdminDTO;
+import cz.jkdabing.backend.dto.response.ProductCustomerDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 
@@ -13,9 +13,9 @@ import java.util.List;
 public interface ProductResponseMapper {
 
     @Named("toProductAdminResponse")
-    ProductAdminResponse toProductAdminResponse(ProductDTO productDTO);
+    ProductAdminDTO toProductAdminResponse(ProductDTO productDTO);
 
-    List<ProductBasicResponse> toProductBasicResponseList(List<ProductDTO> productDTOList);
+    List<ProductBasicDTO> toProductBasicResponseList(List<ProductDTO> productDTOList);
 
-    ProductCustomerResponse toProductCustomerResponse(ProductDTO productDTO);
+    ProductCustomerDTO toProductCustomerResponse(ProductDTO productDTO);
 }

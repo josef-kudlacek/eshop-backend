@@ -2,7 +2,7 @@ package cz.jkdabing.backend.controller.admin;
 
 import cz.jkdabing.backend.controller.AbstractBaseController;
 import cz.jkdabing.backend.dto.ProductDTO;
-import cz.jkdabing.backend.dto.response.ProductAdminResponse;
+import cz.jkdabing.backend.dto.response.ProductAdminDTO;
 import cz.jkdabing.backend.mapper.response.ProductResponseMapper;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductService;
@@ -33,20 +33,20 @@ public class AdminProductController extends AbstractBaseController {
     }
 
     @GetMapping("/{productId}")
-    public ProductAdminResponse getProduct(@PathVariable UUID productId) {
+    public ProductAdminDTO getProduct(@PathVariable UUID productId) {
         ProductDTO productDTO = productService.getProduct(productId);
         return productResponseMapper.toProductAdminResponse(productDTO);
     }
 
     @PostMapping
-    public ResponseEntity<ProductAdminResponse> createProduct(@Valid @RequestBody ProductDTO productDTO) {
+    public ResponseEntity<ProductAdminDTO> createProduct(@Valid @RequestBody ProductDTO productDTO) {
         ProductDTO createdProduct = productService.createProduct(productDTO);
-        ProductAdminResponse productAdminResponse = productResponseMapper.toProductAdminResponse(createdProduct);
+        ProductAdminDTO productAdminResponse = productResponseMapper.toProductAdminResponse(createdProduct);
         return ResponseEntity.status(HttpStatus.CREATED).body(productAdminResponse);
     }
 
     @PutMapping("/{productId}")
-    public ProductAdminResponse updateProduct(
+    public ProductAdminDTO updateProduct(
             @PathVariable UUID productId,
             @Valid @RequestBody ProductDTO productDTO
     ) {
