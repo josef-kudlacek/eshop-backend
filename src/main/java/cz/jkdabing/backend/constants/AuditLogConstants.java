@@ -4,6 +4,7 @@ public class AuditLogConstants {
 
     public static final String ACTION_REGISTER = "register";
     public static final String ACTION_ACTIVATE = "activate";
+    public static final String ACTION_DEACTIVATE = "deactivate";
 
     public static final String ACTION_CREATE = "create";
     public static final String ACTION_UPDATE = "update";

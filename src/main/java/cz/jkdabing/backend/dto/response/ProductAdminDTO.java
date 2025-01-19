@@ -1,5 +1,6 @@
 package cz.jkdabing.backend.dto.response;
 
+import cz.jkdabing.backend.dto.ProductBasicDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ProductAdminResponse extends ProductBasicResponse {
+public class ProductAdminDTO extends ProductBasicDTO {
 
     private AudioFileResponse example;
 

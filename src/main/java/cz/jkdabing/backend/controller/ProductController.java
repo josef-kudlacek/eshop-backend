@@ -1,8 +1,8 @@
 package cz.jkdabing.backend.controller;
 
+import cz.jkdabing.backend.dto.ProductBasicDTO;
 import cz.jkdabing.backend.dto.ProductDTO;
-import cz.jkdabing.backend.dto.response.ProductBasicResponse;
-import cz.jkdabing.backend.dto.response.ProductCustomerResponse;
+import cz.jkdabing.backend.dto.response.ProductCustomerDTO;
 import cz.jkdabing.backend.mapper.response.ProductResponseMapper;
 import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.ProductService;
@@ -33,13 +33,13 @@ public class ProductController extends AbstractBaseController {
     }
 
     @GetMapping
-    public List<ProductBasicResponse> getBasicProducts() {
+    public List<ProductBasicDTO> getBasicProducts() {
         List<ProductDTO> activeProducts = productService.getActiveProducts();
         return productResponseMapper.toProductBasicResponseList(activeProducts);
     }
 
     @GetMapping("/{productId}")
-    public ProductCustomerResponse getProduct(@PathVariable UUID productId) {
+    public ProductCustomerDTO getProduct(@PathVariable UUID productId) {
         ProductDTO productDTO = productService.getProduct(productId);
         return productResponseMapper.toProductCustomerResponse(productDTO);
     }

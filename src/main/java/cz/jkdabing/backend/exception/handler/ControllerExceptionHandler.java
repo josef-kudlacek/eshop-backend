@@ -77,7 +77,7 @@ public class ControllerExceptionHandler {
 
         Map<String, List<String>> errors = new HashMap<>();
         exception.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
+            String fieldName = (error instanceof FieldError) ? ((FieldError) error).getField() : error.getObjectName();
             String errorMessage = error.getDefaultMessage();
 
             errors.computeIfAbsent(fieldName, errorMessages -> new ArrayList<>())
@@ -175,12 +175,12 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorMessageResponse> handleAudioFileMultipartException(Exception exception, WebRequest webRequest) {
-        logger.warn("Multipart exception occurred: ", exception);
+    public ResponseEntity<ErrorMessageResponse> handleRequestNotReadable(Exception exception, WebRequest webRequest) {
+        logger.warn("Message not readable exception: ", exception);
 
         HttpStatus httpStatusBadRequest = HttpStatus.BAD_REQUEST;
 
-        String errorMessage = messageService.getMessage("error.audio.file.empty");
+        String errorMessage = messageService.getMessage("error.request.not.readable");
         ErrorMessageResponse errorMessageResponse = getErrorMessageResponse(
                 httpStatusBadRequest.value(), errorMessage, webRequest
         );

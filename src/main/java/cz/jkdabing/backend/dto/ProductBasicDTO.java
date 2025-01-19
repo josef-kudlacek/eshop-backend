@@ -1,5 +1,7 @@
-package cz.jkdabing.backend.dto.response;
+package cz.jkdabing.backend.dto;
 
+import cz.jkdabing.backend.dto.response.ImageResponse;
+import cz.jkdabing.backend.dto.response.ProductAuthorResponse;
 import cz.jkdabing.backend.util.PriceUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +16,7 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductBasicResponse {
+public class ProductBasicDTO {
 
     private UUID productId;
 
