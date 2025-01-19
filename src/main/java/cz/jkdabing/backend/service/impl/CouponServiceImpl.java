@@ -56,11 +56,13 @@ public class CouponServiceImpl extends AbstractService implements CouponService 
         CouponEntity couponEntity = couponMapper.toEntity(couponDTO);
         couponEntity.setUsageCount(0);
 
-        List<UUID> productIds = couponDTO.getApplicableProducts().stream()
-                .map(ProductBasicDTO::getProductId)
-                .toList();
-        List<ProductEntity> applicableProducts = productRepository.findAllById(productIds);
-        couponEntity.setApplicableProducts(applicableProducts);
+        if (couponDTO.getApplicableProducts() != null) {
+            List<UUID> productIds = couponDTO.getApplicableProducts().stream()
+                    .map(ProductBasicDTO::getProductId)
+                    .toList();
+            List<ProductEntity> applicableProducts = productRepository.findAllById(productIds);
+            couponEntity.setApplicableProducts(applicableProducts);
+        }
 
         couponRepository.save(couponEntity);
 
@@ -118,6 +120,28 @@ public class CouponServiceImpl extends AbstractService implements CouponService 
         );
 
         return couponMapper.toDTO(couponEntity);
+    }
+
+    @Override
+    public CouponEntity validateAndRetrieveCoupon(String couponCode) {
+        CouponEntity couponEntity = couponRepository.findByCode(couponCode)
+                .orElseThrow(() -> new NotFoundException(
+                        getLocalizedMessage("error.coupon.not.found", couponCode)
+                ));
+
+        if (!couponEntity.isActive()) {
+            throw new BadRequestException(getLocalizedMessage("error.coupon.not.active", couponCode));
+        }
+
+        if (couponEntity.getExpirationDate() != null && couponEntity.getExpirationDate().isBefore(LocalDate.now())) {
+            throw new BadRequestException(getLocalizedMessage("error.coupon.expired", couponCode));
+        }
+
+        if (couponEntity.getMaxUsageCount() != null && couponEntity.getUsageCount() >= couponEntity.getMaxUsageCount()) {
+            throw new BadRequestException(getLocalizedMessage("error.coupon.max.usage.reached", couponCode));
+        }
+
+        return couponEntity;
     }
 
     private CouponEntity findCouponByIdOrThrow(UUID couponId) {

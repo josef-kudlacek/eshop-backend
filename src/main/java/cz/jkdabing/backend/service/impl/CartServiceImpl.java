@@ -3,10 +3,8 @@ package cz.jkdabing.backend.service.impl;
 import cz.jkdabing.backend.constants.AuditLogConstants;
 import cz.jkdabing.backend.dto.CartDTO;
 import cz.jkdabing.backend.dto.CartItemDTO;
-import cz.jkdabing.backend.entity.CartEntity;
-import cz.jkdabing.backend.entity.CartItemEntity;
-import cz.jkdabing.backend.entity.CustomerEntity;
-import cz.jkdabing.backend.entity.ProductEntity;
+import cz.jkdabing.backend.dto.request.ApplyCouponRequest;
+import cz.jkdabing.backend.entity.*;
 import cz.jkdabing.backend.enums.CartStatusType;
 import cz.jkdabing.backend.exception.custom.BadRequestException;
 import cz.jkdabing.backend.exception.custom.NotFoundException;
@@ -42,6 +40,8 @@ public class CartServiceImpl extends AbstractService implements CartService {
 
     private final CartItemRepository cartItemRepository;
 
+    private final CouponService couponService;
+
     public CartServiceImpl(
             MessageService messageService,
             AuditService auditService,
@@ -50,7 +50,8 @@ public class CartServiceImpl extends AbstractService implements CartService {
             CartMapper cartMapper,
             CustomerRepository customerRepository,
             ProductService productService,
-            CartItemRepository cartItemRepository
+            CartItemRepository cartItemRepository,
+            CouponService couponService
     ) {
         super(messageService, auditService);
         this.cartRepository = cartRepository;
@@ -59,6 +60,7 @@ public class CartServiceImpl extends AbstractService implements CartService {
         this.customerRepository = customerRepository;
         this.productService = productService;
         this.cartItemRepository = cartItemRepository;
+        this.couponService = couponService;
     }
 
     @Override
@@ -147,6 +149,20 @@ public class CartServiceImpl extends AbstractService implements CartService {
         );
     }
 
+    @Override
+    public CartDTO applyCoupon(UUID customerId, UUID cartId, ApplyCouponRequest applyCouponRequest) {
+        CartEntity cartEntity = findCartByCartIdAndCustomerIdOrThrow(cartId, customerId);
+        CouponEntity couponEntity = couponService.validateAndRetrieveCoupon(applyCouponRequest.getCouponCode());
+
+        if (couponEntity.getApplicableProducts().isEmpty()) {
+            applyCouponToCart(cartId, cartEntity, couponEntity);
+        } else {
+            applyCouponToCartItems(cartEntity, couponEntity);
+        }
+
+        return cartMapper.toDTO(cartEntity);
+    }
+
     private CartEntity createCartForCustomer(UUID customerId, UUID cartId, ProductEntity productEntity) {
         CartEntity cartEntity;
         if (customerId == null) {
@@ -169,15 +185,18 @@ public class CartServiceImpl extends AbstractService implements CartService {
         return customerEntity;
     }
 
+    private CartEntity findCartByCartIdAndCustomerIdOrThrow(UUID cartId, UUID customerId) {
+        return cartRepository.findByCartIdAndStatusTypeAndCustomer_CustomerId(
+                        cartId, ACTIVE_CART_STATUSES, customerId
+                )
+                .orElseThrow(() -> new NotFoundException(getLocalizedMessage("error.cart.not.found", cartId)));
+    }
+
     private CartEntity checkOrCreateCart(UUID cartId, CustomerEntity customerEntity, ProductEntity productEntity) {
         CartEntity cartEntity;
         boolean isCartIdSent = cartId != null;
         if (isCartIdSent) {
-            cartEntity = cartRepository.findByCartIdAndStatusTypeAndCustomer_CustomerId(
-                            cartId, ACTIVE_CART_STATUSES, customerEntity.getCustomerId()
-                    )
-                    .orElseThrow(() -> new NotFoundException(getLocalizedMessage("error.cart.not.found", cartId)));
-
+            cartEntity = findCartByCartIdAndCustomerIdOrThrow(cartId, customerEntity.getCustomerId());
             checkProductAlreadyInCart(cartEntity, productEntity);
         } else {
             cartEntity = cartRepository.findByStatusTypeInAndCustomer_CustomerId(
@@ -228,5 +247,55 @@ public class CartServiceImpl extends AbstractService implements CartService {
         );
 
         return newCartEntity;
+    }
+
+    private void applyCouponToCart(UUID cartId, CartEntity cartEntity, CouponEntity couponEntity) {
+        if (couponEntity.equals(cartEntity.getCoupon())) {
+            throw new BadRequestException(getLocalizedMessage("error.coupon.already.applied", couponEntity.getCode()));
+        }
+
+        cartEntity.applyCoupon(couponEntity);
+        cartRepository.save(cartEntity);
+
+        prepareAuditLog(
+                TableNameUtil.getTableName(CartEntity.class),
+                cartId,
+                AuditLogConstants.COUPON_APPLIED
+        );
+    }
+
+    private void applyCouponToCartItems(CartEntity cartEntity, CouponEntity couponEntity) {
+        List<CartItemEntity> applicableCartItems = getApplicableCartItems(cartEntity, couponEntity);
+
+        if (applicableCartItems.isEmpty()) {
+            throw new BadRequestException(getLocalizedMessage("error.coupon.not.applicable", couponEntity.getCode()));
+        } else {
+            applicableCartItems.forEach(cartItemEntity -> cartItemEntity.applyCoupon(couponEntity));
+            cartItemRepository.saveAll(applicableCartItems);
+
+            prepareAuditLogForCartItems(applicableCartItems);
+        }
+    }
+
+    private static List<CartItemEntity> getApplicableCartItems(CartEntity cartEntity, CouponEntity couponEntity) {
+        return cartEntity.getCartItems().stream()
+                .filter(cartItemEntity -> couponEntity.getApplicableProducts().stream()
+                        .anyMatch(productEntity -> cartItemEntity.getProduct().equals(productEntity)
+                                && !couponEntity.equals(cartItemEntity.getCoupon())
+                        )
+                )
+                .toList();
+    }
+
+    private void prepareAuditLogForCartItems(List<CartItemEntity> applicableCartItems) {
+        List<UUID> cartItemIds = applicableCartItems.stream()
+                .map(CartItemEntity::getCartItemId)
+                .toList();
+
+        prepareAuditLogs(
+                TableNameUtil.getTableName(CartEntity.class),
+                cartItemIds,
+                AuditLogConstants.COUPON_APPLIED
+        );
     }
 }

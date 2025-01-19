@@ -1,6 +1,5 @@
 package cz.jkdabing.backend.dto.response;
 
-import cz.jkdabing.backend.entity.CouponEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,6 +30,6 @@ public class CartItemResponse {
 
     private BigDecimal cartItemVat;
 
-    private CouponEntity coupon;
+    private CouponResponse coupon;
 
 }

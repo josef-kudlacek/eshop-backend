@@ -27,4 +27,6 @@ public class CartDTO {
     private ZonedDateTime updatedAt;
 
     private List<CartItemDTO> cartItems;
+
+    private CouponDTO coupon;
 }
