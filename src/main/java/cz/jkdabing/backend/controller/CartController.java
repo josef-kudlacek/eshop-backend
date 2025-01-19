@@ -4,6 +4,7 @@ import cz.jkdabing.backend.constants.HttpHeaderConstants;
 import cz.jkdabing.backend.constants.JWTConstants;
 import cz.jkdabing.backend.dto.CartDTO;
 import cz.jkdabing.backend.dto.CartItemDTO;
+import cz.jkdabing.backend.dto.request.ApplyCouponRequest;
 import cz.jkdabing.backend.dto.request.UpdateCartItemQuantityRequest;
 import cz.jkdabing.backend.dto.response.CartResponse;
 import cz.jkdabing.backend.mapper.response.CartResponseMapper;
@@ -90,6 +91,17 @@ public class CartController extends AbstractBaseController {
     public void clearCart(@RequestHeader(value = "Authorization") String token, @PathVariable UUID cartId) {
         UUID customerId = getCustomerId(token);
         cartService.clearCart(customerId, cartId);
+    }
+
+    @PostMapping("/{cartId}/coupons")
+    public ResponseEntity<CartResponse> applyCoupon(
+            @RequestHeader(value = "Authorization") String token,
+            @PathVariable UUID cartId,
+            @Valid @RequestBody ApplyCouponRequest applyCouponRequest
+    ) {
+        UUID customerId = getCustomerId(token);
+        CartDTO cartDTO = cartService.applyCoupon(customerId, cartId, applyCouponRequest);
+        return ResponseEntity.ok(cartResponseMapper.toCartResponse(cartDTO));
     }
 
     private UUID getCustomerId(String token) {

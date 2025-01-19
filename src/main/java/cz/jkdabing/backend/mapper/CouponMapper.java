@@ -2,6 +2,7 @@ package cz.jkdabing.backend.mapper;
 
 import cz.jkdabing.backend.dto.CouponActivationDTO;
 import cz.jkdabing.backend.dto.CouponDTO;
+import cz.jkdabing.backend.dto.response.CouponResponse;
 import cz.jkdabing.backend.entity.CouponEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,4 +21,6 @@ public interface CouponMapper {
     List<CouponDTO> toDTOs(List<CouponEntity> couponEntities);
 
     void updateEntity(CouponActivationDTO couponActivationDTO, @MappingTarget CouponEntity couponEntity);
+
+    CouponResponse toResponse(CouponDTO couponDTO);
 }

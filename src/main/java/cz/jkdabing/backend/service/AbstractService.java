@@ -1,5 +1,6 @@
 package cz.jkdabing.backend.service;
 
+import java.util.List;
 import java.util.UUID;
 
 public abstract class AbstractService {
@@ -28,5 +29,9 @@ public abstract class AbstractService {
     protected void prepareAuditLog(String entityName, Long entityId, String action) {
         String uuid = String.format("00000000-0000-0000-0000-%012d", entityId);
         auditService.prepareAuditLog(entityName, UUID.fromString(uuid), action);
+    }
+
+    protected void prepareAuditLogs(String entityName, List<UUID> entityIds, String action) {
+        auditService.prepareAuditLogs(entityName, entityIds, action);
     }
 }

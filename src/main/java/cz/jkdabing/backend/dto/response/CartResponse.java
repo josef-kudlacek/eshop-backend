@@ -23,4 +23,5 @@ public class CartResponse {
 
     private List<CartItemResponse> cartItems;
 
+    private CouponResponse coupon;
 }
