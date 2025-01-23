@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.enums;
 
-public enum GenreType {
+public enum ProductGenreType {
     BIOGRAPHY,
     COMEDY,
     CRIME,
