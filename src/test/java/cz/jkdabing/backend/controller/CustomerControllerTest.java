@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.jkdabing.backend.BackendApplication;
 import cz.jkdabing.backend.TestFactory;
 import cz.jkdabing.backend.constant.CustomerTestConstants;
+import cz.jkdabing.backend.constants.HttpHeaderConstants;
+import cz.jkdabing.backend.constants.JWTConstants;
 import cz.jkdabing.backend.dto.CustomerDTO;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.CustomerService;
@@ -21,8 +23,7 @@ import java.util.UUID;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = BackendApplication.class)
 @AutoConfigureMockMvc
@@ -87,7 +88,8 @@ class CustomerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(customerJson))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value(token));
+                .andExpect(header().exists(HttpHeaderConstants.AUTHORIZATION))
+                .andExpect(header().string(HttpHeaderConstants.AUTHORIZATION, JWTConstants.BEARER + token));
 
         Mockito.verify(customerService, times(1))
                 .createCustomer(customerDTO);
