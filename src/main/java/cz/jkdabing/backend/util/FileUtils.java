@@ -8,7 +8,7 @@ public class FileUtils {
 
     private static final String[] IMAGE_EXTENSIONS = {"jpg", "jpeg", "png"};
 
-    private static final String[] FILE_EXTENSIONS = {"zip"};
+    private static final String[] COMPRESSED_EXTENSIONS = {"zip"};
 
     private FileUtils() {
     }
@@ -21,8 +21,8 @@ public class FileUtils {
         return isFileExtensionValid(fileName, IMAGE_EXTENSIONS);
     }
 
-    public static boolean isFileValid(String fileName) {
-        return isFileExtensionValid(fileName, FILE_EXTENSIONS);
+    public static boolean isCompressedFileValid(String fileName) {
+        return isFileExtensionValid(fileName, COMPRESSED_EXTENSIONS);
     }
 
     public static String getFileExtension(String fileName) {

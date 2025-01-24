@@ -67,10 +67,10 @@ public class CustomerEntity {
     @JoinColumn(name = "updated_by")
     private UserEntity updatedBy;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<AddressEntity> addresses = new ArrayList<>();
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<OrderEntity> orders = new ArrayList<>();
 
     @PrePersist

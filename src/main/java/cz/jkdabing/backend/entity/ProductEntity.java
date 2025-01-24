@@ -23,7 +23,7 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID productId;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product")
     private Set<ProductAuthorEntity> productAuthorSet = new HashSet<>();
 
     @Column(nullable = false)
@@ -43,7 +43,7 @@ public class ProductEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String productDescription;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product")
     private Set<ProductFormatEntity> formats = new HashSet<>();
 
     @Column(precision = 6, scale = 2, nullable = false)
@@ -61,10 +61,10 @@ public class ProductEntity {
     @JoinColumn(name = "example_audio")
     private AudioFileEntity example;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AudioFileEntity> audioFiles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FileEntity> files = new ArrayList<>();
 
     @ManyToMany(mappedBy = "applicableProducts")

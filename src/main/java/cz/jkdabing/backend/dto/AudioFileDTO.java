@@ -25,9 +25,8 @@ public class AudioFileDTO {
 
     private Integer trackNumber;
 
-    @NotNull
     @Getter(AccessLevel.NONE)
-    private Boolean isSample;
+    private boolean isSample;
 
     public boolean isSample() {
         return isSample;
