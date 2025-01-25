@@ -4,14 +4,13 @@ import cz.jkdabing.backend.constants.HttpHeaderConstants;
 import cz.jkdabing.backend.constants.JWTConstants;
 import cz.jkdabing.backend.dto.CartDTO;
 import cz.jkdabing.backend.dto.CartItemDTO;
-import cz.jkdabing.backend.dto.request.ApplyCouponRequest;
 import cz.jkdabing.backend.dto.request.UpdateCartItemQuantityRequest;
 import cz.jkdabing.backend.dto.response.CartResponse;
 import cz.jkdabing.backend.mapper.response.CartResponseMapper;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.CartService;
 import cz.jkdabing.backend.service.MessageService;
-import cz.jkdabing.backend.util.SecurityUtil;
+import cz.jkdabing.backend.service.SecurityService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,21 +28,25 @@ public class CartController extends AbstractBaseController {
 
     private final CartResponseMapper cartResponseMapper;
 
+    private final SecurityService securityService;
+
     public CartController(
             MessageService messageService,
             JwtTokenProvider jwtTokenProvider,
             CartService cartService,
-            CartResponseMapper cartResponseMapper
+            CartResponseMapper cartResponseMapper,
+            SecurityService securityService
     ) {
         super(messageService);
         this.jwtTokenProvider = jwtTokenProvider;
         this.cartService = cartService;
         this.cartResponseMapper = cartResponseMapper;
+        this.securityService = securityService;
     }
 
     @GetMapping
     public CartResponse getCart(@RequestHeader(value = "Authorization", required = false) String token) {
-        UUID customerId = getCustomerId(token);
+        UUID customerId = securityService.getCustomerId(token);
         CartDTO cartDTO = cartService.getCart(customerId);
         return cartResponseMapper.toCartResponse(cartDTO);
     }
@@ -53,7 +56,7 @@ public class CartController extends AbstractBaseController {
             @RequestHeader(value = "Authorization", required = false) String token,
             @Valid @RequestBody CartItemDTO cartItemDTO
     ) {
-        UUID customerId = getCustomerId(token);
+        UUID customerId = securityService.getCustomerId(token);
         CartDTO cartDTO = cartService.addItemToCart(customerId, cartItemDTO);
         CartResponse cartResponse = cartResponseMapper.toCartResponse(cartDTO);
 
@@ -71,7 +74,7 @@ public class CartController extends AbstractBaseController {
             @RequestHeader(value = "Authorization") String token,
             @PathVariable String cartItemId
     ) {
-        UUID customerId = getCustomerId(token);
+        UUID customerId = securityService.getCustomerId(token);
         cartService.removeItemFromCart(customerId, UUID.fromString(cartItemId));
     }
 
@@ -82,33 +85,15 @@ public class CartController extends AbstractBaseController {
             @PathVariable UUID cartItemId,
             @Valid @RequestBody UpdateCartItemQuantityRequest request
     ) {
-        UUID customerId = getCustomerId(token);
+        UUID customerId = securityService.getCustomerId(token);
         cartService.updateCartItemQuantity(customerId, cartId, cartItemId, request.getQuantity());
     }
 
     @DeleteMapping("/{cartId}/clear")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void clearCart(@RequestHeader(value = "Authorization") String token, @PathVariable UUID cartId) {
-        UUID customerId = getCustomerId(token);
+        UUID customerId = securityService.getCustomerId(token);
         cartService.clearCart(customerId, cartId);
     }
 
-    @PostMapping("/{cartId}/coupons")
-    public ResponseEntity<CartResponse> applyCoupon(
-            @RequestHeader(value = "Authorization") String token,
-            @PathVariable UUID cartId,
-            @Valid @RequestBody ApplyCouponRequest applyCouponRequest
-    ) {
-        UUID customerId = getCustomerId(token);
-        CartDTO cartDTO = cartService.applyCoupon(customerId, cartId, applyCouponRequest);
-        return ResponseEntity.ok(cartResponseMapper.toCartResponse(cartDTO));
-    }
-
-    private UUID getCustomerId(String token) {
-        String extractedToken = SecurityUtil.extractToken(token);
-        if (extractedToken == null) {
-            return null;
-        }
-        return UUID.fromString(jwtTokenProvider.getSubjectIdFromToken(extractedToken));
-    }
 }

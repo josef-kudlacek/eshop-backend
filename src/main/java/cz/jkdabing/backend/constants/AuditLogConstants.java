@@ -17,6 +17,7 @@ public class AuditLogConstants {
     public static final String TABLE_NAME_IMAGES = "images";
 
     public static final String COUPON_APPLIED = "coupon_applied";
+    public static final String COUPON_REMOVED = "coupon_removed";
 
     private AuditLogConstants() {
     }
