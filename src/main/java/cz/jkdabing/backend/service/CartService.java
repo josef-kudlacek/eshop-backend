@@ -2,7 +2,7 @@ package cz.jkdabing.backend.service;
 
 import cz.jkdabing.backend.dto.CartDTO;
 import cz.jkdabing.backend.dto.CartItemDTO;
-import cz.jkdabing.backend.dto.request.ApplyCouponRequest;
+import cz.jkdabing.backend.entity.CartEntity;
 
 import java.util.UUID;
 
@@ -18,5 +18,5 @@ public interface CartService {
 
     void clearCart(UUID customerId, UUID cartId);
 
-    CartDTO applyCoupon(UUID customerId, UUID cartId, ApplyCouponRequest applyCouponRequest);
+    CartEntity findCartByCartIdAndCustomerIdOrThrow(UUID cartId, UUID customerId);
 }
