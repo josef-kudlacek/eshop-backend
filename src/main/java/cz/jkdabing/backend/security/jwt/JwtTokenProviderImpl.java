@@ -5,6 +5,8 @@ import cz.jkdabing.backend.security.config.SecurityConfig;
 import cz.jkdabing.backend.util.ConversionClassUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -14,6 +16,8 @@ import java.util.Map;
 
 @Service
 public class JwtTokenProviderImpl implements JwtTokenProvider {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProviderImpl.class);
 
     private final SecurityConfig securityConfig;
 
@@ -45,6 +49,19 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
                 .claim(JWTConstants.USER_ID, userId)
                 .claim(JWTConstants.USERNAME, username)
                 .claim(JWTConstants.ROLES, roles)
+                .issuedAt(now)
+                .expiration(validity)
+                .signWith(ConversionClassUtil.convertStringToSecretKey(securityConfig.getSecretKey()))
+                .compact();
+    }
+
+    @Override
+    public String createPaymentToken(String customerId) {
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + securityConfig.getJwtPaymentExpiration());
+
+        return Jwts.builder()
+                .subject(customerId)
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(ConversionClassUtil.convertStringToSecretKey(securityConfig.getSecretKey()))
@@ -99,8 +116,8 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            logger.error("Failed to parse claims from token: {}", token, exception);
         }
 
         return claims;

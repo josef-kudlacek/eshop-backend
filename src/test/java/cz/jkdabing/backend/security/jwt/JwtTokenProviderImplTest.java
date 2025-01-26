@@ -33,7 +33,7 @@ class JwtTokenProviderImplTest {
         when(securityConfig.getSecretKey())
                 .thenReturn(CustomerTestConstants.ENCODED_SECRET_KEY);
 
-        UUID customerId = CustomerTestConstants.ID;
+        UUID customerId = CustomerTestConstants.CUSTOMER_ID_UUID;
         String token = jwtTokenProvider.createCustomerToken(customerId.toString());
 
         assertNotNull(token);

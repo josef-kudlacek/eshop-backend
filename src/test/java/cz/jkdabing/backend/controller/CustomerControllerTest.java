@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.jkdabing.backend.BackendApplication;
 import cz.jkdabing.backend.TestFactory;
 import cz.jkdabing.backend.constant.CustomerTestConstants;
+import cz.jkdabing.backend.constant.JwtTestConstants;
 import cz.jkdabing.backend.constants.HttpHeaderConstants;
 import cz.jkdabing.backend.constants.JWTConstants;
 import cz.jkdabing.backend.dto.CustomerDTO;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.CustomerService;
+import cz.jkdabing.backend.service.SecurityService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +31,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class CustomerControllerTest {
 
+    public static final String CUSTOMER_API_URL = "/api/customers";
+
     private final MockMvc mockMvc;
 
     private final ObjectMapper objectMapper;
 
     @MockitoBean
     private CustomerService customerService;
+
+    @MockitoBean
+    private SecurityService securityService;
 
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
@@ -46,15 +53,35 @@ class CustomerControllerTest {
     }
 
     @Test
+    void testRegisterCustomer_Unauthorized() throws Exception {
+        String token = JwtTestConstants.INVALID_JWT_TOKEN;
+        when(jwtTokenProvider.isTokenValid(token))
+                .thenReturn(false);
+
+        mockMvc.perform(post(CUSTOMER_API_URL)
+                        .header(HttpHeaderConstants.AUTHORIZATION, JWTConstants.BEARER + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void testRegisterCustomer_Errors() throws Exception {
+        String token = JwtTestConstants.VALID_JWT_TOKEN;
+
+        when(jwtTokenProvider.isTokenValid(token))
+                .thenReturn(true);
+
         CustomerDTO customerDTO = CustomerDTO.builder()
                 .build();
 
         String customerJson = objectMapper.writeValueAsString(customerDTO);
 
-        mockMvc.perform(post("/api/customers")
+        mockMvc.perform(post(CUSTOMER_API_URL)
+                        .header(HttpHeaderConstants.AUTHORIZATION, JWTConstants.BEARER + token)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(customerJson))
+                        .content(customerJson)
+                )
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.statusCode").value(400))
                 .andExpect(jsonPath("$.message").value("Validace se nezdařila"))
@@ -71,30 +98,47 @@ class CustomerControllerTest {
 
     @Test
     void testRegisterCustomer_Success() throws Exception {
-        UUID customerId = CustomerTestConstants.ID;
-        String token = CustomerTestConstants.TOKEN;
-
-        when(customerService.createCustomer(Mockito.any(CustomerDTO.class)))
-                .thenReturn(customerId);
-
-        when(jwtTokenProvider.createCustomerToken(customerId.toString()))
-                .thenReturn(token);
-
+        UUID customerIdUuid = CustomerTestConstants.CUSTOMER_ID_UUID;
+        String customerId = CustomerTestConstants.CUSTOMER_ID;
+        String customerJwtToken = JwtTestConstants.VALID_JWT_TOKEN;
+        String paymentJwtToken = CustomerTestConstants.TOKEN;
         CustomerDTO customerDTO = TestFactory.prepareCustomerDTO();
-
         String customerJson = objectMapper.writeValueAsString(customerDTO);
 
-        mockMvc.perform(post("/api/customers")
+        when(jwtTokenProvider.isTokenValid(customerJwtToken))
+                .thenReturn(true);
+
+        when(jwtTokenProvider.getSubjectIdFromToken(customerJwtToken))
+                .thenReturn(CustomerTestConstants.CUSTOMER_ID);
+
+        when(securityService.getCustomerId(JWTConstants.BEARER + customerJwtToken))
+                .thenReturn(customerIdUuid);
+
+        when(jwtTokenProvider.createPaymentToken(customerId))
+                .thenReturn(paymentJwtToken);
+
+        mockMvc.perform(post(CUSTOMER_API_URL)
+                        .header(HttpHeaderConstants.AUTHORIZATION, JWTConstants.BEARER + customerJwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(customerJson))
+                        .content(customerJson)
+                )
                 .andExpect(status().isOk())
                 .andExpect(header().exists(HttpHeaderConstants.AUTHORIZATION))
-                .andExpect(header().string(HttpHeaderConstants.AUTHORIZATION, JWTConstants.BEARER + token));
-
-        Mockito.verify(customerService, times(1))
-                .createCustomer(customerDTO);
+                .andExpect(header().string(HttpHeaderConstants.AUTHORIZATION, JWTConstants.BEARER + paymentJwtToken));
 
         Mockito.verify(jwtTokenProvider, times(1))
-                .createCustomerToken(customerId.toString());
+                .isTokenValid(customerJwtToken);
+
+        Mockito.verify(jwtTokenProvider, times(1))
+                .getSubjectIdFromToken(customerJwtToken);
+
+        Mockito.verify(securityService, times(1))
+                .getCustomerId(JWTConstants.BEARER + customerJwtToken);
+
+        Mockito.verify(customerService, times(1))
+                .createCustomer(customerDTO, customerIdUuid);
+
+        Mockito.verify(jwtTokenProvider, times(1))
+                .createPaymentToken(customerId);
     }
 }

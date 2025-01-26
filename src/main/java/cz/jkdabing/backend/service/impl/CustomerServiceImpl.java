@@ -43,7 +43,8 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     }
 
     @Override
-    public UUID createCustomer(@Valid CustomerDTO customerDTO) {
+    public void createCustomer(@Valid CustomerDTO customerDTO, UUID customerId) {
+        customerDTO.setCustomerId(customerId);
         CustomerEntity customerEntity = customerMapper.toEntity(customerDTO);
         customerRepository.saveAndFlush(customerEntity);
 
@@ -52,8 +53,6 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
                 customerEntity.getCustomerId(),
                 AuditLogConstants.ACTION_REGISTER
         );
-
-        return customerEntity.getCustomerId();
     }
 
     @Override

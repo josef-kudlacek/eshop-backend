@@ -2,7 +2,6 @@ package cz.jkdabing.backend.service.impl;
 
 import cz.jkdabing.backend.BackendApplication;
 import cz.jkdabing.backend.TestFactory;
-import cz.jkdabing.backend.constant.CustomerTestConstants;
 import cz.jkdabing.backend.dto.CustomerDTO;
 import cz.jkdabing.backend.entity.CustomerEntity;
 import cz.jkdabing.backend.mapper.CustomerMapper;
@@ -14,9 +13,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -43,9 +39,7 @@ class CustomerServiceImplTest {
         when(customerMapper.toEntity(customerDTO))
                 .thenReturn(customerEntity);
 
-        UUID customerId = customerService.createCustomer(customerDTO);
-
-        assertEquals(CustomerTestConstants.ID, customerId);
+        customerService.createCustomer(customerDTO, customerEntity.getCustomerId());
 
         Mockito.verify(customerMapper, times(1))
                 .toEntity(customerDTO);

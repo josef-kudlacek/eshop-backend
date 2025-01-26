@@ -23,11 +23,19 @@ public class SecurityConfig {
     @DurationUnit(ChronoUnit.HOURS)
     private Duration jwtUserExpiration;
 
+    @Value("${jwt.payment.expiration}")
+    @DurationUnit(ChronoUnit.MINUTES)
+    private Duration jwtPaymentExpiration;
+
     public long getJwtCustomerExpiration() {
         return jwtCustomerExpiration.toMillis();
     }
 
     public long getJwtUserExpiration() {
         return jwtUserExpiration.toMillis();
+    }
+
+    public long getJwtPaymentExpiration() {
+        return jwtPaymentExpiration.toMillis();
     }
 }

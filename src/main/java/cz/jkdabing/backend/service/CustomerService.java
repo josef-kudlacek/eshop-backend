@@ -10,7 +10,7 @@ public interface CustomerService {
 
     void createCustomer(UserEntity userEntity, CustomerDTO customerDTO);
 
-    UUID createCustomer(CustomerDTO customerDTO);
+    void createCustomer(CustomerDTO customerDTO, UUID customerId);
 
     CustomerEntity getCustomerByUserNameOrThrow(String username);
 }

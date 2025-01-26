@@ -9,7 +9,6 @@ public class ApiPathConstants {
 
     public static final String ADMIN = API_PATH + "/admin";
     public static final String CARTS = API_PATH + "/carts";
-    public static final String CUSTOMERS = API_PATH + "/customers";
     public static final String PRODUCTS = API_PATH + PRODUCT_PATH;
     public static final String USERS = API_PATH + "/users";
 

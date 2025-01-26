@@ -23,7 +23,7 @@ public class TestFactory {
 
     public static CustomerEntity prepareCustomerEntity() {
         return CustomerEntity.builder()
-                .customerId(CustomerTestConstants.ID)
+                .customerId(CustomerTestConstants.CUSTOMER_ID_UUID)
                 .firstName("Jmeno")
                 .lastName("Prijmeni")
                 .email("jmeno.prijmeni@email.com")
