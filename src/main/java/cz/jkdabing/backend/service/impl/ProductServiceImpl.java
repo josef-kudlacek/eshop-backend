@@ -45,15 +45,8 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
     @CacheEvict(value = "activeProducts", allEntries = true)
     public ProductDTO createProduct(@Valid ProductDTO productDTO) {
         ProductEntity productEntity = productMapper.toEntity(productDTO);
-        productRepository.save(productEntity);
 
-        prepareAuditLog(
-                TableNameUtil.getTableName(productEntity.getClass()),
-                productEntity.getProductId(),
-                AuditLogConstants.ACTION_CREATE
-        );
-
-        return productMapper.toDTO(productEntity);
+        return createProduct(productEntity);
     }
 
     @Override
@@ -70,18 +63,15 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
             @CacheEvict(value = "productDetails", key = "#productId")
     })
     public ProductDTO updateProduct(@NotEmpty UUID productId, @Valid ProductDTO productDTO) {
-        ProductEntity productEntity = findProductByIdOrThrow(productId);
-        productDTO.setProductId(productId);
-        productEntity = productMapper.updateEntity(productDTO, productEntity);
-        productRepository.save(productEntity);
+        ProductEntity productEntityOrigin = findProductByIdOrThrow(productId);
+        ProductEntity productEntityCopy = productEntityOrigin.copy();
 
-        prepareAuditLog(
-                TableNameUtil.getTableName(productEntity.getClass()),
-                productEntity.getProductId(),
-                AuditLogConstants.ACTION_UPDATE
-        );
+        productDTO.setProductId(null);
+        productMapper.updateEntity(productDTO, productEntityCopy);
+        ProductDTO productUpdatedResult = createProduct(productEntityCopy);
 
-        return productMapper.toDTO(productEntity);
+        deactivateProduct(productEntityOrigin);
+        return productUpdatedResult;
     }
 
     @Override
@@ -117,5 +107,28 @@ public class ProductServiceImpl extends AbstractService implements ProductServic
         List<ProductEntity> productEntities = productRepository.findActiveProducts(currentDateTime);
 
         return productMapper.toDTOList(productEntities);
+    }
+
+    private ProductDTO createProduct(ProductEntity productEntity) {
+        productRepository.save(productEntity);
+
+        prepareAuditLog(
+                TableNameUtil.getTableName(productEntity.getClass()),
+                productEntity.getProductId(),
+                AuditLogConstants.ACTION_CREATE
+        );
+
+        return productMapper.toDTO(productEntity);
+    }
+
+    private void deactivateProduct(ProductEntity productEntityOrigin) {
+        productEntityOrigin.setActive(false);
+        productRepository.save(productEntityOrigin);
+
+        prepareAuditLog(
+                TableNameUtil.getTableName(productEntityOrigin.getClass()),
+                productEntityOrigin.getProductId(),
+                AuditLogConstants.ACTION_DEACTIVATE
+        );
     }
 }

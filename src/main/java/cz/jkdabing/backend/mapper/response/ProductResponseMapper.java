@@ -5,6 +5,7 @@ import cz.jkdabing.backend.dto.ProductDTO;
 import cz.jkdabing.backend.dto.response.ProductAdminDTO;
 import cz.jkdabing.backend.dto.response.ProductCustomerDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 public interface ProductResponseMapper {
 
     @Named("toProductAdminResponse")
+    @Mapping(source = "active", target = "isActive")
     ProductAdminDTO toProductAdminResponse(ProductDTO productDTO);
 
     List<ProductBasicDTO> toProductBasicResponseList(List<ProductDTO> productDTOList);

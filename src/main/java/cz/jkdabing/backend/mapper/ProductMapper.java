@@ -24,7 +24,13 @@ public interface ProductMapper {
     @Mapping(source = "active", target = "isActive")
     ProductDTO toDTO(ProductEntity productEntity);
 
-    ProductEntity updateEntity(ProductDTO productDTO, @MappingTarget ProductEntity productEntity);
+    @Mapping(target = "productAuthorSet", ignore = true)
+    @Mapping(target = "formats", ignore = true)
+    @Mapping(target = "genres", ignore = true)
+    @Mapping(target = "audioFiles", ignore = true)
+    @Mapping(target = "files", ignore = true)
+    @Mapping(target = "coupons", ignore = true)
+    void updateEntity(ProductDTO productDTO, @MappingTarget ProductEntity productEntity);
 
     List<ProductDTO> toDTOList(List<ProductEntity> productEntities);
 }
