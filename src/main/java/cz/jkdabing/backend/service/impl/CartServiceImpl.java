@@ -72,6 +72,8 @@ public class CartServiceImpl extends AbstractService implements CartService {
         CartItemEntity cartItemEntity = cartItemMapper.toEntity(cartItemDTO);
         cartItemEntity.setProduct(productEntity);
         cartItemEntity.setCart(cartEntity);
+        cartItemEntity.setCartItemPrice(productEntity.getPrice());
+        cartItemEntity.setCartItemVat(productEntity.getVat());
 
         cartEntity.addCartItem(cartItemEntity);
 

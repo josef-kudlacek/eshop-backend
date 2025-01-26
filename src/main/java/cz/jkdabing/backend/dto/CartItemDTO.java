@@ -21,11 +21,9 @@ public class CartItemDTO {
 
     private UUID cartItemId;
 
-    @NotNull
     @DecimalMin(value = "0.0")
     private BigDecimal cartItemPrice;
 
-    @NotNull
     @DecimalMin(value = "0.0")
     private BigDecimal cartItemVat;
 
