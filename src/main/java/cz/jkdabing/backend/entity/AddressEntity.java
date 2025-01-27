@@ -1,8 +1,12 @@
 package cz.jkdabing.backend.entity;
 
+import cz.jkdabing.backend.enums.AddressType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.TimeZoneStorage;
+import org.hibernate.annotations.TimeZoneStorageType;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Entity
@@ -30,11 +34,28 @@ public class AddressEntity {
     @Column(nullable = false)
     private String country;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AddressType addressType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private CustomerEntity customer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private OrderEntity order;
+    @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
+    @Column(nullable = false)
+    private ZonedDateTime createdAt;
+
+    @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
+    private ZonedDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = ZonedDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = ZonedDateTime.now();
+    }
 }

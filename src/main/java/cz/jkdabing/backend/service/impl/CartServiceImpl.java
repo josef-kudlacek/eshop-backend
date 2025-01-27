@@ -1,6 +1,7 @@
 package cz.jkdabing.backend.service.impl;
 
 import cz.jkdabing.backend.constants.AuditLogConstants;
+import cz.jkdabing.backend.constants.CustomerConstants;
 import cz.jkdabing.backend.dto.CartDTO;
 import cz.jkdabing.backend.dto.CartItemDTO;
 import cz.jkdabing.backend.entity.CartEntity;
@@ -19,6 +20,7 @@ import cz.jkdabing.backend.service.*;
 import cz.jkdabing.backend.util.TableNameUtil;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -157,6 +159,27 @@ public class CartServiceImpl extends AbstractService implements CartService {
                 .orElseThrow(() -> new NotFoundException(getLocalizedMessage("error.cart.not.found", cartId)));
     }
 
+    @Override
+    public CartEntity findCartByCustomerIdOrThrow(UUID customerId) {
+        return cartRepository.findByStatusTypeInAndCustomer_CustomerId(
+                        ACTIVE_CART_STATUSES, customerId
+                )
+                .orElseThrow(() -> new NotFoundException(getLocalizedMessage("error.customer.cart.not.found")));
+    }
+
+    @Override
+    public void orderCart(CartEntity cartEntity) {
+        cartEntity.setStatusType(CartStatusType.ORDERED);
+        cartEntity.setUpdatedAt(ZonedDateTime.now());
+        cartRepository.save(cartEntity);
+
+        prepareAuditLog(
+                TableNameUtil.getTableName(CartEntity.class),
+                cartEntity.getCartId(),
+                AuditLogConstants.ACTION_UPDATE
+        );
+    }
+
     private CartEntity createCartForCustomer(UUID customerId, UUID cartId, ProductEntity productEntity) {
         CartEntity cartEntity;
         if (customerId == null) {
@@ -172,7 +195,7 @@ public class CartServiceImpl extends AbstractService implements CartService {
 
     private CustomerEntity createGuestCustomer() {
         CustomerEntity customerEntity = CustomerEntity.builder()
-                .lastName("Guest")
+                .lastName(CustomerConstants.GUEST_NAME)
                 .build();
 
         customerRepository.save(customerEntity);

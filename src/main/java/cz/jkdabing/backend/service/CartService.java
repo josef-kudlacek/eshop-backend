@@ -19,4 +19,8 @@ public interface CartService {
     void clearCart(UUID customerId, UUID cartId);
 
     CartEntity findCartByCartIdAndCustomerIdOrThrow(UUID cartId, UUID customerId);
+
+    CartEntity findCartByCustomerIdOrThrow(UUID customerId);
+
+    void orderCart(CartEntity cartEntity);
 }

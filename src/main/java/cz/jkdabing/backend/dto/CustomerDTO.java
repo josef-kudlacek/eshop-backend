@@ -1,9 +1,12 @@
 package cz.jkdabing.backend.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -25,15 +28,7 @@ public class CustomerDTO {
 
     private String phoneNumber;
 
-    @NotBlank(message = "{error.customer.street.empty}")
-    private String street;
-
-    @NotBlank(message = "{error.customer.city.empty}")
-    private String city;
-
-    @NotBlank(message = "{error.customer.postal.code.empty}")
-    private String postalCode;
-
-    @NotBlank(message = "{error.customer.country.empty}")
-    private String country;
+    @Valid
+    @NotEmpty(message = "{error.customer.address.empty}")
+    private List<AddressDTO> addresses;
 }

@@ -49,6 +49,10 @@ public class OrderEntity {
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     private ZonedDateTime shipmentDate;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id")
+    private CouponEntity coupon;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 }

@@ -48,11 +48,4 @@ public class OrderItemEntity {
     @OneToMany(mappedBy = "orderItem")
     private List<UserAccessEntity> userAccessList = new ArrayList<>();
 
-    public void applyCoupon(CouponEntity coupon) {
-        this.coupon = coupon;
-    }
-
-    public void removeCoupon() {
-        this.coupon = null;
-    }
 }

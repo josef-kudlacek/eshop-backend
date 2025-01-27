@@ -1,9 +1,11 @@
 package cz.jkdabing.backend.service.impl;
 
 import cz.jkdabing.backend.constants.AuditLogConstants;
+import cz.jkdabing.backend.constants.CustomerConstants;
 import cz.jkdabing.backend.dto.CustomerDTO;
 import cz.jkdabing.backend.entity.CustomerEntity;
 import cz.jkdabing.backend.entity.UserEntity;
+import cz.jkdabing.backend.exception.custom.BadRequestException;
 import cz.jkdabing.backend.mapper.CustomerMapper;
 import cz.jkdabing.backend.repository.CustomerRepository;
 import cz.jkdabing.backend.service.AbstractService;
@@ -44,8 +46,15 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
 
     @Override
     public void createCustomer(@Valid CustomerDTO customerDTO, UUID customerId) {
-        customerDTO.setCustomerId(customerId);
-        CustomerEntity customerEntity = customerMapper.toEntity(customerDTO);
+        CustomerEntity customerEntity = findCustomerByCustomerIdOrThrow(customerId);
+        if (!CustomerConstants.GUEST_NAME.equals(customerEntity.getLastName())) {
+            throw new BadRequestException(getLocalizedMessage("error.customer.already.filled.billing.info"));
+        }
+
+        customerMapper.updateEntity(customerDTO, customerEntity);
+        customerEntity.getAddresses().forEach(
+                addressEntity -> addressEntity.setCustomer(customerEntity)
+        );
         customerRepository.saveAndFlush(customerEntity);
 
         prepareAuditLog(
@@ -58,6 +67,14 @@ public class CustomerServiceImpl extends AbstractService implements CustomerServ
     @Override
     public CustomerEntity getCustomerByUserNameOrThrow(String username) {
         return customerRepository.findCustomerByUser_username(username)
+                .orElseThrow(() -> new NoSuchElementException(
+                                getLocalizedMessage("error.customer.not.found")
+                        )
+                );
+    }
+
+    private CustomerEntity findCustomerByCustomerIdOrThrow(UUID customerId) {
+        return customerRepository.findById(customerId)
                 .orElseThrow(() -> new NoSuchElementException(
                                 getLocalizedMessage("error.customer.not.found")
                         )
