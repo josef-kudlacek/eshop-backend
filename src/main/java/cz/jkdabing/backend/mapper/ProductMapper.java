@@ -9,7 +9,10 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(
         componentModel = "spring",
-        uses = {AuthorMapper.class, ProductAuthorMapper.class, ProductFormatMapper.class, ProductGenreMapper.class}
+        uses = {
+                AuthorMapper.class, ProductAuthorMapper.class, ProductFormatMapper.class, ProductGenreMapper.class,
+                AudioFileMapper.class, ImageMapper.class
+        }
 )
 public interface ProductMapper {
 
@@ -18,6 +21,7 @@ public interface ProductMapper {
     ProductDTO toDTO(ProductEntity productEntity);
 
     @Mapping(source = "productAuthorSet", target = "authors")
+    @Mapping(source = "example", target = "example")
     ProductDetailDTO toDetailDTO(ProductEntity productEntity);
 
     ProductEntity updateEntity(ProductDTO productDTO, @MappingTarget ProductEntity productEntity);
