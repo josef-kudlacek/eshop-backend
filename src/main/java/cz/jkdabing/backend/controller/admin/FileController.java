@@ -1,6 +1,7 @@
-package cz.jkdabing.backend.controller;
+package cz.jkdabing.backend.controller.admin;
 
 import cz.jkdabing.backend.constants.FileConstants;
+import cz.jkdabing.backend.controller.AbstractBaseController;
 import cz.jkdabing.backend.dto.FileDTO;
 import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.enums.FileType;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/files")
+@RequestMapping("/api/admin/files")
 public class FileController extends AbstractBaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);

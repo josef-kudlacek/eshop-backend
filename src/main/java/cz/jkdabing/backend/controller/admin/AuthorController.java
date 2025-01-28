@@ -1,5 +1,6 @@
-package cz.jkdabing.backend.controller;
+package cz.jkdabing.backend.controller.admin;
 
+import cz.jkdabing.backend.controller.AbstractBaseController;
 import cz.jkdabing.backend.dto.AuthorDTO;
 import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.service.AuthorService;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/authors")
+@RequestMapping("/api/admin/authors")
 public class AuthorController extends AbstractBaseController {
 
     private final AuthorService authorService;
