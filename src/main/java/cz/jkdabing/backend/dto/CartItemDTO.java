@@ -40,4 +40,6 @@ public class CartItemDTO {
     private String productType;
 
     private ImageResponse image;
+
+    private CouponDTO coupon;
 }

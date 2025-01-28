@@ -42,12 +42,24 @@ public class CartEntity {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CartItemEntity> cartItems;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id")
+    private CouponEntity coupon;
+
     public void addCartItem(CartItemEntity cartItemEntity) {
         if (cartItems == null) {
             cartItems = new ArrayList<>();
         }
 
         cartItems.add(cartItemEntity);
+    }
+
+    public void applyCoupon(CouponEntity coupon) {
+        this.coupon = coupon;
+    }
+
+    public void removeCoupon() {
+        this.coupon = null;
     }
 
     @PrePersist

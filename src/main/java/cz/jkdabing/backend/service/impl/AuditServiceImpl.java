@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -38,16 +39,47 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
+    public void prepareAuditLogs(String entityName, List<UUID> entityIds, String action) {
+        UserEntity currentUser = service.getCurrentUser();
+
+        auditService.createAuditLogs(ZonedDateTime.now(), currentUser, entityName, entityIds, action);
+    }
+
+    @Override
     @Async
     @Transactional
-    public void createAuditLog(ZonedDateTime loggedAt, UserEntity user, String entityName, UUID entityId, String action) {
-        AuditLogEntity auditLogEntity = new AuditLogEntity();
-        auditLogEntity.setLoggedAt(loggedAt);
-        auditLogEntity.setUser(user);
-        auditLogEntity.setTableName(entityName);
-        auditLogEntity.setEntityId(entityId);
-        auditLogEntity.setAction(action);
+    public void createAuditLog(
+            @NotNull ZonedDateTime loggedAt,
+            UserEntity user,
+            @NotEmpty String entityName,
+            @NotNull UUID entityId,
+            @NotEmpty String action
+    ) {
+        AuditLogEntity auditLogEntity = AuditLogEntity.builder()
+                .loggedAt(loggedAt)
+                .user(user)
+                .tableName(entityName)
+                .entityId(entityId)
+                .action(action)
+                .build();
 
         auditLogRepository.save(auditLogEntity);
+    }
+
+    @Override
+    @Async
+    @Transactional
+    public void createAuditLogs(ZonedDateTime loggedAt, UserEntity user, String entityName, List<UUID> entityIds, String action) {
+        List<AuditLogEntity> auditLogEntities = entityIds.stream()
+                .map(entityId -> AuditLogEntity.builder()
+                        .loggedAt(loggedAt)
+                        .user(user)
+                        .tableName(entityName)
+                        .entityId(entityId)
+                        .action(action)
+                        .build())
+                .toList();
+
+        auditLogRepository.saveAll(auditLogEntities);
     }
 }

@@ -147,6 +147,14 @@ public class CartServiceImpl extends AbstractService implements CartService {
         );
     }
 
+    @Override
+    public CartEntity findCartByCartIdAndCustomerIdOrThrow(UUID cartId, UUID customerId) {
+        return cartRepository.findByCartIdAndStatusTypeAndCustomer_CustomerId(
+                        cartId, ACTIVE_CART_STATUSES, customerId
+                )
+                .orElseThrow(() -> new NotFoundException(getLocalizedMessage("error.cart.not.found", cartId)));
+    }
+
     private CartEntity createCartForCustomer(UUID customerId, UUID cartId, ProductEntity productEntity) {
         CartEntity cartEntity;
         if (customerId == null) {
@@ -173,11 +181,7 @@ public class CartServiceImpl extends AbstractService implements CartService {
         CartEntity cartEntity;
         boolean isCartIdSent = cartId != null;
         if (isCartIdSent) {
-            cartEntity = cartRepository.findByCartIdAndStatusTypeAndCustomer_CustomerId(
-                            cartId, ACTIVE_CART_STATUSES, customerEntity.getCustomerId()
-                    )
-                    .orElseThrow(() -> new NotFoundException(getLocalizedMessage("error.cart.not.found", cartId)));
-
+            cartEntity = findCartByCartIdAndCustomerIdOrThrow(cartId, customerEntity.getCustomerId());
             checkProductAlreadyInCart(cartEntity, productEntity);
         } else {
             cartEntity = cartRepository.findByStatusTypeInAndCustomer_CustomerId(
@@ -229,4 +233,5 @@ public class CartServiceImpl extends AbstractService implements CartService {
 
         return newCartEntity;
     }
+
 }

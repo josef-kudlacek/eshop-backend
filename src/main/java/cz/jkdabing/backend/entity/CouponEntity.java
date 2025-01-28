@@ -2,13 +2,13 @@ package cz.jkdabing.backend.entity;
 
 import cz.jkdabing.backend.enums.DiscountType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.TimeZoneStorage;
 import org.hibernate.annotations.TimeZoneStorageType;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +30,8 @@ public class CouponEntity {
     @Column(nullable = false)
     private String code;
 
+    private String description;
+
     @Column(nullable = false)
     private BigDecimal discountValue;
 
@@ -40,17 +42,15 @@ public class CouponEntity {
     @ManyToMany
     @JoinTable(
             name = "product_coupon",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "coupon_id")
+            joinColumns = @JoinColumn(name = "coupon_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     private List<ProductEntity> applicableProducts;
 
-    private boolean isActive = false;
+    private boolean isActive;
 
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
-    private ZonedDateTime expirationDate;
-
-    private String email;
+    private LocalDate expirationDate;
 
     private Integer maxUsageCount;
 
@@ -60,15 +60,16 @@ public class CouponEntity {
     @Column(nullable = false)
     private ZonedDateTime createdAt;
 
-    @OneToOne
-    @JoinColumn(name = "created_by")
-    @NotNull
-    private UserEntity createdBy;
-
     @TimeZoneStorage(TimeZoneStorageType.NORMALIZE)
     private ZonedDateTime updatedAt;
 
-    @OneToOne
-    @JoinColumn(name = "updated_by")
-    private UserEntity updatedBy;
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = ZonedDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = ZonedDateTime.now();
+    }
 }

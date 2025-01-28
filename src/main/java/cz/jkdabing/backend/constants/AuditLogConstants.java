@@ -4,6 +4,7 @@ public class AuditLogConstants {
 
     public static final String ACTION_REGISTER = "register";
     public static final String ACTION_ACTIVATE = "activate";
+    public static final String ACTION_DEACTIVATE = "deactivate";
 
     public static final String ACTION_CREATE = "create";
     public static final String ACTION_UPDATE = "update";
@@ -14,6 +15,9 @@ public class AuditLogConstants {
     public static final String ACTION_REMOVE = "remove";
 
     public static final String TABLE_NAME_IMAGES = "images";
+
+    public static final String COUPON_APPLIED = "coupon_applied";
+    public static final String COUPON_REMOVED = "coupon_removed";
 
     private AuditLogConstants() {
     }

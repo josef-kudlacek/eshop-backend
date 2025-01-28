@@ -2,6 +2,7 @@ package cz.jkdabing.backend.service;
 
 import cz.jkdabing.backend.dto.CartDTO;
 import cz.jkdabing.backend.dto.CartItemDTO;
+import cz.jkdabing.backend.entity.CartEntity;
 
 import java.util.UUID;
 
@@ -16,4 +17,6 @@ public interface CartService {
     void updateCartItemQuantity(UUID customerId, UUID cartId, UUID cartItemId, int quantity);
 
     void clearCart(UUID customerId, UUID cartId);
+
+    CartEntity findCartByCartIdAndCustomerIdOrThrow(UUID cartId, UUID customerId);
 }
