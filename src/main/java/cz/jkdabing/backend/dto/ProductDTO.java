@@ -1,30 +1,20 @@
 package cz.jkdabing.backend.dto;
 
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDTO {
-
-    private UUID productId;
-
-    @NotBlank(message = "{error.product.name}")
-    private String productName;
-
-    @NotBlank(message = "{error.product.type}")
-    private String productType;
+@EqualsAndHashCode(callSuper = true)
+public class ProductDTO extends ProductBaseDTO {
 
     @NotBlank(message = "{error.product.description}")
     private String productDescription;
@@ -35,11 +25,4 @@ public class ProductDTO {
 
     private boolean isActive;
 
-    @NotNull
-    @DecimalMin(value = "0.0")
-    private BigDecimal price;
-
-    @NotNull
-    @DecimalMin(value = "0.0")
-    private BigDecimal vat;
 }
