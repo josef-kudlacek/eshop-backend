@@ -19,7 +19,7 @@ public class ProductGenreEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ProductGenreType genreType;
+    private ProductGenreType productGenreType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
