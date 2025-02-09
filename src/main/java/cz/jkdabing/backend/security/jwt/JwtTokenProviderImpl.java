@@ -28,7 +28,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     @Override
     public String createCustomerToken(String customerId) {
         Date now = new Date();
-        Date validity = new Date(now.getTime() + securityConfig.getJwtCustomerExpiration());
+        Date validity = new Date(now.getTime() + securityConfig.getJwtCustomerAccessTokenExpiration());
 
         return Jwts.builder()
                 .subject(customerId)
@@ -41,26 +41,13 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     @Override
     public String createUserToken(int tokenVersion, String customerId, String userId, String username, List<String> roles) {
         Date now = new Date();
-        Date validity = new Date(now.getTime() + securityConfig.getJwtUserExpiration());
+        Date validity = new Date(now.getTime() + securityConfig.getJwtUserAccessTokenExpiration());
 
         return Jwts.builder()
                 .subject(customerId)
                 .claim(JWTConstants.TOKEN_VERSION, tokenVersion)
                 .claim(JWTConstants.USER_ID, userId)
                 .claim(JWTConstants.ROLES, roles)
-                .issuedAt(now)
-                .expiration(validity)
-                .signWith(ConversionClassUtil.convertStringToSecretKey(securityConfig.getSecretKey()))
-                .compact();
-    }
-
-    @Override
-    public String createPaymentToken(String customerId) {
-        Date now = new Date();
-        Date validity = new Date(now.getTime() + securityConfig.getJwtPaymentExpiration());
-
-        return Jwts.builder()
-                .subject(customerId)
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(ConversionClassUtil.convertStringToSecretKey(securityConfig.getSecretKey()))
@@ -92,7 +79,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
     }
 
     @Override
-    public Map<String, Object> getUserDetailsFromToken(String token) {
+    public Map<String, Object> getUserClaimsFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         if (claims.get(JWTConstants.ROLES) != null) {
             return Map.of(

@@ -5,7 +5,6 @@ import cz.jkdabing.backend.service.OrderService;
 import cz.jkdabing.backend.service.SecurityService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,8 +29,8 @@ public class OrderController extends AbstractBaseController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createOrder(@RequestHeader(value = "Authorization", required = false) String token) {
-        UUID customerId = securityService.getCustomerId(token);
+    public ResponseEntity<Void> createOrder() {
+        UUID customerId = securityService.getCurrentCustomerId();
         orderService.createOrder(customerId);
 
         return ResponseEntity.ok().build();

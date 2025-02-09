@@ -28,7 +28,7 @@ class JwtTokenProviderImplTest {
 
     @Test
     void testGenerateToken() {
-        when(securityConfig.getJwtCustomerExpiration())
+        when(securityConfig.getJwtCustomerAccessTokenExpiration())
                 .thenReturn(6000L);
         when(securityConfig.getSecretKey())
                 .thenReturn(CustomerTestConstants.ENCODED_SECRET_KEY);

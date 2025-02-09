@@ -43,6 +43,9 @@ public class UserEntity implements UserDetails {
 
     private int tokenVersion = 0;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private CustomerEntity customer;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
@@ -52,7 +55,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.username;
+        return this.customer.getCustomerId().toString();
     }
 
     @Override

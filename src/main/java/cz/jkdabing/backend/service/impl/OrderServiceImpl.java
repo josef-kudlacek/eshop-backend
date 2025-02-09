@@ -40,6 +40,10 @@ public class OrderServiceImpl extends AbstractService implements OrderService {
     @Override
     @Transactional
     public void createOrder(UUID customerId) {
+        if (customerId == null) {
+            throw new BadRequestException(getLocalizedMessage("error.customer.not.found"));
+        }
+
         CartEntity cartEntity = cartService.findCartByCustomerIdOrThrow(customerId);
         if (CustomerConstants.GUEST_NAME.equals(cartEntity.getCustomer().getLastName())) {
             throw new BadRequestException(getLocalizedMessage("error.customer.without.billing.info"));

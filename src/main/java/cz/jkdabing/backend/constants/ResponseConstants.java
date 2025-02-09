@@ -2,6 +2,8 @@ package cz.jkdabing.backend.constants;
 
 public class ResponseConstants {
 
+    public static final String COOKIE_ACCESS_TOKEN = "access_token";
+
     public static final String ERROR_MESSAGE_ACCESS_DENIED = "error.access.denied";
 
     public static final String CHARACTER_ENCODING_UTF_8 = "UTF-8";

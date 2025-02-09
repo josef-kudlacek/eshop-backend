@@ -1,8 +1,11 @@
 package cz.jkdabing.backend.security;
 
 import cz.jkdabing.backend.BackendApplication;
+import cz.jkdabing.backend.TestFactory;
 import cz.jkdabing.backend.constant.CustomerTestConstants;
+import cz.jkdabing.backend.constant.JwtTestConstants;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,7 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = BackendApplication.class)
@@ -40,12 +42,14 @@ class JwtTokenFilterTest {
 
     @Test
     void testInvalidToken() throws Exception {
-        when(jwtTokenProvider.isTokenValid(anyString()))
+        String invalidJwtToken = JwtTestConstants.INVALID_JWT_TOKEN;
+        when(jwtTokenProvider.isTokenValid(invalidJwtToken))
                 .thenReturn(false);
 
+        Cookie cookie = TestFactory.prepareCookie(JwtTestConstants.COOKIE_ACCESS_TOKEN, invalidJwtToken, JwtTestConstants.EXPIRATION_TIME);
+
         mockMvc.perform(get("/api/")
-                        .header("Authorization", "Bearer invalidToken"))
-                .andDo(print())
+                        .cookie(cookie))
                 .andExpect(status().isUnauthorized());
     }
 }

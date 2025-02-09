@@ -1,33 +1,33 @@
 package cz.jkdabing.backend.controller;
 
-import cz.jkdabing.backend.constants.HttpHeaderConstants;
 import cz.jkdabing.backend.dto.CustomerDTO;
-import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
+import cz.jkdabing.backend.dto.response.MessageResponse;
 import cz.jkdabing.backend.service.CustomerService;
+import cz.jkdabing.backend.service.MessageService;
 import cz.jkdabing.backend.service.SecurityService;
-import cz.jkdabing.backend.util.SecurityUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/customers")
-public class CustomerController {
-
-    private final JwtTokenProvider jwtTokenProvider;
+public class CustomerController extends AbstractBaseController {
 
     private final CustomerService customerService;
 
     private final SecurityService securityService;
 
     public CustomerController(
-            JwtTokenProvider jwtTokenProvider,
+            MessageService messageService,
             CustomerService customerService,
             SecurityService securityService
     ) {
-        this.jwtTokenProvider = jwtTokenProvider;
+        super(messageService);
         this.customerService = customerService;
         this.securityService = securityService;
     }
@@ -35,22 +35,15 @@ public class CustomerController {
     /**
      * Register a new customer billing information.
      *
-     * @param token represents the customer JWT token
      * @param customerDTO represents the customer data for billing information
-     *
-     * @return the new payment JWT token in the response header
+     * @return the new payment JWT token in the response cookie
      */
     @PostMapping
-    public ResponseEntity<Void> register(
-            @RequestHeader(value = HttpHeaderConstants.AUTHORIZATION) String token,
-            @Valid @RequestBody CustomerDTO customerDTO
-    ) {
-        UUID customerId = securityService.getCustomerId(token);
+    public ResponseEntity<MessageResponse> register(@Valid @RequestBody CustomerDTO customerDTO) {
+        UUID customerId = securityService.getCurrentCustomerId();
         customerService.createCustomer(customerDTO, customerId);
-        token = jwtTokenProvider.createPaymentToken(customerId.toString());
 
         return ResponseEntity.ok()
-                .header(HttpHeaderConstants.AUTHORIZATION, SecurityUtil.addBearerPrefix(token))
-                .build();
+                .body(new MessageResponse(getLocalizedMessage("customer.billing.info.success")));
     }
 }

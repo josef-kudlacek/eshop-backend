@@ -37,32 +37,27 @@ public class CartCouponController extends AbstractBaseController {
 
     @PostMapping("/{cartId}")
     public ResponseEntity<CartResponse> applyCoupon(
-            @RequestHeader(value = "Authorization") String token,
             @PathVariable UUID cartId,
             @Valid @RequestBody ApplyCouponRequest applyCouponRequest
     ) {
-        UUID customerId = securityService.getCustomerId(token);
+        UUID customerId = securityService.getCurrentCustomerId();
         CartDTO cartDTO = cartCouponService.applyCoupon(customerId, cartId, applyCouponRequest);
         return ResponseEntity.ok(cartResponseMapper.toCartResponse(cartDTO));
     }
 
     @DeleteMapping("/{cartId}")
-    public ResponseEntity<CartResponse> removeCouponFromCart(
-            @RequestHeader(value = "Authorization") String token,
-            @PathVariable UUID cartId
-    ) {
-        UUID customerId = securityService.getCustomerId(token);
+    public ResponseEntity<CartResponse> removeCouponFromCart(@PathVariable UUID cartId) {
+        UUID customerId = securityService.getCurrentCustomerId();
         CartDTO cartDTO = cartCouponService.removeCouponFromCart(cartId, customerId);
         return ResponseEntity.ok(cartResponseMapper.toCartResponse(cartDTO));
     }
 
     @DeleteMapping("/{cartId}/items/{itemId}")
     public ResponseEntity<CartResponse> removeCouponFromCartItem(
-            @RequestHeader(value = "Authorization") String token,
             @PathVariable UUID cartId,
             @PathVariable UUID itemId
     ) {
-        UUID customerId = securityService.getCustomerId(token);
+        UUID customerId = securityService.getCurrentCustomerId();
         CartDTO cartDTO = cartCouponService.removeCouponFromCartItem(cartId, itemId, customerId);
         return ResponseEntity.ok(cartResponseMapper.toCartResponse(cartDTO));
     }

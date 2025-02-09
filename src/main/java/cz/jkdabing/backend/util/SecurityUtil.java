@@ -1,6 +1,10 @@
 package cz.jkdabing.backend.util;
 
+import cz.jkdabing.backend.constants.ApiPathConstants;
 import cz.jkdabing.backend.constants.JWTConstants;
+import cz.jkdabing.backend.entity.UserEntity;
+import cz.jkdabing.backend.security.CustomerDetails;
+import jakarta.servlet.http.Cookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -9,10 +13,19 @@ public class SecurityUtil {
     private SecurityUtil() {
     }
 
-    public static String getCurrentUserPrincipal() {
+    public static UserEntity getCurrentUserPrincipal() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof String principal) {
-            return principal;
+        if (authentication != null && authentication.getPrincipal() instanceof UserEntity userEntity) {
+            return userEntity;
+        }
+
+        return null;
+    }
+
+    public static CustomerDetails getCurrentCustomerPrincipal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof CustomerDetails customerDetails) {
+            return customerDetails;
         }
 
         return null;
@@ -25,7 +38,12 @@ public class SecurityUtil {
         return null;
     }
 
-    public static String addBearerPrefix(String token) {
-        return JWTConstants.BEARER + token;
+    public static Cookie createCookie(String name, String value, int maxAge) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setPath(ApiPathConstants.API_PATH);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(maxAge);
+        cookie.setSecure(true);
+        return cookie;
     }
 }

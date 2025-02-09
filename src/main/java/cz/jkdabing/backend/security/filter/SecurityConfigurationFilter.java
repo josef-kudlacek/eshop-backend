@@ -1,6 +1,6 @@
 package cz.jkdabing.backend.security.filter;
 
-import cz.jkdabing.backend.repository.UserRepository;
+import cz.jkdabing.backend.security.CustomUserDetailsService;
 import cz.jkdabing.backend.security.CustomerDetailsService;
 import cz.jkdabing.backend.security.handler.CustomAuthenticationEntryPoint;
 import cz.jkdabing.backend.security.jwt.JwtTokenFilter;
@@ -35,7 +35,7 @@ public class SecurityConfigurationFilter {
 
     private final CustomerDetailsService customerDetailsService;
 
-    private final UserRepository userRepository;
+    private final CustomUserDetailsService customUserDetailsService;
 
     private final MessageService messageService;
 
@@ -44,13 +44,13 @@ public class SecurityConfigurationFilter {
     public SecurityConfigurationFilter(
             JwtTokenProvider jwtTokenProvider,
             CustomerDetailsService customerDetailsService,
-            UserRepository userRepository,
+            CustomUserDetailsService customUserDetailsService,
             MessageService messageService,
             CustomAuthenticationEntryPoint customAuthenticationEntryPoint
     ) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.customerDetailsService = customerDetailsService;
-        this.userRepository = userRepository;
+        this.customUserDetailsService = customUserDetailsService;
         this.messageService = messageService;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
@@ -68,7 +68,7 @@ public class SecurityConfigurationFilter {
                 )
                 .logout(LogoutConfigurer::permitAll)
                 .addFilterBefore(
-                        new JwtTokenFilter(jwtTokenProvider, customerDetailsService, userRepository, messageService),
+                        new JwtTokenFilter(jwtTokenProvider, customerDetailsService, customUserDetailsService, messageService),
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .exceptionHandling(authentication -> authentication

@@ -11,4 +11,6 @@ public interface SecurityService {
     void logoutUser();
 
     UUID getCustomerId(String token);
+
+    UUID getCurrentCustomerId();
 }

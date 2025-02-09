@@ -2,18 +2,16 @@ package cz.jkdabing.backend.service.impl;
 
 import cz.jkdabing.backend.entity.UserEntity;
 import cz.jkdabing.backend.repository.UserRepository;
+import cz.jkdabing.backend.security.CustomerDetails;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.SecurityService;
 import cz.jkdabing.backend.util.SecurityUtil;
-import jakarta.validation.constraints.NotEmpty;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 public class SecurityServiceImpl implements SecurityService {
-
-    private static final String ANONYMOUS_USER = "anonymousUser";
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -26,25 +24,21 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public UserEntity getCurrentUser() {
-        String currentUserName = SecurityUtil.getCurrentUserPrincipal();
-        if (currentUserName == null || currentUserName.equals(ANONYMOUS_USER)) {
+        UserEntity userEntity = SecurityUtil.getCurrentUserPrincipal();
+        if (userEntity == null) {
             return null;
         }
 
-        return handleFindUserByUsername(currentUserName);
+        return userEntity;
     }
 
     @Override
     public void logoutUser() {
-        String currentUsername = SecurityUtil.getCurrentUserPrincipal();
-        if (currentUsername == null || currentUsername.equals(ANONYMOUS_USER)) {
-            return;
-        }
+        UserEntity userEntity = getCurrentUser();
 
-        UserEntity user = handleFindUserByUsername(currentUsername);
-        if (user != null) {
-            user.setTokenVersion(user.getTokenVersion() + 1);
-            userRepository.save(user);
+        if (userEntity != null) {
+            userEntity.setTokenVersion(userEntity.getTokenVersion() + 1);
+            userRepository.save(userEntity);
         }
     }
 
@@ -57,8 +51,20 @@ public class SecurityServiceImpl implements SecurityService {
         return UUID.fromString(jwtTokenProvider.getSubjectIdFromToken(extractedToken));
     }
 
-    private UserEntity handleFindUserByUsername(@NotEmpty String username) {
-        return userRepository.findByUsername(username)
-                .orElse(null);
+    @Override
+    public UUID getCurrentCustomerId() {
+        if (getCurrentUser() == null) {
+            CustomerDetails customerDetails = getCurrentCustomerDetails();
+            if (customerDetails == null) {
+                return null;
+            }
+            return UUID.fromString(customerDetails.getUsername());
+        }
+
+        return getCurrentUser().getCustomer().getCustomerId();
+    }
+
+    private CustomerDetails getCurrentCustomerDetails() {
+        return SecurityUtil.getCurrentCustomerPrincipal();
     }
 }

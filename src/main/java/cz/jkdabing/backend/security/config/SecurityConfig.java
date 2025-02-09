@@ -15,27 +15,27 @@ public class SecurityConfig {
     @Getter
     private String secretKey;
 
-    @Value("${jwt.customer.expiration}")
-    @DurationUnit(ChronoUnit.DAYS)
-    private Duration jwtCustomerExpiration;
-
-    @Value("${jwt.user.expiration}")
+    @Value("${jwt.customer.access.token.expiration}")
     @DurationUnit(ChronoUnit.HOURS)
-    private Duration jwtUserExpiration;
+    private Duration jwtCustomerAccessTokenExpiration;
 
-    @Value("${jwt.payment.expiration}")
+    @Value("${jwt.user.access.token.expiration}")
     @DurationUnit(ChronoUnit.MINUTES)
-    private Duration jwtPaymentExpiration;
+    private Duration jwtUserAccessTokenExpiration;
 
-    public long getJwtCustomerExpiration() {
-        return jwtCustomerExpiration.toMillis();
+    public long getJwtCustomerAccessTokenExpiration() {
+        return jwtCustomerAccessTokenExpiration.toMillis();
     }
 
-    public long getJwtUserExpiration() {
-        return jwtUserExpiration.toMillis();
+    public long getJwtUserAccessTokenExpiration() {
+        return jwtUserAccessTokenExpiration.toMillis();
     }
 
-    public long getJwtPaymentExpiration() {
-        return jwtPaymentExpiration.toMillis();
+    public int getUserAccessTokenExpirationSeconds() {
+        return (int) jwtUserAccessTokenExpiration.toSeconds();
+    }
+
+    public int getCustomerAccessTokenExpirationSeconds() {
+        return (int) jwtCustomerAccessTokenExpiration.toSeconds();
     }
 }

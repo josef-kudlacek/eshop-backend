@@ -5,12 +5,11 @@ import cz.jkdabing.backend.BackendApplication;
 import cz.jkdabing.backend.TestFactory;
 import cz.jkdabing.backend.constant.CustomerTestConstants;
 import cz.jkdabing.backend.constant.JwtTestConstants;
-import cz.jkdabing.backend.constants.HttpHeaderConstants;
-import cz.jkdabing.backend.constants.JWTConstants;
 import cz.jkdabing.backend.dto.CustomerDTO;
 import cz.jkdabing.backend.security.jwt.JwtTokenProvider;
 import cz.jkdabing.backend.service.CustomerService;
 import cz.jkdabing.backend.service.SecurityService;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,8 @@ import java.util.UUID;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = BackendApplication.class)
 @AutoConfigureMockMvc
@@ -58,8 +58,10 @@ class CustomerControllerTest {
         when(jwtTokenProvider.isTokenValid(token))
                 .thenReturn(false);
 
+        Cookie cookie = TestFactory.prepareCookie(JwtTestConstants.COOKIE_ACCESS_TOKEN, token, JwtTestConstants.EXPIRATION_TIME);
+
         mockMvc.perform(post(CUSTOMER_API_URL)
-                        .header(HttpHeaderConstants.AUTHORIZATION, JWTConstants.BEARER + token)
+                        .cookie(cookie)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isUnauthorized());
@@ -72,13 +74,15 @@ class CustomerControllerTest {
         when(jwtTokenProvider.isTokenValid(token))
                 .thenReturn(true);
 
+        Cookie cookie = TestFactory.prepareCookie(JwtTestConstants.COOKIE_ACCESS_TOKEN, token, JwtTestConstants.EXPIRATION_TIME);
+
         CustomerDTO customerDTO = CustomerDTO.builder()
                 .build();
 
         String customerJson = objectMapper.writeValueAsString(customerDTO);
 
         mockMvc.perform(post(CUSTOMER_API_URL)
-                        .header(HttpHeaderConstants.AUTHORIZATION, JWTConstants.BEARER + token)
+                        .cookie(cookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(customerJson)
                 )
@@ -87,10 +91,7 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.message").value("Validace se nezdařila"))
                 .andExpect(jsonPath("$.errors.lastName").value("Příjmení nesmí být prázdné"))
                 .andExpect(jsonPath("$.errors.firstName").value("Křestní jméno nesmí být prázdné"))
-                .andExpect(jsonPath("$.errors.country").value("Název státu musí být vyplněn"))
-                .andExpect(jsonPath("$.errors.city").value("Název města musí být vyplněn"))
-                .andExpect(jsonPath("$.errors.street").value("Název ulice musí být vyplněn"))
-                .andExpect(jsonPath("$.errors.postalCode").value("PSČ nesmí být prázdné"))
+                .andExpect(jsonPath("$.errors.addresses").value("Adresa nesmí být prázdná"))
                 .andExpect(jsonPath("$.errors.email").value("E-mail nesmí být prázdný"))
                 .andExpect(jsonPath("$.description").value("uri=/api/customers"))
                 .andExpect(jsonPath("$.timestamp").exists());
@@ -99,11 +100,11 @@ class CustomerControllerTest {
     @Test
     void testRegisterCustomer_Success() throws Exception {
         UUID customerIdUuid = CustomerTestConstants.CUSTOMER_ID_UUID;
-        String customerId = CustomerTestConstants.CUSTOMER_ID;
         String customerJwtToken = JwtTestConstants.VALID_JWT_TOKEN;
-        String paymentJwtToken = CustomerTestConstants.TOKEN;
         CustomerDTO customerDTO = TestFactory.prepareCustomerDTO();
         String customerJson = objectMapper.writeValueAsString(customerDTO);
+
+        Cookie cookie = TestFactory.prepareCookie(JwtTestConstants.COOKIE_ACCESS_TOKEN, customerJwtToken, JwtTestConstants.EXPIRATION_TIME);
 
         when(jwtTokenProvider.isTokenValid(customerJwtToken))
                 .thenReturn(true);
@@ -111,20 +112,15 @@ class CustomerControllerTest {
         when(jwtTokenProvider.getSubjectIdFromToken(customerJwtToken))
                 .thenReturn(CustomerTestConstants.CUSTOMER_ID);
 
-        when(securityService.getCustomerId(JWTConstants.BEARER + customerJwtToken))
+        when(securityService.getCurrentCustomerId())
                 .thenReturn(customerIdUuid);
 
-        when(jwtTokenProvider.createPaymentToken(customerId))
-                .thenReturn(paymentJwtToken);
-
         mockMvc.perform(post(CUSTOMER_API_URL)
-                        .header(HttpHeaderConstants.AUTHORIZATION, JWTConstants.BEARER + customerJwtToken)
+                        .cookie(cookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(customerJson)
                 )
-                .andExpect(status().isOk())
-                .andExpect(header().exists(HttpHeaderConstants.AUTHORIZATION))
-                .andExpect(header().string(HttpHeaderConstants.AUTHORIZATION, JWTConstants.BEARER + paymentJwtToken));
+                .andExpect(status().isOk());
 
         Mockito.verify(jwtTokenProvider, times(1))
                 .isTokenValid(customerJwtToken);
@@ -133,12 +129,9 @@ class CustomerControllerTest {
                 .getSubjectIdFromToken(customerJwtToken);
 
         Mockito.verify(securityService, times(1))
-                .getCustomerId(JWTConstants.BEARER + customerJwtToken);
+                .getCurrentCustomerId();
 
         Mockito.verify(customerService, times(1))
                 .createCustomer(customerDTO, customerIdUuid);
-
-        Mockito.verify(jwtTokenProvider, times(1))
-                .createPaymentToken(customerId);
     }
 }

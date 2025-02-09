@@ -19,6 +19,7 @@ import cz.jkdabing.backend.repository.CustomerRepository;
 import cz.jkdabing.backend.service.*;
 import cz.jkdabing.backend.util.TableNameUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -104,6 +105,7 @@ public class CartServiceImpl extends AbstractService implements CartService {
     }
 
     @Override
+    @Transactional
     public void removeItemFromCart(UUID customerId, UUID cartItemId) {
         if (customerId == null) {
             throw new BadRequestException(getLocalizedMessage("error.customer.not.found"));
@@ -111,11 +113,26 @@ public class CartServiceImpl extends AbstractService implements CartService {
 
         CartItemEntity cartItemEntity = cartItemRepository.findByCartItemIdAndCart_Customer_CustomerId(cartItemId, customerId)
                 .orElseThrow(() -> new NotFoundException(getLocalizedMessage("error.cart.item.not.found")));
+        CartEntity cartEntity = cartItemEntity.getCart();
+
         cartItemRepository.delete(cartItemEntity);
+
+        cartEntity.removeCartItem(cartItemEntity);
+        cartRepository.save(cartEntity);
 
         prepareAuditLog(
                 TableNameUtil.getTableName(CartItemEntity.class),
                 cartItemId,
+                AuditLogConstants.ACTION_REMOVE
+        );
+
+        if (cartEntity.getCartItems().isEmpty()) {
+            cartRepository.delete(cartItemEntity.getCart());
+        }
+
+        prepareAuditLog(
+                TableNameUtil.getTableName(CartEntity.class),
+                cartEntity.getCartId(),
                 AuditLogConstants.ACTION_REMOVE
         );
     }

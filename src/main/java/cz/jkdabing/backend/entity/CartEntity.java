@@ -54,12 +54,14 @@ public class CartEntity {
         cartItems.add(cartItemEntity);
     }
 
-    public void applyCoupon(CouponEntity coupon) {
-        this.coupon = coupon;
+    public void removeCartItem(CartItemEntity cartItemEntity) {
+        if (cartItems != null && !cartItems.isEmpty() && cartItems.contains(cartItemEntity)) {
+            cartItems.remove(cartItemEntity);
+        }
     }
 
-    public void removeCoupon() {
-        this.coupon = null;
+    public void applyCoupon(CouponEntity coupon) {
+        this.coupon = coupon;
     }
 
     @PrePersist
