@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public class JwtTokenFilter extends OncePerRequestFilter {
 
@@ -97,8 +98,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private void handleUserToken(HttpServletRequest request, Map<String, Object> userDetails) {
         int tokenVersion = (int) userDetails.get(JWTConstants.TOKEN_VERSION);
-        String userName = (String) userDetails.get(JWTConstants.USERNAME);
-        Optional<UserEntity> user = userRepository.findByUsername(userName);
+        UUID userId = UUID.fromString((String) userDetails.get(JWTConstants.USER_ID));
+        Optional<UserEntity> user = userRepository.findById(userId);
         if (user.isEmpty() || tokenVersion != user.get().getTokenVersion()) {
             throw new InvalidJwtAuthenticationException(messageService.getMessage(JWTConstants.INVALID_TOKEN_MESSAGE));
         }
@@ -110,7 +111,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                     .toList();
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    userName,
+                    userId,
                     null,
                     roles.stream()
                             .map(SimpleGrantedAuthority::new)

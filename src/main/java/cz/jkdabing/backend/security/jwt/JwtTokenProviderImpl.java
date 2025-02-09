@@ -47,7 +47,6 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
                 .subject(customerId)
                 .claim(JWTConstants.TOKEN_VERSION, tokenVersion)
                 .claim(JWTConstants.USER_ID, userId)
-                .claim(JWTConstants.USERNAME, username)
                 .claim(JWTConstants.ROLES, roles)
                 .issuedAt(now)
                 .expiration(validity)
@@ -99,7 +98,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
             return Map.of(
                     JWTConstants.ROLES, claims.get(JWTConstants.ROLES),
                     JWTConstants.TOKEN_VERSION, claims.get(JWTConstants.TOKEN_VERSION),
-                    JWTConstants.USERNAME, claims.get(JWTConstants.USERNAME)
+                    JWTConstants.USER_ID, claims.get(JWTConstants.USER_ID)
             );
         }
 
